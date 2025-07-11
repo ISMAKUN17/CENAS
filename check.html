@@ -1,659 +1,545 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gestión de Reservas</title>
-<style>
-  /* Estilos básicos para validación y modales */
-  .availability-info { margin-top: 0.5em; font-weight: 600; }
-  .available { color: green; }
-  .limited { color: orange; }
-  .full { color: red; }
-  .error-message { color: red; font-size: 0.9em; margin-top: 0.2em; }
-  .reservation-item { padding: 6px 10px; border-bottom: 1px solid #ddd; }
-  .archived { opacity: 0.6; font-style: italic; }
-  /* Modales básicos omitidos por brevedad */
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - Restaurante Xcaret</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007BFF; /* Azul vibrante */
+            --secondary-color: #6C757D; /* Gris medio */
+            --success-color: #28A745; /* Verde */
+            --danger-color: #DC3545; /* Rojo */
+            --warning-color: #FFC107; /* Amarillo */
+            --info-color: #17A2B8; /* Azul claro */
+            --dark-color: #343A40; /* Negro casi */
+            --light-color: #F8F9FA; /* Blanco grisáceo */
+            --white-color: #FFFFFF; /* Blanco puro */
+            --border-color: #DEE2E6; /* Gris de borde */
+            --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.1);
+            --border-radius-sm: 0.25rem;
+            --border-radius-md: 0.5rem;
+            --transition-speed: 0.3s;
+            --font-family: 'Poppins', sans-serif;
+            --text-color: var(--dark-color);
+        }
+
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--white-color);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-medium);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            box-shadow: var(--shadow-light);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: var(--white-color);
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-info {
+            background-color: var(--info-color);
+            color: var(--white-color);
+        }
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        section {
+            background-color: var(--white-color);
+            padding: 25px 30px;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-light);
+        }
+
+        section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="time"],
+        select,
+        textarea {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 12px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 1em;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            background-color: var(--white-color);
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .reservations-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .reservations-list li {
+            background-color: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 10px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.95em;
+            box-shadow: var(--shadow-light);
+        }
+
+        .reservations-list li strong {
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        .reservations-list li span {
+            flex-grow: 1; /* Permite que el texto ocupe espacio */
+        }
+
+        .loading-message, .no-reservations {
+            text-align: center;
+            font-style: italic;
+            color: var(--secondary-color);
+            padding: 20px;
+            font-size: 1.1em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+                gap: 25px;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .btn {
+                width: 100%; /* Full width buttons on small screens */
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .form-group-full {
+                grid-column: span 1;
+            }
+            .reservations-list li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .reservations-list li span {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            section h2 {
+                font-size: 1.4em;
+            }
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.85em;
+            }
+            input[type="text"], input[type="number"], input[type="time"], select, textarea {
+                padding: 10px 8px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header class="header">
+            <h1>Reservas de Restaurante Xcaret</h1>
+            <a href="admin.html" class="btn btn-info">Panel de Administración</a>
+        </header>
 
-<h1>Gestión de Reservas</h1>
+        <section class="add-reservation-section">
+            <h2>Hacer una Nueva Reserva</h2>
+            <form id="reservationForm" class="form-grid">
+                <div class="form-group">
+                    <label for="room">Número de Habitación:</label>
+                    <input type="number" id="room" placeholder="Ej. 1234" min="1000" max="9999" required>
+                </div>
+                <div class="form-group">
+                    <label for="guest">Su Nombre:</label>
+                    <input type="text" id="guest" placeholder="Ej. Ana García" required>
+                </div>
+                <div class="form-group">
+                    <label for="place">Restaurante:</label>
+                    <select id="place" required>
+                        <option value="">Seleccione un restaurante</option>
+                        <option value="El Patio">El Patio</option>
+                        <option value="Bluewater">Bluewater</option>
+                        <option value="Bordeaux">Bordeaux</option>
+                        <option value="Himitsu">Himitsu</option>
+                        <option value="Hibachi">Hibachi</option>
+                        <option value="El Olio">El Olio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="time">Hora de Reserva:</label>
+                    <input type="time" id="time" required>
+                </div>
+                <div class="form-group">
+                    <label for="pax">Cantidad de Personas:</label>
+                    <input type="number" id="pax" min="1" value="1" required>
+                </div>
+                <div class="form-group form-group-full">
+                    <label for="comment">Comentario (Opcional):</label>
+                    <textarea id="comment" rows="3" placeholder="Alergias, peticiones especiales, etc."></textarea>
+                </div>
+                <div class="form-group form-group-full">
+                    <button type="submit" class="btn btn-primary">Confirmar Reserva</button>
+                </div>
+            </form>
+        </section>
 
-<!-- Formulario de reserva -->
-<form id="reservationForm">
-  <div class="form-group">
-    <label for="room">Habitación (4 dígitos):</label>
-    <input type="number" id="room" required />
-  </div>
+        <section class="current-reservations-section">
+            <h2 id="reservationsHeader">Reservas para Hoy: <span id="todayDate"></span></h2>
+            <div class="reservations-list">
+                <ul id="reservationsList">
+                    </ul>
+                <p id="loadingMessage" class="loading-message">Cargando reservas...</p>
+                <p id="noReservationsMessage" class="no-reservations" style="display:none;">No hay reservas para hoy.</p>
+            </div>
+        </section>
+    </div>
 
-  <div class="form-group">
-    <label for="guest">Nombre del huésped:</label>
-    <input type="text" id="guest" required />
-  </div>
+    <script type="module">
+        // Importar las funciones que necesitas de los SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        // Importante: Asegúrate de importar getDatabase y las funciones necesarias para la base de datos
+        import { getDatabase, ref, push, set, onValue, remove, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  <div class="form-group">
-    <label for="place">Restaurante:</label>
-    <select id="place" required>
-      <option value="">Seleccione...</option>
-      <option>El Patio</option>
-      <option>Bluewater</option>
-      <option>Bordeaux</option>
-      <option>Himitsu</option>
-      <option>Hibachi</option>
-      <option>El Olio</option>
-    </select>
-  </div>
+        // Tu configuración de Firebase (DEBE SER LA MISMA QUE EN admin.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyALR-b68phh_u92V3rw9B9Ei7FcexU2xc8",
+            authDomain: "proyectos17-98695.firebaseapp.com",
+            projectId: "proyectos17-98695",
+            storageBucket: "proyectos17-98695.firebasestorage.app",
+            messagingSenderId: "951673973410",
+            appId: "1:951673973410:web:4bc355e825cf86308645fb",
+            measurementId: "G-6YK06W16FZ"
+        };
 
-  <div class="form-group">
-    <label for="time">Hora:</label>
-    <select id="time" disabled required>
-      <option value="">Seleccione un restaurante primero</option>
-    </select>
-  </div>
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-  <div class="form-group">
-    <label for="pax">Cantidad de Personas:</label>
-    <input type="number" id="pax" min="1" value="1" required />
-    <div id="paxError" class="error-message"></div>
-  </div>
+        // Opcional: Agrega un console.log para verificar si la base de datos se inicializó
+        console.log("Firebase Database initialized:", database);
 
-  <div class="form-group">
-    <label for="comment">Comentario:</label>
-    <textarea id="comment"></textarea>
-  </div>
+        document.addEventListener('DOMContentLoaded', () => {
+            const reservationForm = document.getElementById('reservationForm');
+            const reservationsList = document.getElementById('reservationsList');
+            const todayDateSpan = document.getElementById('todayDate');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const noReservationsMessage = document.getElementById('noReservationsMessage');
 
-  <button type="submit" id="submitReservationBtn">Registrar Reserva</button>
-  <p id="operatingHoursMessage" style="color:red; display:none;">Solo se aceptan reservas de 7:00 AM a 4:30 PM</p>
-</form>
+            // --- Funciones de Utilidad de Fecha y Hora ---
 
-<button id="addReservationBtn">Agregar Reserva</button>
-<button id="viewSummaryBtn">Ver Resumen</button>
-<button id="viewArchiveBtn">Ver Archivo</button>
+            function getTodayDateString() {
+                const today = new Date();
+                // Formatear a YYYY-MM-DD para que coincida con la estructura de Firebase
+                // Asegurar que la fecha sea en la zona horaria de Punta Cana (GMT-4) si es necesario.
+                // Para simplificar y asegurar que coincida con el lado del admin, usaremos ISOString y slice.
+                // Para una precisión total de zona horaria local sin complicar, se puede crear una fecha 'local':
+                const year = today.getFullYear();
+                const month = (today.getMonth() + 1).toString().padStart(2, '0');
+                const day = today.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
 
-<!-- Buscador reservas día -->
-<div>
-  <label for="reservationSearch">Buscar Reserva:</label>
-  <input type="text" id="reservationSearch" placeholder="Buscar por habitación, huésped, restaurante, hora" />
-</div>
+            function getFormattedDate(dateString) {
+                if (!dateString) return 'Fecha desconocida';
+                try {
+                    // Añadir 'T12:00:00' para evitar problemas de zona horaria con fechas ISO al crear la Date object.
+                    const date = new Date(dateString + 'T12:00:00');
+                    if (isNaN(date.getTime())) {
+                        return dateString;
+                    }
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    return date.toLocaleDateString('es-ES', options);
+                } catch (e) {
+                    console.error("Error formatting date:", dateString, e);
+                    return dateString;
+                }
+            }
 
-<!-- Lista reservas día -->
-<div id="reservationList"></div>
-<p id="noReservationsMessage" style="display:none; font-style: italic;"></p>
+            function convertTo12HourFormat(time24h) {
+                if (!time24h) return '';
+                const [hours, minutes] = time24h.split(':');
+                const hour = parseInt(hours, 10);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const displayHour = hour % 12 || 12; // 0 becomes 12 for 12 AM/PM
+                return `${displayHour}:${minutes} ${ampm}`;
+            }
 
-<!-- Historial por habitación -->
-<section>
-  <h2>Historial por Habitación</h2>
-  <input type="number" id="roomHistorySearch" placeholder="Número de habitación 4 dígitos" />
-  <div id="roomHistoryResults" style="margin-top: 10px;"></div>
-</section>
+            // --- Lógica de la Aplicación ---
 
-<!-- Modal Validación Nombre -->
-<div id="validationModal" style="display:none;">
-  <div>
-    <h3>Validar Reserva</h3>
-    <label for="validatorNameInput">Nombre quien registra:</label>
-    <input type="text" id="validatorNameInput" />
-    <button id="confirmValidationBtn">Confirmar</button>
-    <button id="cancelValidationBtn">Cancelar</button>
-  </div>
-</div>
+            const today = getTodayDateString();
+            todayDateSpan.textContent = getFormattedDate(today);
 
-<!-- Modal Resumen -->
-<div id="summaryModal" style="display:none;">
-  <h3 id="summaryTitle"></h3>
-  <div id="summaryContent" style="max-height: 400px; overflow-y: auto;"></div>
-  <p id="overallPaxTotal"></p>
-  <button id="closeSummaryBtn">Cerrar</button>
-</div>
+            // Listener para el formulario de reservas
+            reservationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-<!-- Modal Archivo -->
-<div id="archiveModal" style="display:none;">
-  <h3 id="archiveTitle">Reservas Archivadas</h3>
-  <input type="text" id="archiveSearch" placeholder="Buscar en archivo..." />
-  <div id="archiveListContent" style="max-height: 400px; overflow-y: auto;"></div>
-  <p id="noArchivedReservationsMessage" style="display:none; font-style: italic;"></p>
-  <button id="closeArchiveBtn">Cerrar</button>
-</div>
+                const room = document.getElementById('room').value;
+                const guest = document.getElementById('guest').value;
+                const place = document.getElementById('place').value;
+                const time = document.getElementById('time').value;
+                const pax = parseInt(document.getElementById('pax').value, 10);
+                const comment = document.getElementById('comment').value;
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, onValue, get, runTransaction, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+                // Validación simple de entrada
+                if (!room || !guest || !place || !time || !pax) {
+                    alert('Por favor, complete todos los campos obligatorios.');
+                    return;
+                }
+                // Validar que el número de habitación sea de 4 dígitos
+                if (room.length !== 4 || isNaN(room) || parseInt(room, 10) < 1000 || parseInt(room, 10) > 9999) {
+                    alert('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).');
+                    return;
+                }
 
-  // Config Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyALR-b68phh_u92V3rw9B9Ei7FcexU2xc8",
-    authDomain: "proyectos17-98695.firebaseapp.com",
-    projectId: "proyectos17-98695",
-    storageBucket: "proyectos17-98695.firebasestorage.app",
-    messagingSenderId: "951673973410",
-    appId: "1:951673973410:web:4bc355e825cf86308645fb",
-    measurementId: "G-6YK06W16FZ"
-  };
+                // Obtener el timestamp actual para ordenar y como ID único
+                const timestamp = new Date().getTime();
 
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
+                const newReservation = {
+                    room: room,
+                    guest: guest,
+                    place: place,
+                    time: time,
+                    pax: pax,
+                    comment: comment,
+                    validator: 'Web User', // Indicador de que fue agregada por el usuario web
+                    timestamp: timestamp,
+                    date: today // La fecha de hoy
+                };
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Referencias DOM
-    const addReservationBtn = document.getElementById('addReservationBtn');
-    const viewSummaryBtn = document.getElementById('viewSummaryBtn');
-    const viewArchiveBtn = document.getElementById('viewArchiveBtn');
-    const reservationForm = document.getElementById('reservationForm');
-    const placeSelect = document.getElementById('place');
-    const timeSelect = document.getElementById('time');
-    const paxInput = document.getElementById('pax');
-    const availabilityInfo = document.getElementById('availabilityInfo');
-    const paxError = document.getElementById('paxError');
-    const reservationListDiv = document.getElementById('reservationList');
-    const noReservationsMessage = document.getElementById('noReservationsMessage');
-    const reservationSearchInput = document.getElementById('reservationSearch');
-    const submitReservationBtn = document.getElementById('submitReservationBtn');
-    const operatingHoursMessage = document.getElementById('operatingHoursMessage');
-    const validationModal = document.getElementById('validationModal');
-    const validatorNameInput = document.getElementById('validatorNameInput');
-    const confirmValidationBtn = document.getElementById('confirmValidationBtn');
-    const cancelValidationBtn = document.getElementById('cancelValidationBtn');
-
-    const summaryModal = document.getElementById('summaryModal');
-    const summaryTitle = document.getElementById('summaryTitle');
-    const summaryContent = document.getElementById('summaryContent');
-    const overallPaxTotal = document.getElementById('overallPaxTotal');
-    const closeSummaryBtn = document.getElementById('closeSummaryBtn');
-
-    const archiveModal = document.getElementById('archiveModal');
-    const archiveSearchInput = document.getElementById('archiveSearch');
-    const archiveListContent = document.getElementById('archiveListContent');
-    const noArchivedReservationsMessage = document.getElementById('noArchivedReservationsMessage');
-    const closeArchiveBtn = document.getElementById('closeArchiveBtn');
-
-    const roomHistorySearch = document.getElementById('roomHistorySearch');
-    const roomHistoryResults = document.getElementById('roomHistoryResults');
-
-    // Variables y constantes
-    let reservations = [];
-    let archivedReservations = [];
-    let currentReservationData = null;
-    let lastAccessDate = localStorage.getItem('lastAccessDate');
-
-    const restaurantTimes = {
-      "El Patio": ["18:00", "21:00"],
-      "Bluewater": ["18:00", "21:00"],
-      "Bordeaux": ["18:00", "21:00"],
-      "Himitsu": ["18:00", "21:00"],
-      "Hibachi": ["17:30", "18:45", "20:00", "21:15"],
-      "El Olio": ["18:30", "21:00"]
-    };
-
-    const restaurantPaxLimits = {
-      "El Patio": 8,
-      "Bluewater": 8,
-      "Bordeaux": 6,
-      "Himitsu": 8,
-      "Hibachi": 10,
-      "El Olio": 8
-    };
-
-    // Funciones auxiliares de fecha y hora
-    function getTodayDateString() {
-      const today = new Date();
-      return today.toISOString().slice(0, 10);
-    }
-
-    function getFormattedDate(dateString) {
-      if (!dateString) return 'Fecha desconocida';
-      const date = new Date(dateString + 'T12:00:00');
-      return date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    }
-
-    function convertTo12HourFormat(time24h) {
-      const [hours, minutes] = time24h.split(':');
-      const hour = parseInt(hours, 10);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour % 12 || 12;
-      return `${displayHour}:${minutes} ${ampm}`;
-    }
-
-    function getTodayDateFormatted() {
-      const today = new Date();
-      return today.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    }
-
-    // --- Validar horario operativo ---
-    function checkOperatingHours() {
-      const now = new Date();
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      const startMinutes = 7 * 60;
-      const endMinutes = 16 * 60 + 30;
-      const isOpen = currentMinutes >= startMinutes && currentMinutes <= endMinutes;
-
-      submitReservationBtn.disabled = !isOpen;
-      operatingHoursMessage.style.display = isOpen ? 'none' : 'block';
-
-      return isOpen;
-    }
-
-    // --- Cargar y archivar reservas ---
-    async function loadAndArchiveReservations() {
-      const today = getTodayDateString();
-      const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
-      const allArchivedReservationsRef = ref(database, 'archivedReservations');
-
-      try {
-        // Cargar reservas archivadas
-        const archiveSnapshot = await get(allArchivedReservationsRef);
-        archivedReservations = [];
-        if (archiveSnapshot.exists()) {
-          archiveSnapshot.forEach(dateNode => {
-            dateNode.forEach(resNode => {
-              archivedReservations.push({ id: resNode.key, ...resNode.val() });
+                try {
+                    // Guardar en dailyReservations bajo el nodo de la fecha de hoy
+                    const reservationRef = ref(database, `dailyReservations/${today}`);
+                    await push(reservationRef, newReservation); // push genera una ID única
+                    alert('¡Reserva realizada con éxito!');
+                    reservationForm.reset(); // Limpiar el formulario
+                } catch (error) {
+                    console.error("Error al guardar la reserva:", error);
+                    alert("Hubo un error al procesar su reserva. Por favor, intente de nuevo.");
+                }
             });
-          });
-        }
 
-        // Archivar reservas del día anterior si cambió la fecha
-        if (lastAccessDate && lastAccessDate !== today) {
-          const previousDayReservationsRef = ref(database, `dailyReservations/${lastAccessDate}`);
-          const previousDaySnapshot = await get(previousDayReservationsRef);
+            // Leer reservas para el día actual
+            // Escucha cambios en las reservas de la fecha actual
+            onValue(ref(database, `dailyReservations/${today}`), (snapshot) => {
+                const reservations = snapshot.val();
+                displayReservations(reservations);
+            }, (error) => {
+                console.error("Error al cargar las reservas:", error);
+                loadingMessage.style.display = 'none';
+                noReservationsMessage.textContent = 'Error al cargar las reservas.';
+                noReservationsMessage.style.display = 'block';
+            });
 
-          if (previousDaySnapshot.exists()) {
-            const previousDayData = previousDaySnapshot.val();
-            const updates = {};
-            for (const key in previousDayData) {
-              const res = previousDayData[key];
-              res.archiveDate = lastAccessDate;
-              updates[`archivedReservations/${lastAccessDate}/${key}`] = res;
+            // Función para mostrar las reservas
+            function displayReservations(reservations) {
+                reservationsList.innerHTML = ''; // Limpiar la lista actual
+                loadingMessage.style.display = 'none';
+
+                if (!reservations) {
+                    noReservationsMessage.style.display = 'block';
+                    return;
+                }
+
+                noReservationsMessage.style.display = 'none';
+                const reservationsArray = [];
+                for (const key in reservations) {
+                    reservationsArray.push({ id: key, ...reservations[key] });
+                }
+
+                // Ordenar por hora de reserva
+                reservationsArray.sort((a, b) => a.time.localeCompare(b.time));
+
+                reservationsArray.forEach(res => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <span><strong>Habitación:</strong> ${res.room}</span>
+                        <span><strong>Comensal:</strong> ${res.guest}</span>
+                        <span><strong>Restaurante:</strong> ${res.place}</span>
+                        <span><strong>Hora:</strong> ${convertTo12HourFormat(res.time)}</span>
+                        <span><strong>PAX:</strong> ${res.pax}</span>
+                        ${res.comment ? `<span><strong>Comentario:</strong> ${res.comment}</span>` : ''}
+                    `;
+                    reservationsList.appendChild(listItem);
+                });
             }
-            updates[`dailyReservations/${lastAccessDate}`] = null;
-            await set(ref(database), updates);
-            console.log(`Reservas del ${lastAccessDate} archivadas.`);
-          }
-          reservations = [];
-        }
 
-        // Actualizar último acceso
-        localStorage.setItem('lastAccessDate', today);
-        lastAccessDate = today;
+            // --- Lógica de Archivo Automático de Reservas Antiguas ---
+            // Esta función se ejecuta una vez al cargar la página para limpiar datos antiguos
+            async function archiveOldReservations() {
+                const todayDate = new Date(getTodayDateString() + 'T00:00:00'); // Fecha de hoy a medianoche
 
-        // Inicializar disponibilidad en Firebase para hoy (si no existe)
-        for (const place in restaurantPaxLimits) {
-          const times = restaurantTimes[place];
-          for (const time of times) {
-            const availRef = ref(database, `availability/${place}/${today}/${time}/remainingPax`);
-            const snapshot = await get(availRef);
-            if (!snapshot.exists()) {
-              await set(availRef, restaurantPaxLimits[place]);
+                // Obtener todas las fechas con reservas en dailyReservations
+                const dailyReservationsRef = ref(database, 'dailyReservations');
+                const snapshot = await get(dailyReservationsRef);
+                const dailyReservations = snapshot.val();
+
+                if (dailyReservations) {
+                    for (const dateKey in dailyReservations) {
+                        if (dailyReservations.hasOwnProperty(dateKey)) {
+                            const reservationDate = new Date(dateKey + 'T00:00:00'); // Convertir la fecha de la DB a objeto Date a medianoche
+
+                            // Si la fecha de la reserva es anterior a hoy
+                            if (reservationDate < todayDate) {
+                                console.log(`Archiving reservations for date: ${dateKey}`);
+                                const reservationsToArchive = dailyReservations[dateKey];
+
+                                // Mover todas las reservas de esa fecha a archivedReservations
+                                await set(ref(database, `archivedReservations/${dateKey}`), reservationsToArchive)
+                                    .then(() => {
+                                        // Una vez movidas, eliminarlas de dailyReservations
+                                        return remove(child(dailyReservationsRef, dateKey));
+                                    })
+                                    .then(() => {
+                                        console.log(`Reservations for ${dateKey} successfully moved to archives.`);
+                                    })
+                                    .catch(error => {
+                                        console.error(`Error archiving reservations for ${dateKey}:`, error);
+                                    });
+                            }
+                        }
+                    }
+                }
             }
-          }
-        }
 
-        // Escuchar reservas del día actual
-        onValue(dailyReservationsRef, snapshot => {
-          const data = snapshot.val();
-          reservations = [];
-          if (data) {
-            for (const key in data) {
-              reservations.push({ id: key, ...data[key] });
-            }
-          }
-          renderReservations();
-          updateAvailabilityInfo();
-          filterRoomHistorySearch();
+            // Ejecutar la función de archivo al cargar la página
+            archiveOldReservations();
+
+            // Opcional: Ejecutar la función de archivo periódicamente si la página se mantiene abierta
+            // setInterval(archiveOldReservations, 24 * 60 * 60 * 1000); // Cada 24 horas
+
         });
-
-      } catch (error) {
-        console.error("Error cargando reservas:", error);
-        alert("Error al cargar reservas, intenta de nuevo.");
-      }
-      checkOperatingHours();
-    }
-
-    loadAndArchiveReservations();
-
-    // --- Renderizar reservas ---
-    function renderReservations(filteredReservations = reservations) {
-      filteredReservations.sort((a,b) => {
-        const rCompare = a.place.localeCompare(b.place);
-        if (rCompare !== 0) return rCompare;
-        const tCompare = a.time.localeCompare(b.time);
-        if (tCompare !== 0) return tCompare;
-        return parseInt(a.room) - parseInt(b.room);
-      });
-
-      reservationListDiv.innerHTML = '';
-      if (filteredReservations.length === 0) {
-        noReservationsMessage.style.display = 'block';
-        noReservationsMessage.textContent = reservations.length === 0 ? 
-          'No hay reservas programadas para hoy.' : 
-          'No se encontraron reservas.';
-      } else {
-        noReservationsMessage.style.display = 'none';
-        filteredReservations.forEach(res => {
-          const div = document.createElement('div');
-          div.className = 'reservation-item';
-          div.innerHTML = `<strong>${res.room}</strong> - ${res.guest} | ${res.place} - ${convertTo12HourFormat(res.time)} | ${res.pax} PAX`;
-          reservationListDiv.appendChild(div);
-        });
-      }
-    }
-
-    // --- Renderizar reservas archivadas ---
-    function renderArchivedReservations(filteredArchived = archivedReservations) {
-      filteredArchived.sort((a,b) => {
-        const dCompare = new Date(b.archiveDate) - new Date(a.archiveDate);
-        if (dCompare !== 0) return dCompare;
-        const rCompare = a.place.localeCompare(b.place);
-        if (rCompare !== 0) return rCompare;
-        return a.time.localeCompare(b.time);
-      });
-
-      archiveListContent.innerHTML = '';
-      if (filteredArchived.length === 0) {
-        noArchivedReservationsMessage.style.display = 'block';
-        noArchivedReservationsMessage.textContent = archivedReservations.length === 0 ? 
-          'No hay reservas archivadas.' : 
-          'No se encontraron reservas archivadas.';
-      } else {
-        noArchivedReservationsMessage.style.display = 'none';
-        filteredArchived.forEach(res => {
-          const div = document.createElement('div');
-          div.className = 'reservation-item archived';
-          div.innerHTML = `<strong>${res.room}</strong> - ${res.guest} | ${res.place} - ${convertTo12HourFormat(res.time)} | ${res.pax} PAX | Archivado: ${getFormattedDate(res.archiveDate)}`;
-          archiveListContent.appendChild(div);
-        });
-      }
-    }
-
-    // --- Filtrar reservas día ---
-    reservationSearchInput.addEventListener('input', () => {
-      const term = reservationSearchInput.value.trim().toLowerCase();
-      if (!term) {
-        renderReservations();
-        return;
-      }
-      const filtered = reservations.filter(r =>
-        r.room.includes(term) ||
-        r.guest.toLowerCase().includes(term) ||
-        r.place.toLowerCase().includes(term) ||
-        convertTo12HourFormat(r.time).toLowerCase().includes(term)
-      );
-      renderReservations(filtered);
-    });
-
-    // --- Filtrar reservas archivadas ---
-    archiveSearchInput.addEventListener('input', () => {
-      const term = archiveSearchInput.value.trim().toLowerCase();
-      if (!term) {
-        renderArchivedReservations();
-        return;
-      }
-      const filtered = archivedReservations.filter(r =>
-        r.room.includes(term) ||
-        r.guest.toLowerCase().includes(term) ||
-        r.place.toLowerCase().includes(term) ||
-        convertTo12HourFormat(r.time).toLowerCase().includes(term) ||
-        getFormattedDate(r.archiveDate).toLowerCase().includes(term) ||
-        r.archiveDate.includes(term)
-      );
-      renderArchivedReservations(filtered);
-    });
-
-    // --- Filtrar historial por habitación ---
-    roomHistorySearch.addEventListener('input', () => {
-      filterRoomHistorySearch();
-    });
-
-    function filterRoomHistorySearch() {
-      const roomNum = roomHistorySearch.value.trim();
-      if (roomNum.length !== 4) {
-        roomHistoryResults.innerHTML = '';
-        return;
-      }
-      renderRoomHistory(roomNum);
-    }
-
-    function renderRoomHistory(roomNum) {
-      const matches = [
-        ...reservations.filter(r => r.room === roomNum),
-        ...archivedReservations.filter(r => r.room === roomNum),
-      ];
-      if (!matches.length) {
-        roomHistoryResults.innerHTML = `<p>No hay historial para la habitación ${roomNum}.</p>`;
-        return;
-      }
-      roomHistoryResults.innerHTML = matches.map(r => 
-        `<div class="reservation-item${r.archiveDate ? ' archived' : ''}">
-          <strong>${r.place}</strong> - ${convertTo12HourFormat(r.time)} - ${r.pax} PAX
-          ${r.archiveDate ? `<span> (Archivado: ${getFormattedDate(r.archiveDate)})</span>` : ''}
-        </div>`
-      ).join('');
-    }
-
-    // --- Actualizar opciones hora según restaurante ---
-    placeSelect.addEventListener('change', () => {
-      const restaurant = placeSelect.value;
-      updateTimeOptions(restaurant);
-      updateAvailabilityInfo();
-    });
-
-    function updateTimeOptions(restaurant) {
-      timeSelect.innerHTML = '';
-      if (restaurant && restaurantTimes[restaurant]) {
-        timeSelect.disabled = false;
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = 'Seleccione hora';
-        timeSelect.appendChild(defaultOption);
-
-        restaurantTimes[restaurant].forEach(time => {
-          const option = document.createElement('option');
-          option.value = time;
-          option.textContent = convertTo12HourFormat(time);
-          timeSelect.appendChild(option);
-        });
-      } else {
-        timeSelect.disabled = true;
-        timeSelect.innerHTML = '<option value="">Seleccione un restaurante primero</option>';
-      }
-    }
-
-    timeSelect.addEventListener('change', updateAvailabilityInfo);
-    paxInput.addEventListener('input', updateAvailabilityInfo);
-
-    // --- Actualizar disponibilidad y validar pax ---
-    async function updateAvailabilityInfo() {
-      const restaurant = placeSelect.value;
-      const time = timeSelect.value;
-      let requestedPax = parseInt(paxInput.value) || 1;
-      paxError.textContent = '';
-      if (!restaurant || !time) {
-        // No mostrar nada si no hay restaurante o hora
-        return;
-      }
-
-      const today = getTodayDateString();
-      const availRef = ref(database, `availability/${restaurant}/${today}/${time}/remainingPax`);
-      let remainingPax = restaurantPaxLimits[restaurant];
-
-      try {
-        const snapshot = await get(availRef);
-        if (snapshot.exists()) {
-          remainingPax = snapshot.val();
-        }
-      } catch (error) {
-        console.error("Error consultando disponibilidad:", error);
-      }
-
-      if (remainingPax <= 0) {
-        paxError.textContent = '¡No hay espacios disponibles para esta hora!';
-      } else if (requestedPax > remainingPax) {
-        paxError.textContent = `Máximo ${remainingPax} personas disponibles.`;
-      } else {
-        paxError.textContent = '';
-      }
-    }
-
-    // --- Validación visual de pax antes de enviar ---
-    function validatePax() {
-      return paxError.textContent === '';
-    }
-
-    // --- Formatear y validar campos antes de guardar ---
-    reservationForm.addEventListener('submit', e => {
-      e.preventDefault();
-
-      if (!checkOperatingHours()) {
-        alert('Solo se aceptan reservas entre 7:00 AM y 4:30 PM');
-        return;
-      }
-
-      if (!validatePax()) {
-        alert('Corrige la cantidad de personas según la disponibilidad.');
-        return;
-      }
-
-      const room = document.getElementById('room').value.trim();
-      if (room.length !== 4) {
-        alert('La habitación debe tener 4 dígitos.');
-        return;
-      }
-
-      currentReservationData = {
-        room,
-        guest: document.getElementById('guest').value.trim(),
-        place: placeSelect.value,
-        time: timeSelect.value,
-        pax: parseInt(paxInput.value),
-        comment: document.getElementById('comment').value.trim(),
-        createdAt: new Date().toISOString(),
-      };
-
-      openValidationModal();
-    });
-
-    // --- Modal validación nombre quien registra ---
-    function openValidationModal() {
-      validationModal.style.display = 'block';
-      validatorNameInput.value = '';
-      validatorNameInput.focus();
-    }
-
-    function closeValidationModal() {
-      validationModal.style.display = 'none';
-      currentReservationData = null;
-    }
-
-    confirmValidationBtn.addEventListener('click', async () => {
-      const validatorName = validatorNameInput.value.trim();
-      if (!validatorName) {
-        alert('Debe ingresar su nombre para validar la reserva.');
-        return;
-      }
-
-      currentReservationData.validatorName = validatorName;
-      await addReservation(currentReservationData);
-      closeValidationModal();
-      reservationForm.reset();
-      timeSelect.disabled = true;
-      paxError.textContent = '';
-    });
-
-    cancelValidationBtn.addEventListener('click', () => {
-      closeValidationModal();
-    });
-
-    // --- Añadir reserva con transaction para evitar overbooking ---
-    async function addReservation(data) {
-      const today = getTodayDateString();
-      const availabilityPath = `availability/${data.place}/${today}/${data.time}/remainingPax`;
-      const availabilityRef = ref(database, availabilityPath);
-      const reservationRef = ref(database, `dailyReservations/${today}`);
-
-      try {
-        const transactionResult = await runTransaction(availabilityRef, current => {
-          if (current === null) {
-            // Inicializar si no existe
-            return restaurantPaxLimits[data.place] - data.pax;
-          }
-          if (current < data.pax) {
-            // No hay espacio suficiente
-            return;
-          }
-          return current - data.pax;
-        });
-
-        if (!transactionResult.committed) {
-          alert('No hay suficientes espacios disponibles para esa hora.');
-          return;
-        }
-
-        // Guardar reserva
-        await push(reservationRef, data);
-        alert('✅ Reserva registrada con éxito.');
-
-      } catch (error) {
-        console.error('Error al agregar reserva:', error);
-        alert('Error al registrar reserva, intenta nuevamente.');
-      }
-    }
-
-    // --- Mostrar resumen por restaurante ---
-    viewSummaryBtn.addEventListener('click', () => {
-      if (reservations.length === 0) {
-        alert('No hay reservas para hoy.');
-        return;
-      }
-      let summaryHTML = '';
-      let overallTotal = 0;
-
-      const grouped = {};
-
-      reservations.forEach(r => {
-        if (!grouped[r.place]) grouped[r.place] = [];
-        grouped[r.place].push(r);
-      });
-
-      for (const place in grouped) {
-        const count = grouped[place].length;
-        const paxTotal = grouped[place].reduce((acc, r) => acc + r.pax, 0);
-        overallTotal += paxTotal;
-
-        summaryHTML += `<h4>${place} - ${count} reservas</h4>`;
-        summaryHTML += `<ul>`;
-        grouped[place].forEach(r => {
-          summaryHTML += `<li>${r.room} - ${r.guest} - ${convertTo12HourFormat(r.time)} - ${r.pax} PAX</li>`;
-        });
-        summaryHTML += `</ul><p><strong>Total personas: ${paxTotal}</strong></p>`;
-      }
-
-      summaryTitle.textContent = `Resumen de reservas para ${getTodayDateFormatted()}`;
-      summaryContent.innerHTML = summaryHTML;
-      overallPaxTotal.textContent = `Personas en total: ${overallTotal}`;
-      summaryModal.style.display = 'block';
-    });
-
-    closeSummaryBtn.addEventListener('click', () => {
-      summaryModal.style.display = 'none';
-    });
-
-    // --- Mostrar archivo ---
-    viewArchiveBtn.addEventListener('click', () => {
-      renderArchivedReservations();
-      archiveModal.style.display = 'block';
-    });
-
-    closeArchiveBtn.addEventListener('click', () => {
-      archiveModal.style.display = 'none';
-    });
-
-    // --- Inicialización ---
-    updateTimeOptions('');
-    checkOperatingHours();
-
-    // Actualizar disponibilidad periódicamente
-    setInterval(checkOperatingHours, 60000);
-
-  });
-</script>
+    </script>
 </body>
 </html>
