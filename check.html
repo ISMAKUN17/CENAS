@@ -4,147 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reservas de Restaurantes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
         /* Variables CSS para consistencia de diseño */
         :root {
-            --primary-color: #4CAF50; /* Verde vibrante */
-            --secondary-color: #FFC107; /* Amarillo cálido */
-            --accent-color: #2196F3; /* Azul para énfasis */
-            --text-color: #333;
-            --light-text-color: #666;
-            --background-color: #f4f7f6;
-            --card-background: #ffffff;
-            --border-color: #e0e0e0;
-            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            --border-radius: 8px;
-            --transition-speed: 0.3s;
+            --primary-color: #66BB6A; /* Verde/teal claro, suave y acogedor */
+            --secondary-color: #4DD0E1; /* Azul claro complementario */
+            --accent-color: #FFB74D; /* Naranja suave para acentos */
+            
+            --background-color: #F5F8FA; /* Fondo muy claro, casi blanco */
+            --card-background: #FFFFFF; /* Blanco puro para tarjetas */
+            --text-color: #333333; /* Gris oscuro para texto principal */
+            --light-text-color: #757575; /* Gris medio para texto secundario */
+            --border-color: #CFD8DC; /* Gris/azul muy claro para bordes sutiles */
+
+            --shadow-light: 0 3px 10px rgba(0, 0, 0, 0.07); /* Sombra más pequeña */
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.12); /* Sombra más pequeña */
+            --border-radius-sm: 6px; /* Radio más pequeño */
+            --border-radius-md: 12px; /* Radio más pequeño */
+            --transition-speed: 0.3s; /* Transición un poco más rápida */
+            --font-family-heading: 'Montserrat', sans-serif;
+            --font-family-body: 'Open Sans', sans-serif;
+            --white-color: #FFFFFF;
+            --danger-color: #E57373; /* Rojo suave para mensajes de error/advertencia */
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: var(--font-family-body);
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--background-color);
             margin: 0;
-            padding: 20px;
+            padding: 15px; /* Reducido */
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
             box-sizing: border-box;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px; /* Reducido */
             width: 100%;
             background-color: var(--card-background);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 30px;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-medium);
+            padding: 30px; /* Reducido */
             display: grid;
             grid-template-rows: auto 1fr;
-            gap: 30px;
+            gap: 30px; /* Reducido */
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 20px;
+            padding-bottom: 20px; /* Reducido */
             border-bottom: 1px solid var(--border-color);
-            flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
-            gap: 15px; /* Espacio entre los botones en la cabecera */
+            flex-wrap: wrap;
+            gap: 15px; /* Reducido */
         }
 
         .header h1 {
+            font-family: var(--font-family-heading);
             margin: 0;
             color: var(--primary-color);
-            font-size: 2.2em;
+            font-size: 2.4em; /* Reducido */
+            font-weight: 700;
+            letter-spacing: -0.03em;
         }
 
         .header .buttons-group {
             display: flex;
-            gap: 10px; /* Espacio entre los botones */
-            flex-wrap: wrap; /* Para que los botones se ajusten en móviles */
-            justify-content: flex-end; /* Alinea los botones a la derecha */
+            gap: 10px; /* Reducido */
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
-
         .btn {
-            padding: 12px 25px;
+            padding: 10px 20px; /* Reducido */
             border: none;
-            border-radius: 50px; /* Botones más redondeados */
-            font-size: 1em;
+            border-radius: 30px; /* Reducido */
+            font-size: 0.9em; /* Reducido */
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            white-space: nowrap; /* Evita que el texto del botón se rompa */
+            transition: all var(--transition-speed) cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: var(--shadow-light);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.03em; /* Reducido */
         }
 
         .btn-primary {
             background-color: var(--primary-color);
-            color: white;
+            color: var(--white-color);
         }
-
         .btn-primary:hover {
-            background-color: #43A047; /* Un poco más oscuro */
-            transform: translateY(-2px);
+            background-color: #5CB85C;
+            transform: translateY(-2px); /* Reducido */
+            box-shadow: var(--shadow-medium);
         }
 
         .btn-secondary {
-            background-color: #9E9E9E; /* Gris neutral */
-            color: white;
+            background-color: var(--card-background);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
         }
-
         .btn-secondary:hover {
-            background-color: #757575;
-            transform: translateY(-2px);
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            transform: translateY(-2px); /* Reducido */
+            box-shadow: var(--shadow-medium);
         }
 
         .btn-submit {
             background-color: var(--accent-color);
-            color: white;
-            grid-column: span 2; /* Para que ocupe todo el ancho en el grid */
-            margin-top: 15px;
+            color: var(--white-color);
+            grid-column: span 2;
+            margin-top: 20px; /* Reducido */
         }
-
         .btn-submit:hover {
-            background-color: #1976D2;
-            transform: translateY(-2px);
+            background-color: #FFA726;
+            transform: translateY(-2px); /* Reducido */
+            box-shadow: var(--shadow-medium);
         }
 
-        .btn-submit:disabled { /* Estilo para botón deshabilitado */
-            background-color: #cccccc;
+        .btn:disabled {
+            background-color: #E0E0E0;
+            color: #A0A0A0;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
-
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 1.5fr; /* Formulario más pequeño, lista más grande */
-            gap: 30px;
+            grid-template-columns: 1.1fr 1.9fr;
+            gap: 30px; /* Reducido */
         }
 
         section {
             background-color: var(--card-background);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            padding: 25px; /* Reducido */
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-light);
+            display: flex;
+            flex-direction: column;
         }
 
         section h2 {
+            font-family: var(--font-family-heading);
             color: var(--primary-color);
             margin-top: 0;
-            margin-bottom: 20px;
+            margin-bottom: 20px; /* Reducido */
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 12px; /* Reducido */
+            font-size: 1.6em; /* Reducido */
+            font-weight: 600;
+            letter-spacing: -0.02em;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 15px; /* Reducido */
         }
 
         .form-group {
@@ -157,164 +183,191 @@
         }
 
         label {
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--light-text-color);
-            font-size: 0.95em;
+            margin-bottom: 8px; /* Reducido */
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.85em; /* Reducido */
+            text-transform: uppercase;
+            letter-spacing: 0.02em; /* Reducido */
         }
 
         input[type="text"],
         input[type="number"],
         select,
         textarea {
-            width: calc(100% - 20px); /* Ajuste para padding */
-            padding: 12px 10px;
+            width: calc(100% - 16px); /* Ajustado para padding reducido */
+            padding: 8px 8px; /* Reducido */
             border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            font-size: 1em;
-            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9em; /* Reducido */
+            color: var(--text-color);
+            background-color: var(--background-color);
+            transition: all var(--transition-speed) ease;
         }
 
         input:focus,
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.1); /* Sombra de enfoque más pequeña */
+            background-color: var(--white-color);
         }
 
         textarea {
-            resize: vertical; /* Permitir redimensionar solo verticalmente */
+            resize: vertical;
+            min-height: 50px; /* Reducido */
         }
 
-        /* Estilos para el contador de espacios */
         .availability-info {
-            font-size: 0.9em;
-            color: var(--light-text-color);
-            margin-top: 5px;
-            min-height: 1.5em; /* Para evitar saltos si el texto aparece/desaparece */
+            font-size: 0.8em; /* Reducido */
+            margin-top: 8px; /* Reducido */
+            min-height: 1.6em; /* Reducido */
+            font-weight: 500;
+            padding-left: 5px;
         }
 
         .availability-info.available {
             color: var(--primary-color);
-            font-weight: bold;
         }
 
         .availability-info.limited {
-            color: var(--secondary-color);
-            font-weight: bold;
+            color: var(--accent-color);
         }
 
         .availability-info.full {
-            color: #d32f2f; /* Rojo oscuro */
-            font-weight: bold;
+            color: var(--danger-color);
         }
 
-        /* Nuevo: Mensaje de horario de operación */
         .operating-hours-message {
             grid-column: span 2;
             text-align: center;
-            font-size: 0.9em;
-            color: #d32f2f; /* Rojo para advertencia */
-            background-color: #ffe0b2; /* Fondo naranja claro */
-            border: 1px solid #ffb74d;
-            border-radius: var(--border-radius);
-            padding: 10px;
-            margin-top: -10px; /* Para que esté más cerca del botón */
-            margin-bottom: 10px;
+            font-size: 0.85em; /* Reducido */
+            color: var(--danger-color);
+            background-color: rgba(229, 115, 115, 0.15);
+            border: 1px solid var(--danger-color);
+            border-radius: var(--border-radius-sm);
+            padding: 10px; /* Reducido */
+            margin-top: 15px; /* Reducido */
+            margin-bottom: 15px; /* Reducido */
+            font-weight: 600;
         }
 
-
-        /* Estilos para la lista de reservas del día (más sencilla) */
         .reservation-list-container {
-            /* Contenedor para el buscador y la lista */
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Espacio entre el buscador y la lista */
+            gap: 20px; /* Reducido */
         }
 
         #reservationSearch,
-        #archiveSearch { /* Estilos compartidos para ambos buscadores */
-            width: calc(100% - 20px); /* Ajuste para padding */
-            padding: 12px 10px;
+        #archiveSearch {
+            width: calc(100% - 16px); /* Ajustado para padding reducido */
+            padding: 8px 8px; /* Reducido */
             border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            font-size: 1em;
-            transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-            margin-bottom: 5px; /* Pequeño espacio debajo del buscador */
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9em; /* Reducido */
+            transition: all var(--transition-speed) ease;
+            box-shadow: var(--shadow-light);
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
-
         #reservationSearch:focus,
         #archiveSearch:focus {
             outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.1);
+            background-color: var(--white-color);
         }
 
         .reservation-list {
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Espacio entre los ítems de la lista */
+            gap: 12px; /* Reducido */
             padding: 0;
             margin: 0;
-            list-style: none; /* Quitar viñetas de lista */
-            max-height: 500px; /* Altura máxima para la lista scrollable */
-            overflow-y: auto; /* Scroll vertical */
-            padding-right: 5px; /* Espacio para la barra de scroll */
+            list-style: none;
+            max-height: 500px; /* Reducido */
+            overflow-y: auto;
+            padding-right: 8px; /* Reducido */
         }
 
         .reservation-item {
             background-color: var(--background-color);
             border: 1px solid var(--border-color);
-            border-left: 5px solid var(--primary-color); /* Borde de color para resaltar */
-            border-radius: var(--border-radius);
-            padding: 12px 15px; /* Padding más compacto */
-            font-size: 0.95em;
+            border-left: 5px solid var(--primary-color); /* Reducido */
+            border-radius: var(--border-radius-sm);
+            padding: 12px 15px; /* Reducido */
+            font-size: 0.85em; /* Reducido */
             color: var(--text-color);
             display: flex;
-            justify-content: space-between; /* Alinea los elementos al inicio y al final */
-            align-items: center; /* Centra verticalmente */
-            flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Transición más rápida */
+        }
+        .reservation-item:hover {
+            transform: translateY(-2px); /* Reducido */
+            box-shadow: var(--shadow-medium);
         }
 
         .reservation-item.archived {
-            border-left: 5px solid #607D8B; /* Color diferente para archivados */
+            border-left-color: var(--secondary-color);
         }
 
         .reservation-item span {
-            /* Estilo para cada pieza de información */
-            padding: 0 5px; /* Pequeño espacio horizontal */
+            padding: 0 6px; /* Reducido */
+            white-space: nowrap;
         }
 
         .reservation-item .room-name {
-            font-weight: bold;
-            color: var(--accent-color);
-            flex-basis: 30%; /* Ocupa un poco más de espacio */
-            min-width: 150px; /* Ancho mínimo para evitar rupturas */
+            font-weight: 700;
+            color: var(--primary-color);
+            flex-basis: 35%;
+            min-width: 160px; /* Reducido */
+            font-size: 0.95em; /* Reducido */
         }
 
         .reservation-item .restaurant-time {
             color: var(--text-color);
-            flex-basis: 35%; /* Ocupa un poco más de espacio */
-            min-width: 180px;
+            flex-basis: 30%;
+            min-width: 140px; /* Reducido */
+            font-weight: 500;
         }
         .reservation-item .pax-info {
-            font-weight: bold;
-            color: var(--primary-color);
-            background-color: rgba(76, 175, 80, 0.1); /* Fondo ligero para PAX */
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-left: auto; /* Empuja el PAX al final */
+            font-weight: 700;
+            color: var(--white-color);
+            background-color: var(--accent-color);
+            padding: 5px 10px; /* Reducido */
+            border-radius: 18px; /* Reducido */
+            margin-left: auto;
+            min-width: 60px; /* Reducido */
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08); /* Reducido */
         }
 
         .reservation-item .archive-date {
-            font-size: 0.85em;
+            font-size: 0.7em; /* Reducido */
             color: var(--light-text-color);
-            margin-top: 5px;
-            flex-basis: 100%; /* Ocupa toda la línea inferior */
+            margin-top: 8px; /* Reducido */
+            flex-basis: 100%;
             text-align: right;
-            border-top: 1px dashed rgba(0,0,0,0.05);
-            padding-top: 5px;
+            border-top: 1px dashed rgba(0,0,0,0.08); /* Reducido */
+            padding-top: 6px; /* Reducido */
+        }
+        .archive-date-section h4 {
+            font-family: var(--font-family-heading);
+            color: var(--primary-color);
+            font-size: 1.4em; /* Reducido */
+            font-weight: 600;
+            margin-top: 25px; /* Reducido */
+            margin-bottom: 12px; /* Reducido */
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px; /* Reducido */
+            letter-spacing: -0.02em;
+        }
+        .archive-date-section:first-child h4 {
+            margin-top: 0;
         }
 
 
@@ -322,13 +375,12 @@
             text-align: center;
             color: var(--light-text-color);
             font-style: italic;
-            padding: 20px;
+            padding: 25px; /* Reducido */
             border: 1px dashed var(--border-color);
-            border-radius: var(--border-radius);
-            margin-top: 20px;
-            /* grid-column: 1 / -1; Esto se movió al contenedor padre si aplica */
-            width: 100%; /* Asegura que el mensaje ocupe el ancho completo de su contenedor */
-            box-sizing: border-box;
+            border-radius: var(--border-radius-md);
+            margin-top: 15px; /* Reducido */
+            font-size: 1em; /* Reducido */
+            background-color: var(--background-color);
         }
 
         /* Modal / Popup Styling */
@@ -338,7 +390,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.5); /* Menos opaco */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -357,19 +409,19 @@
 
         .modal-content {
             background-color: var(--card-background);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px; /* Reducido aún más */
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Sombra más pequeña */
             width: 90%;
-            max-width: 600px;
+            max-width: 450px; /* Reducido aún más */
             text-align: center;
-            transform: translateY(-50px);
-            transition: transform var(--transition-speed) ease;
+            transform: translateY(-30px); /* Reducido */
+            transition: transform var(--transition-speed) cubic-bezier(0.2, 0.8, 0.2, 1);
             box-sizing: border-box;
-            margin: 20px auto;
+            margin: 10px auto; /* Reducido */
             position: relative;
-            animation: fadeInScaleUp var(--transition-speed) forwards;
-            max-height: 90vh;
+            animation: fadeInScaleUp 0.3s forwards; /* Más rápido */
+            max-height: 75vh; /* Reducido */
             display: flex;
             flex-direction: column;
         }
@@ -380,7 +432,7 @@
         @keyframes fadeInScaleUp {
             from {
                 opacity: 0;
-                transform: translateY(-20px) scale(0.95);
+                transform: translateY(-20px) scale(0.97); /* Reducido */
             }
             to {
                 opacity: 1;
@@ -388,55 +440,54 @@
             }
         }
 
-        /* Botón de cerrar para todos los modales */
         .modal-close-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 10px; /* Reducido */
+            right: 10px; /* Reducido */
             background: none;
             border: none;
-            font-size: 1.8em;
+            font-size: 1.6em; /* Reducido */
             cursor: pointer;
             color: var(--light-text-color);
-            transition: color 0.2s ease;
+            transition: color 0.2s ease, transform 0.2s ease;
             line-height: 1;
             padding: 0;
         }
 
         .modal-close-btn:hover {
             color: var(--text-color);
-            transform: scale(1.1);
+            transform: rotate(90deg); /* Menos rotación */
         }
 
-
-        /* Summary Modal specific styles */
         #summaryModal .modal-content,
-        #archiveModal .modal-content { /* Aplicar a ambos modales de lista */
-            max-width: 700px;
+        #archiveModal .modal-content {
+            max-width: 600px; /* Reducido */
             text-align: left;
         }
         #summaryModal .modal-content h3,
         #archiveModal .modal-content h3 {
+            font-family: var(--font-family-heading);
             color: var(--primary-color);
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* Reducido */
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 10px; /* Reducido */
             text-align: center;
+            font-size: 1.6em; /* Reducido */
+            font-weight: 700;
         }
 
-        /* Contenido del resumen/archivo con scroll */
         #summaryContent,
         #archiveListContent {
             flex-grow: 1;
             overflow-y: auto;
-            padding-right: 10px;
-            margin-bottom: 15px;
+            padding-right: 10px; /* Reducido */
+            margin-bottom: 15px; /* Reducido */
         }
 
         .summary-restaurant {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 18px; /* Reducido */
+            padding-bottom: 10px; /* Reducido */
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -447,59 +498,62 @@
         }
 
         .summary-restaurant h4 {
-            color: var(--accent-color);
+            font-family: var(--font-family-heading);
+            color: var(--primary-color);
             margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.4em;
+            margin-bottom: 6px; /* Reducido */
+            font-size: 1.2em; /* Reducido */
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding-bottom: 5px;
+            padding-bottom: 5px; /* Reducido */
             border-bottom: 1px dotted var(--border-color);
+            font-weight: 600;
         }
 
         .summary-restaurant h4 span {
-            font-size: 0.7em;
+            font-size: 0.6em; /* Reducido */
             color: var(--light-text-color);
             font-weight: normal;
         }
 
         .summary-time-group {
-            margin-left: 10px;
-            margin-bottom: 10px;
-            padding: 8px;
-            border-left: 3px solid var(--primary-color);
+            margin-left: 10px; /* Reducido */
+            margin-bottom: 10px; /* Reducido */
+            padding: 6px; /* Reducido */
+            border-left: 2px solid var(--secondary-color); /* Reducido */
             background-color: var(--background-color);
-            border-radius: var(--border-radius);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: var(--border-radius-sm);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02); /* Reducido */
         }
         .summary-time-group:last-child {
             margin-bottom: 0;
         }
 
         .summary-time {
-            font-weight: bold;
+            font-weight: 600;
             color: var(--text-color);
-            margin-bottom: 5px;
-            padding-bottom: 5px;
-            border-bottom: 1px dashed rgba(0,0,0,0.1);
-            font-size: 1em;
+            margin-bottom: 5px; /* Reducido */
+            padding-bottom: 5px; /* Reducido */
+            border-bottom: 1px dashed rgba(0,0,0,0.05); /* Reducido */
+            font-size: 0.9em; /* Reducido */
             display: flex;
             justify-content: space-between;
         }
         .summary-time span {
             color: var(--primary-color);
+            font-weight: 700;
         }
 
         .summary-reservation-detail {
-            margin-left: 10px;
-            font-size: 0.9em;
+            margin-left: 10px; /* Reducido */
+            font-size: 0.8em; /* Reducido */
             color: var(--light-text-color);
-            margin-bottom: 2px;
-            line-height: 1.4;
+            margin-bottom: 1px; /* Reducido */
+            line-height: 1.3; /* Reducido */
         }
         .summary-reservation-detail strong {
-            color: var(--accent-color);
+            color: var(--primary-color);
         }
         .summary-reservation-detail:last-child {
             margin-bottom: 0;
@@ -507,42 +561,97 @@
 
         .summary-overall-pax {
             text-align: right;
-            margin-top: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
+            margin-top: 12px; /* Reducido */
+            font-size: 1em; /* Reducido */
+            font-weight: 700;
             color: var(--primary-color);
-            padding-top: 10px;
+            padding-top: 10px; /* Reducido */
             border-top: 1px solid var(--border-color);
         }
 
-        /* Modal Actions */
         .modal-actions {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px; /* Reducido */
             margin-top: auto;
-            padding-top: 20px;
+            padding-top: 12px; /* Reducido */
         }
 
 
         /* Responsive Design */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
+            .container {
+                padding: 20px;
+                gap: 20px;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .btn {
+                padding: 7px 15px;
+                font-size: 0.8em;
+            }
             .main-content {
                 grid-template-columns: 1fr;
             }
-
+            section {
+                padding: 18px;
+            }
+            section h2 {
+                font-size: 1.3em;
+            }
             .form-grid {
-                grid-template-columns: 1fr;
+                gap: 10px;
             }
-
-            .form-group-full {
-                grid-column: span 1;
+            input[type="text"], input[type="number"], select, textarea, #reservationSearch, #archiveSearch {
+                padding: 7px 5px;
             }
+            .reservation-item {
+                padding: 9px 10px;
+                font-size: 0.75em;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .modal-close-btn {
+                font-size: 1.4em;
+                top: 8px;
+                right: 8px;
+            }
+            #summaryModal .modal-content, #archiveModal .modal-content {
+                max-width: 85%;
+            }
+            .summary-restaurant h4 {
+                font-size: 1.1em;
+            }
+            .summary-time-group {
+                margin-left: 6px;
+                padding: 5px;
+            }
+            .summary-reservation-detail {
+                margin-left: 6px;
+                font-size: 0.7em;
+            }
+            .summary-overall-pax {
+                font-size: 0.9em;
+            }
+        }
 
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            .container {
+                padding: 12px;
+                gap: 15px;
+            }
             .header {
                 flex-direction: column;
-                gap: 15px;
                 text-align: center;
+                align-items: center;
+            }
+            .header h1 {
+                font-size: 1.4em;
             }
             .header .buttons-group {
                 flex-direction: column;
@@ -551,56 +660,89 @@
             .header .buttons-group .btn {
                 width: 100%;
             }
-
-            /* Ajuste de modals para pantallas pequeñas */
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .form-group-full {
+                grid-column: span 1;
+            }
+            .reservation-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                padding: 7px 8px;
+            }
+            .reservation-item span {
+                white-space: normal;
+            }
+            .reservation-item .room-name,
+            .reservation-item .restaurant-time,
+            .reservation-item .pax-info {
+                flex-basis: 100%;
+                min-width: unset;
+                text-align: left;
+            }
+            .reservation-item .pax-info {
+                margin-left: 0;
+            }
+            .reservation-item .archive-date {
+                text-align: left;
+            }
             .modal-content {
-                width: 95%;
-                padding: 15px;
-                margin: 10px auto;
-                max-height: 95vh;
+                padding: 18px;
             }
-            #summaryModal .modal-content,
-            #archiveModal .modal-content {
-                max-width: 95%;
-            }
-
             .modal-close-btn {
-                font-size: 1.5em;
-                top: 10px;
-                right: 10px;
-            }
-            .summary-overall-pax {
-                font-size: 1.1em;
+                font-size: 1.3em;
+                top: 6px;
+                right: 6px;
             }
             .summary-restaurant h4 {
-                font-size: 1.2em;
-            }
-            .summary-restaurant h4 span {
-                font-size: 0.65em;
+                font-size: 1em;
             }
             .summary-time-group {
                 margin-left: 5px;
-                padding: 5px;
+                padding: 4px;
             }
             .summary-reservation-detail {
                 margin-left: 5px;
+                font-size: 0.65em;
+            }
+            .summary-overall-pax {
                 font-size: 0.8em;
             }
-            /* Asegurar que los ítems de la lista se vean bien en móviles */
-            .reservation-item {
-                flex-direction: column; /* Apilar elementos en móviles */
-                align-items: flex-start; /* Alinear al inicio */
-                gap: 5px; /* Menor espacio */
-                padding: 10px 15px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 6px;
             }
-            .reservation-item .pax-info {
-                margin-left: 0; /* Quitar margen automático */
-                margin-top: 5px; /* Espacio arriba */
+            .header h1 {
+                font-size: 1.2em;
             }
-            .reservation-item .archive-date {
-                text-align: left; /* Ajustar en móviles */
+            section h2 {
+                font-size: 1.2em;
+            }
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.75em;
+            }
+            input[type="text"], input[type="number"], select, textarea, #reservationSearch, #archiveSearch {
+                padding: 5px 5px;
+            }
+            .modal-content {
+                padding: 12px;
+            }
+            .modal-close-btn {
+                font-size: 1.2em;
+                top: 5px;
+                right: 5px;
+            }
+            .summary-restaurant h4 {
+                font-size: 0.9em;
             }
         }
+
     </style>
 </head>
 <body>
@@ -722,7 +864,7 @@
     <script type="module">
         // Importar las funciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, get, child, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         // Tu configuración de Firebase
         const firebaseConfig = {
@@ -812,6 +954,14 @@
                 return date.toLocaleDateString('es-ES', options);
             }
 
+            function convertTo12HourFormat(time24h) {
+                const [hours, minutes] = time24h.split(':');
+                const hour = parseInt(hours, 10);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const displayHour = hour % 12 || 12;
+                return `${displayHour}:${minutes} ${ampm}`;
+            }
+
             // Nueva función para verificar el horario de operación
             function checkOperatingHours() {
                 const now = new Date();
@@ -844,7 +994,7 @@
                     // Cargar reservas archivadas (todas)
                     const archiveSnapshot = await get(allArchivedReservationsRef);
                     if (archiveSnapshot.exists()) {
-                        archivedReservations = [];
+                        archivedReservaciones = [];
                         archiveSnapshot.forEach(dateNode => {
                             dateNode.forEach(resNode => {
                                 archivedReservations.push({ id: resNode.key, ...resNode.val() });
@@ -1124,14 +1274,14 @@
                 }
 
                 const maxPax = restaurantPaxLimits[place];
-                const occupiedPax = reservations
+                // Note: The actual check for remainingPax will happen inside the transaction
+                // This client-side check is just for immediate feedback before the transaction attempt.
+                const currentOccupiedPaxForClientCheck = reservations
                     .filter(res => res.place === place && res.time === time)
                     .reduce((sum, res) => sum + res.pax, 0);
 
-                const remainingPax = maxPax - occupiedPax;
-
-                if (pax > remainingPax) {
-                    alert(`Lo sentimos, solo quedan ${remainingPax} espacios disponibles para ${place} a las ${convertTo12HourFormat(time)}. Por favor, ajuste la cantidad de personas.`);
+                if (pax > (maxPax - currentOccupiedPaxForClientCheck)) {
+                    alert(`Lo sentimos, solo quedan ${maxPax - currentOccupiedPaxForClientCheck} espacios disponibles para ${place} a las ${convertTo12HourFormat(time)}. Por favor, ajuste la cantidad de personas.`);
                     paxInput.focus();
                     return;
                 }
@@ -1203,18 +1353,67 @@
                 archiveModal.classList.remove('active');
             }
 
-            // Función para añadir reserva a Firebase
+            // Función para añadir reserva a Firebase usando transacción
             async function addReservation(data) {
                 const today = getTodayDateString();
                 const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
+                const selectedRestaurant = data.place;
+                const selectedTime = data.time;
+                const requestedPax = data.pax;
+                const maxPax = restaurantPaxLimits[selectedRestaurant];
+                const roomNumber = data.room; // Obtener el número de habitación de los datos de la reserva
+
                 try {
-                    await push(dailyReservationsRef, data); // 'push' crea un ID único y añade los datos
-                    console.log("Reserva añadida a Firebase con éxito.");
+                    const result = await runTransaction(dailyReservationsRef, (currentData) => {
+                        const existingReservations = currentData || {};
+                        let occupiedPax = 0;
+
+                        // Verificar si ya existe una reserva para esta habitación hoy
+                        for (const key in existingReservations) {
+                            if (existingReservations.hasOwnProperty(key)) {
+                                const res = existingReservations[key];
+                                if (res.room === roomNumber) {
+                                    // Si ya existe una reserva para esta habitación, abortar la transacción
+                                    console.log(`Transacción abortada: La habitación ${roomNumber} ya tiene una reserva para hoy.`);
+                                    return; // Abortar la transacción
+                                }
+                                if (res.place === selectedRestaurant && res.time === selectedTime) {
+                                    occupiedPax += res.pax;
+                                }
+                            }
+                        }
+
+                        if (occupiedPax + requestedPax > maxPax) {
+                            console.log("Transacción abortada: No hay suficiente espacio.");
+                            return; // Abortar la transacción
+                        } else {
+                            const newKey = push(dailyReservationsRef).key;
+                            existingReservations[newKey] = data;
+                            console.log("Transacción exitosa: Reserva añadida.");
+                            return existingReservations; // Retornar los datos actualizados para confirmar la transacción
+                        }
+                    });
+
+                    if (result.committed) {
+                        alert('¡Reserva realizada con éxito!');
+                    } else {
+                        // Si la transacción no se comprometió, podría ser por espacio o por duplicado de habitación
+                        // El mensaje de alerta ya se maneja dentro de la transacción si es por habitación duplicada
+                        // Si es por PAX, el mensaje ya está definido.
+                        // Modificación: Mostrar mensaje específico si la habitación ya está reservada
+                        const isRoomAlreadyReserved = reservations.some(res => res.room === roomNumber);
+                        if (isRoomAlreadyReserved) {
+                            alert(`Error: La habitación ${roomNumber} ya tiene una reserva para hoy.`);
+                        } else {
+                            alert(`No se pudo registrar la reserva. No hay suficientes espacios disponibles para ${selectedRestaurant} a las ${convertTo12HourFormat(selectedTime)}. Por favor, intente con menos personas o en otro horario.`);
+                        }
+                    }
                 } catch (error) {
-                    console.error("Error al añadir reserva a Firebase:", error);
-                    alert("Error al registrar la reserva. Por favor, intente de nuevo.");
+                    console.error("Error en la transacción de reserva:", error);
+                    alert("Hubo un error al procesar su reserva. Por favor, intente de nuevo.");
                 }
             }
+
 
             // Función principal para renderizar reservas (ahora usa los datos de `reservations` que se actualizan desde Firebase)
             function renderReservations(filteredReservations = reservations) {
@@ -1270,20 +1469,52 @@
                     noArchivedReservationsMessage.style.display = 'block';
                 } else {
                     noArchivedReservationsMessage.style.display = 'none';
-                    filteredArchived.forEach((res) => {
-                        const reservationItem = document.createElement('div');
-                        reservationItem.classList.add('reservation-item', 'archived');
+                    // Group reservations by date for the archive view
+                    const groupedByDate = new Map();
+                    filteredArchived.forEach(res => {
+                        const dateKey = res.archiveDate;
+                        if (!groupedByDate.has(dateKey)) {
+                            groupedByDate.set(dateKey, []);
+                        }
+                        groupedByDate.get(dateKey).push(res);
+                    });
 
-                        const time12Hrs = convertTo12HourFormat(res.time);
-                        const formattedArchiveDate = getFormattedDate(res.archiveDate);
+                    // Sort dates (most recent first)
+                    const sortedDates = Array.from(groupedByDate.keys()).sort((a, b) => {
+                        return new Date(b).getTime() - new Date(a).getTime();
+                    });
 
-                        reservationItem.innerHTML = `
-                            <span class="room-name">${res.room} - ${res.guest}</span>
-                            <span class="restaurant-time">${res.place} - ${time12Hrs}</span>
-                            <span class="pax-info">${res.pax} PAX</span>
-                            <span class="archive-date">Archivado el: ${formattedArchiveDate}</span>
-                        `;
-                        archiveListContent.appendChild(reservationItem);
+                    sortedDates.forEach(dateKey => {
+                        const dateSection = document.createElement('div');
+                        dateSection.classList.add('archive-date-section');
+
+                        const dateHeader = document.createElement('h4');
+                        dateHeader.textContent = getFormattedDate(dateKey);
+                        dateSection.appendChild(dateHeader);
+
+                        const reservationsForDate = groupedByDate.get(dateKey);
+                        reservationsForDate.sort((a, b) => {
+                            const restaurantComparison = a.place.localeCompare(b.place);
+                            if (restaurantComparison !== 0) return restaurantComparison;
+                            return a.time.localeCompare(b.time);
+                        });
+
+                        reservationsForDate.forEach(res => {
+                            const reservationItem = document.createElement('div');
+                            reservationItem.classList.add('reservation-item', 'archived');
+
+                            const time12Hrs = convertTo12HourFormat(res.time);
+
+                            reservationItem.innerHTML = `
+                                <span class="room-name">${res.room} - ${res.guest}</span>
+                                <span class="restaurant-time">${res.place} - ${time12Hrs}</span>
+                                <span class="pax-info">${res.pax} PAX</span>
+                                ${res.comment ? `<span>${res.comment}</span>` : ''}
+                                ${res.validator ? `<span class="archive-validator">Por: ${res.validator})</span>` : ''}
+                            `;
+                            dateSection.appendChild(reservationItem);
+                        });
+                        archiveListContent.appendChild(dateSection);
                     });
                 }
             }
@@ -1333,14 +1564,6 @@
             // Las funciones saveReservations y saveArchivedReservations ya no son necesarias directamente
             // porque las operaciones de Firebase (push, set) se encargan de la persistencia.
             // Las variables `reservations` y `archivedReservations` se actualizan mediante `onValue` de Firebase.
-
-            function convertTo12HourFormat(time24h) {
-                const [hours, minutes] = time24h.split(':');
-                const hour = parseInt(hours, 10);
-                const ampm = hour >= 12 ? 'PM' : 'AM';
-                const displayHour = hour % 12 || 12;
-                return `${displayHour}:${minutes} ${ampm}`;
-            }
 
             function getTodayDateFormatted() {
                 const today = new Date();
