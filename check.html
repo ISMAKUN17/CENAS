@@ -236,16 +236,16 @@
         }
 
         .availability-info.full {
-            color: var(--danger-color);
+            color: #d32f2f; /* Rojo oscuro */
         }
 
         .operating-hours-message {
             grid-column: span 2;
             text-align: center;
             font-size: 0.85em; /* Reducido */
-            color: var(--danger-color);
-            background-color: rgba(229, 115, 115, 0.15);
-            border: 1px solid var(--danger-color);
+            color: #d32f2f; /* Rojo para advertencia */
+            background-color: #ffe0b2; /* Fondo naranja claro */
+            border: 1px solid #ffb74d;
             border-radius: var(--border-radius-sm);
             padding: 10px; /* Reducido */
             margin-top: 15px; /* Reducido */
@@ -446,7 +446,7 @@
             right: 10px; /* Reducido */
             background: none;
             border: none;
-            font-size: 1.6em; /* Reducido */
+            font-size: 1.8em; /* Reducido */
             cursor: pointer;
             color: var(--light-text-color);
             transition: color 0.2s ease, transform 0.2s ease;
@@ -990,50 +990,63 @@
                 const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
                 const allArchivedReservationsRef = ref(database, 'archivedReservations');
 
+                console.log(`[loadAndArchiveReservations] Starting process for today: ${today}`);
+                console.log(`[loadAndArchiveReservations] lastAccessDate from localStorage: ${lastAccessDate}`);
+
                 try {
-                    // Cargar reservas archivadas (todas)
+                    console.log("[loadAndArchiveReservations] Attempting to load all archived reservations...");
                     const archiveSnapshot = await get(allArchivedReservationsRef);
                     if (archiveSnapshot.exists()) {
-                        archivedReservaciones = [];
+                        archivedReservations = [];
                         archiveSnapshot.forEach(dateNode => {
                             dateNode.forEach(resNode => {
                                 archivedReservations.push({ id: resNode.key, ...resNode.val() });
                             });
                         });
+                        console.log(`[loadAndArchiveReservations] Archived reservations loaded successfully. Count: ${archivedReservations.length}`);
                     } else {
                         archivedReservations = [];
+                        console.log("[loadAndArchiveReservations] No archived reservations found.");
                     }
 
                     if (lastAccessDate && lastAccessDate !== today) {
-                        // Es un nuevo día, archivar las reservas del día anterior
+                        console.log(`[loadAndArchiveReservations] New day detected (${today}). Archiving reservations from previous day: ${lastAccessDate}`);
                         const previousDayReservationsRef = ref(database, `dailyReservations/${lastAccessDate}`);
+                        
+                        console.log(`[loadAndArchiveReservations] Attempting to get previous day's reservations from path: dailyReservations/${lastAccessDate}`);
                         const previousDaySnapshot = await get(previousDayReservationsRef);
 
                         if (previousDaySnapshot.exists()) {
                             const previousDayData = previousDaySnapshot.val();
+                            console.log(`[loadAndArchiveReservations] Found reservations for ${lastAccessDate}:`, previousDayData);
                             const updates = {};
                             for (const key in previousDayData) {
-                                const res = previousDayData[key];
-                                res.archiveDate = lastAccessDate; // Asegurarse de que tengan la fecha de archivo
-                                // Mover a la ruta de archivados bajo su fecha original
-                                updates[`archivedReservations/${lastAccessDate}/${key}`] = res;
+                                if (previousDayData.hasOwnProperty(key)) {
+                                    const res = previousDayData[key];
+                                    res.archiveDate = lastAccessDate; // Ensure archiveDate is set
+                                    updates[`archivedReservations/${lastAccessDate}/${key}`] = res;
+                                    updates[`dailyReservations/${lastAccessDate}/${key}`] = null; // Mark for deletion
+                                }
                             }
-                            // Eliminar las reservas del día anterior después de moverlas
-                            updates[`dailyReservations/${lastAccessDate}`] = null;
 
-                            await set(ref(database), updates); // Realizar la operación de actualización en lote
-                            console.log(`Reservas del ${lastAccessDate} archivadas y borradas.`);
+                            console.log("[loadAndArchiveReservations] Constructed update payload for batch operation:", updates);
+                            console.log("[loadAndArchiveReservations] Attempting to perform batch update (archive and delete previous day's daily reservations)...");
+                            await set(ref(database), updates); // Perform the multi-path update
+                            console.log(`[loadAndArchiveReservations] Reservations from ${lastAccessDate} archived and deleted successfully.`);
+                        } else {
+                            console.log(`[loadAndArchiveReservations] No reservations found for ${lastAccessDate} to archive. Skipping archiving.`);
                         }
-                        // Después de archivar, las reservas del día actual se reinician (se cargan de Firebase, que estará vacío para el nuevo día)
-                        reservations = [];
-                        // La carga del día actual se manejará con onValue para actualizaciones en tiempo real
+                    } else if (!lastAccessDate) {
+                        console.log("[loadAndArchiveReservations] No lastAccessDate found. Likely first run or localStorage cleared.");
+                    } else {
+                        console.log(`[loadAndArchiveReservations] Still the same day (${today}). No archiving needed.`);
                     }
 
-                    // Actualizar la fecha de último acceso en localStorage
                     localStorage.setItem('lastAccessDate', today);
                     lastAccessDate = today;
+                    console.log(`[loadAndArchiveReservations] lastAccessDate updated in localStorage to: ${today}`);
 
-                    // Escuchar cambios en las reservas del día actual en tiempo real
+                    console.log("[loadAndArchiveReservations] Setting up real-time listener for current day's reservations...");
                     onValue(dailyReservationsRef, (snapshot) => {
                         const data = snapshot.val();
                         reservations = [];
@@ -1042,13 +1055,18 @@
                                 reservations.push({ id: key, ...data[key] });
                             }
                         }
-                        renderReservations(); // Volver a renderizar cada vez que cambian las reservas
-                        updateAvailabilityInfo(); // Actualizar disponibilidad también
+                        console.log("[loadAndArchiveReservations] Real-time update: Current day's reservations:", reservations);
+                        renderReservations();
+                        updateAvailabilityInfo();
+                    }, (error) => {
+                        console.error("[loadAndArchiveReservations] Error in real-time listener for daily reservations:", error);
+                        // This error is caught by the onValue callback, not the outer try-catch
+                        // So the initial alert won't be triggered by this.
                     });
 
                 } catch (error) {
-                    console.error("Error al cargar o archivar reservas:", error);
-                    alert("Hubo un error al cargar los datos de las reservas. Por favor, intente de nuevo.");
+                    console.error("[loadAndArchiveReservations] FATAL Error during load or archive process in main try-catch block:", error);
+                    alert("Hubo un error al cargar los datos de las reservas. Por favor, intente de nuevo. Verifique la consola del navegador para más detalles.");
                 }
 
                 checkOperatingHours(); // Verificar horario y deshabilitar/habilitar botón
@@ -1274,14 +1292,14 @@
                 }
 
                 const maxPax = restaurantPaxLimits[place];
-                // Note: The actual check for remainingPax will happen inside the transaction
-                // This client-side check is just for immediate feedback before the transaction attempt.
-                const currentOccupiedPaxForClientCheck = reservations
+                const occupiedPax = reservations
                     .filter(res => res.place === place && res.time === time)
                     .reduce((sum, res) => sum + res.pax, 0);
 
-                if (pax > (maxPax - currentOccupiedPaxForClientCheck)) {
-                    alert(`Lo sentimos, solo quedan ${maxPax - currentOccupiedPaxForClientCheck} espacios disponibles para ${place} a las ${convertTo12HourFormat(time)}. Por favor, ajuste la cantidad de personas.`);
+                const remainingPax = maxPax - occupiedPax;
+
+                if (pax > remainingPax) {
+                    alert(`Lo sentimos, solo quedan ${remainingPax} espacios disponibles para ${place} a las ${convertTo12HourFormat(time)}. Por favor, ajuste la cantidad de personas.`);
                     paxInput.focus();
                     return;
                 }
@@ -1361,21 +1379,21 @@
                 const selectedTime = data.time;
                 const requestedPax = data.pax;
                 const maxPax = restaurantPaxLimits[selectedRestaurant];
-                const roomNumber = data.room; // Obtener el número de habitación de los datos de la reserva
+                const roomNumber = data.room;
 
                 try {
                     const result = await runTransaction(dailyReservationsRef, (currentData) => {
                         const existingReservations = currentData || {};
                         let occupiedPax = 0;
 
-                        // Verificar si ya existe una reserva para esta habitación hoy
+                        // Check for duplicate room for today
                         for (const key in existingReservations) {
                             if (existingReservations.hasOwnProperty(key)) {
                                 const res = existingReservations[key];
                                 if (res.room === roomNumber) {
-                                    // Si ya existe una reserva para esta habitación, abortar la transacción
-                                    console.log(`Transacción abortada: La habitación ${roomNumber} ya tiene una reserva para hoy.`);
-                                    return; // Abortar la transacción
+                                    // Room already has a reservation for today, abort transaction
+                                    console.log(`Transaction aborted: Room ${roomNumber} already has a reservation for today.`);
+                                    return; // Abort the transaction
                                 }
                                 if (res.place === selectedRestaurant && res.time === selectedTime) {
                                     occupiedPax += res.pax;
@@ -1383,37 +1401,34 @@
                             }
                         }
 
+                        // Check PAX limit
                         if (occupiedPax + requestedPax > maxPax) {
-                            console.log("Transacción abortada: No hay suficiente espacio.");
-                            return; // Abortar la transacción
+                            console.log("Transaction aborted: Not enough space.");
+                            return; // Abort the transaction
                         } else {
-                            const newKey = push(dailyReservationsRef).key;
-                            existingReservations[newKey] = data;
-                            console.log("Transacción exitosa: Reserva añadida.");
-                            return existingReservations; // Retornar los datos actualizados para confirmar la transacción
+                            const newKey = push(dailyReservationsRef).key; // Generates a new key
+                            existingReservations[newKey] = data; // Add new reservation to currentData
+                            console.log("Transaction successful: Reservation added.");
+                            return existingReservations; // Return updated data to commit transaction
                         }
                     });
 
-                    if (result.committed) {
+                    if (result && result.committed) {
                         alert('¡Reserva realizada con éxito!');
                     } else {
-                        // Si la transacción no se comprometió, podría ser por espacio o por duplicado de habitación
-                        // El mensaje de alerta ya se maneja dentro de la transacción si es por habitación duplicada
-                        // Si es por PAX, el mensaje ya está definido.
-                        // Modificación: Mostrar mensaje específico si la habitación ya está reservada
+                        // If transaction was not committed, it means it was aborted by one of the checks
                         const isRoomAlreadyReserved = reservations.some(res => res.room === roomNumber);
                         if (isRoomAlreadyReserved) {
                             alert(`Error: La habitación ${roomNumber} ya tiene una reserva para hoy.`);
                         } else {
-                            alert(`No se pudo registrar la reserva. No hay suficientes espacios disponibles para ${selectedRestaurant} a las ${convertTo12HourFormat(selectedTime)}. Por favor, intente con menos personas o en otro horario.`);
+                            alert(`No se pudo registrar la reserva. No hay suficientes espacios disponibles para ${selectedRestaurant} a las ${convertTo12HourFormat(selectedTime)}. Por favor, ajuste la cantidad de personas.`);
                         }
                     }
                 } catch (error) {
-                    console.error("Error en la transacción de reserva:", error);
+                    console.error("Error in reservation transaction:", error);
                     alert("Hubo un error al procesar su reserva. Por favor, intente de nuevo.");
                 }
             }
-
 
             // Función principal para renderizar reservas (ahora usa los datos de `reservations` que se actualizan desde Firebase)
             function renderReservations(filteredReservations = reservations) {
@@ -1469,52 +1484,20 @@
                     noArchivedReservationsMessage.style.display = 'block';
                 } else {
                     noArchivedReservationsMessage.style.display = 'none';
-                    // Group reservations by date for the archive view
-                    const groupedByDate = new Map();
-                    filteredArchived.forEach(res => {
-                        const dateKey = res.archiveDate;
-                        if (!groupedByDate.has(dateKey)) {
-                            groupedByDate.set(dateKey, []);
-                        }
-                        groupedByDate.get(dateKey).push(res);
-                    });
+                    filteredArchived.forEach((res) => {
+                        const reservationItem = document.createElement('div');
+                        reservationItem.classList.add('reservation-item', 'archived');
 
-                    // Sort dates (most recent first)
-                    const sortedDates = Array.from(groupedByDate.keys()).sort((a, b) => {
-                        return new Date(b).getTime() - new Date(a).getTime();
-                    });
+                        const time12Hrs = convertTo12HourFormat(res.time);
+                        const formattedArchiveDate = getFormattedDate(res.archiveDate);
 
-                    sortedDates.forEach(dateKey => {
-                        const dateSection = document.createElement('div');
-                        dateSection.classList.add('archive-date-section');
-
-                        const dateHeader = document.createElement('h4');
-                        dateHeader.textContent = getFormattedDate(dateKey);
-                        dateSection.appendChild(dateHeader);
-
-                        const reservationsForDate = groupedByDate.get(dateKey);
-                        reservationsForDate.sort((a, b) => {
-                            const restaurantComparison = a.place.localeCompare(b.place);
-                            if (restaurantComparison !== 0) return restaurantComparison;
-                            return a.time.localeCompare(b.time);
-                        });
-
-                        reservationsForDate.forEach(res => {
-                            const reservationItem = document.createElement('div');
-                            reservationItem.classList.add('reservation-item', 'archived');
-
-                            const time12Hrs = convertTo12HourFormat(res.time);
-
-                            reservationItem.innerHTML = `
-                                <span class="room-name">${res.room} - ${res.guest}</span>
-                                <span class="restaurant-time">${res.place} - ${time12Hrs}</span>
-                                <span class="pax-info">${res.pax} PAX</span>
-                                ${res.comment ? `<span>${res.comment}</span>` : ''}
-                                ${res.validator ? `<span class="archive-validator">Por: ${res.validator})</span>` : ''}
-                            `;
-                            dateSection.appendChild(reservationItem);
-                        });
-                        archiveListContent.appendChild(dateSection);
+                        reservationItem.innerHTML = `
+                            <span class="room-name">${res.room} - ${res.guest}</span>
+                            <span class="restaurant-time">${res.place} - ${time12Hrs}</span>
+                            <span class="pax-info">${res.pax} PAX</span>
+                            <span class="archive-date">Archivado el: ${formattedArchiveDate}</span>
+                        `;
+                        archiveListContent.appendChild(reservationItem);
                     });
                 }
             }
