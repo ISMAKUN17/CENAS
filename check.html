@@ -883,17 +883,18 @@
                                     const res = previousDayData[key];
                                     res.archiveDate = lastAccessDate; // Ensure archiveDate is set
                                     updates[`archivedReservations/${lastAccessDate}/${key}`] = res;
-                                    updates[`dailyReservations/${lastAccessDate}/${key}`] = null; // Mark for deletion
+                                    // NO ELIMINAR de dailyReservations/${lastAccessDate}
+                                    // updates[`dailyReservations/${lastAccessDate}/${key}`] = null; // Removed this line
                                 }
                             }
 
-                            console.log("[loadAndArchiveReservations] Constructed update payload for batch operation:", updates);
-                            console.log("[loadAndArchiveReservations] Attempting to perform batch update (archive and delete previous day's daily reservations)...");
+                            console.log("[loadAndArchiveReservations] Constructed update payload for batch operation (copy only):", updates);
+                            console.log("[loadAndArchiveReservations] Attempting to perform batch update (copy previous day's daily reservations to archive)...");
                             try {
                                 await set(ref(database), updates); 
-                                console.log(`[loadAndArchiveReservations] Reservations from ${lastAccessDate} archived and deleted successfully.`);
+                                console.log(`[loadAndArchiveReservations] Reservations from ${lastAccessDate} copied to archive successfully.`);
                             } catch (archiveError) {
-                                console.error(`[loadAndArchiveReservations] ERROR during batch archive/delete for ${lastAccessDate}:`, archiveError);
+                                console.error(`[loadAndArchiveReservations] ERROR during batch copy for ${lastAccessDate}:`, archiveError);
                                 alert(`Error al archivar las reservas del día anterior (${lastAccessDate}). Por favor, revise las reglas de seguridad de Firebase o la conexión a internet. Detalles en la consola.`);
                             }
                         } else {
