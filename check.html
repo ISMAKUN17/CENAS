@@ -889,9 +889,13 @@
 
                             console.log("[loadAndArchiveReservations] Constructed update payload for batch operation:", updates);
                             console.log("[loadAndArchiveReservations] Attempting to perform batch update (archive and delete previous day's daily reservations)...");
-                            // Use set with a root ref to perform a multi-path update
-                            await set(ref(database), updates); 
-                            console.log(`[loadAndArchiveReservations] Reservations from ${lastAccessDate} archived and deleted successfully.`);
+                            try {
+                                await set(ref(database), updates); 
+                                console.log(`[loadAndArchiveReservations] Reservations from ${lastAccessDate} archived and deleted successfully.`);
+                            } catch (archiveError) {
+                                console.error(`[loadAndArchiveReservations] ERROR during batch archive/delete for ${lastAccessDate}:`, archiveError);
+                                alert(`Error al archivar las reservas del día anterior (${lastAccessDate}). Por favor, revise las reglas de seguridad de Firebase o la conexión a internet. Detalles en la consola.`);
+                            }
                         } else {
                             console.log(`[loadAndArchiveReservations] No reservations found for ${lastAccessDate} to archive. Skipping archiving.`);
                         }
