@@ -1179,7 +1179,7 @@
 
             // Evento para confirmar la validación del nombre
             confirmValidationBtn.addEventListener('click', async () => {
-                const validatorName = validatorNameInput.value.trim(); // Corregido: validatorNameInput
+                const validatorName = validatorNameInput.value.trim(); 
                 if (validatorName) {
                     currentReservationData.validator = validatorName;
                     await addReservation(currentReservationData); // Esperar la operación de Firebase
@@ -1384,7 +1384,7 @@
                                 <span class="restaurant-time">${res.place} - ${time12Hrs}</span>
                                 <span class="pax-info">${res.pax} PAX</span>
                                 ${res.comment ? `<span>${res.comment}</span>` : ''}
-                                ${res.validator ? `<span class="archive-validator">Por: ${res.validator})</span>` : ''}
+                                ${res.validator ? `<span class="archive-validator">Por: ${res.validator}</span>` : ''}
                             `;
                             dateSection.appendChild(reservationItem);
                         });
