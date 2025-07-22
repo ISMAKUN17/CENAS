@@ -3,430 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservas de Restaurantes</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Administrador de Reservas cenas VIP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --accent: #f59e42;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --bg: #f7f9fb;
-            --bg-card: #fff;
-            --text: #222;
-            --text-light: #6b7280;
-            --border: #e5e7eb;
-            --shadow: 0 2px 16px rgba(30,64,175,0.07);
-            --radius: 16px;
-            --transition: 0.25s cubic-bezier(.4,0,.2,1);
-            --font-size-base: 15px;
-            --font-size-title: 1.2em;
-            --font-size-modal-title: 1.08em;
-            --font-size-btn: 1em;
-            --padding-card: 18px 12px;
-            --padding-modal: 18px 10px 14px 10px;
-            --padding-btn: 8px 18px;
-            --input-padding: 8px 8px 7px 8px;
-            --icon-size: 1.1em;
+            --primary-color: #4f8cff;
+            --secondary-color: #6C757D;
+            --success-color: #28A745;
+            --danger-color: #DC3545;
+            --warning-color: #FFC107;
+            --info-color: #17A2B8;
+            --dark-color: #23272f;
+            --light-color: #f7f9fa;
+            --white-color: #FFFFFF;
+            --border-color: #f0f1f3;
+            --border-radius-sm: 0.25rem;
+            --border-radius-md: 0.5rem;
+            --transition-speed: 0.2s;
+            --font-family: 'Inter', 'Poppins', 'Segoe UI', Arial, sans-serif;
+            --font-weight-light: 300;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-bold: 600;
+            --text-color: var(--dark-color);
         }
-        body.dark {
-            --primary: #60a5fa;
-            --primary-dark: #2563eb;
-            --accent: #fbbf24;
-            --success: #22d3ee;
-            --danger: #f87171;
-            --bg: #18181b;
-            --bg-card: #23232a;
-            --text: #f3f4f6;
-            --text-light: #a1a1aa;
-            --border: #27272a;
-            --shadow: 0 2px 16px rgba(30,64,175,0.15);
-        }
-        html, body {
-            height: 100%;
-        }
+
         body {
-            font-family: 'Inter', Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: var(--font-family);
+            font-weight: var(--font-weight-light);
+            line-height: 1.7;
+            color: var(--text-color);
+            background: var(--light-color);
             margin: 0;
+            padding: 0;
             min-height: 100vh;
-            transition: background var(--transition), color var(--transition);
-            font-size: var(--font-size-base);
-        }
-        .dashboard-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 32px 16px 16px 16px;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--white-color);
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+            padding: 32px 18px 18px 18px;
+            margin: 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 32px;
         }
-        .dashboard-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            position: sticky;
-            top: 0;
-            background: var(--bg);
+
+        .header {
+            position: relative;
             z-index: 10;
-            padding-bottom: 8px;
-        }
-        .dashboard-title {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(79,140,255,0.04);
+            border-bottom: 1.5px solid var(--border-color);
+            width: 100%;
+            padding: 64px 0 48px 0;
+            margin-bottom: 48px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            font-size: 1.5em;
-            font-weight: 700;
-            letter-spacing: -1px;
         }
-        .dashboard-title svg {
-            width: 36px;
-            height: 36px;
-            color: var(--primary);
-        }
-        .dashboard-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .toggle-dark {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5em;
-            color: var(--primary);
-            transition: color var(--transition);
-        }
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: var(--padding-card);
-            transition: background var(--transition), box-shadow var(--transition);
-        }
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 32px;
-        }
-        @media (max-width: 900px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-            .dashboard-title {
-                font-size: 1.15em;
-            }
-            .card {
-                padding: 10px 4px;
-            }
-        }
-        .form-title {
-            font-size: var(--font-size-title);
+        .header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 2.3em;
             font-weight: 600;
-            margin-bottom: 18px;
-            color: var(--primary);
+            letter-spacing: 0.2px;
+            line-height: 1.1;
+            width: 100%;
+            text-align: center;
         }
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px 24px;
+        .header h1 .material-icons {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            vertical-align: middle;
+        }
+        .btn-float-back {
+            position: absolute;
+            top: 22px;
+            left: 32px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1.5px solid var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border-color 0.18s;
+        }
+        .btn-float-back:hover, .btn-float-back:focus {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        .btn-float-back .material-icons {
+            font-size: 1.1em;
         }
         @media (max-width: 600px) {
-            .form-grid {
-                grid-template-columns: 1fr;
+            .btn-float-back {
+                top: 8px;
+                left: 6px;
+                width: 28px;
+                height: 28px;
+                font-size: 0.9em;
             }
+            .header h1 {
+                font-size: 1em;
+                gap: 10px;
+            }
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 1em;
+            font-weight: var(--font-weight-normal);
+            cursor: pointer;
+            transition: background var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+            background: var(--white-color);
+            color: var(--primary-color);
+            box-shadow: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        .btn .material-icons {
+            font-size: 1.1em;
+            vertical-align: middle;
+        }
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white-color);
+            border: 1px solid var(--primary-color);
+        }
+        .btn-primary:hover {
+            background: #356ad6;
+            color: var(--white-color);
+            border: 1px solid #356ad6;
+        }
+        .btn-success {
+            background: var(--success-color);
+            color: var(--white-color);
+            border: 1px solid var(--success-color);
+        }
+        .btn-success:hover {
+            background: #218838;
+            border: 1px solid #218838;
+        }
+        .btn-danger {
+            background: var(--danger-color);
+            color: var(--white-color);
+            border: 1px solid var(--danger-color);
+        }
+        .btn-danger:hover {
+            background: #b52a3a;
+            border: 1px solid #b52a3a;
+        }
+        .btn-warning {
+            background: var(--warning-color);
+            color: var(--dark-color);
+            border: 1px solid var(--warning-color);
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+            border: 1px solid #e0a800;
+        }
+        .btn-info {
+            background: var(--info-color);
+            color: var(--white-color);
+            border: 1px solid var(--info-color);
+        }
+        .btn-info:hover {
+            background: #138496;
+            border: 1px solid #138496;
+        }
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: var(--white-color);
+            border: 1px solid var(--secondary-color);
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+            border: 1px solid #5a6268;
+        }
+
+        section {
+            background: var(--white-color);
+            padding: 24px 18px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 1.2em;
+            font-weight: var(--font-weight-medium);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+            width: 100%;
+            text-align: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            width: 100%;
         }
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            align-items: center;
         }
         .form-group-full {
-            grid-column: span 2;
+            grid-column: 1 / -1;
         }
         label {
+            margin-bottom: 8px;
+            font-weight: var(--font-weight-normal);
+            color: var(--dark-color);
             font-size: 1em;
-            color: var(--text-light);
-            font-weight: 500;
+            letter-spacing: 0.1px;
+            text-align: center;
         }
-        .input, select, textarea {
-            font-family: inherit;
-            font-size: var(--font-size-base);
-            padding: var(--input-padding);
-            border: none;
-            border-bottom: 2px solid var(--border);
-            background: transparent;
-            color: var(--text);
-            border-radius: 0;
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 1em;
+            color: var(--text-color);
+            font-weight: var(--font-weight-light);
+            background: var(--light-color);
+            transition: border-color var(--transition-speed), background var(--transition-speed);
+            box-shadow: none;
+            text-align: center;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
-            transition: border-color var(--transition), box-shadow var(--transition);
-        }
-        .input:focus, select:focus, textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 2px 0 0 var(--primary);
+            border-color: var(--primary-color);
+            background: var(--white-color);
         }
         textarea {
             resize: vertical;
         }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: var(--padding-btn);
-            border: none;
-            border-radius: 999px;
-            font-size: var(--font-size-btn);
-            font-weight: 600;
-            cursor: pointer;
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.07);
-            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-        }
-        .btn svg {
-            width: var(--icon-size);
-            height: var(--icon-size);
-        }
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-        .btn:active {
-            transform: scale(0.97);
-        }
-        .btn:disabled {
-            background: var(--border);
-            color: var(--text-light);
-            cursor: not-allowed;
-        }
-        .availability-info {
-            font-size: 0.98em;
-            margin-top: 2px;
-            min-height: 1.5em;
-            color: var(--text-light);
-        }
-        .availability-info.available {
-            color: var(--success);
-        }
-        .availability-info.limited {
-            color: var(--accent);
-        }
-        .availability-info.full {
-            color: var(--danger);
-        }
-        .operating-hours-message {
-            grid-column: span 2;
-            text-align: center;
-            font-size: 0.98em;
-            color: var(--danger);
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            border-radius: var(--radius);
-            padding: 10px;
-            margin-top: -10px;
-            margin-bottom: 10px;
-        }
-        .reservation-list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .search-input {
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius-md);
+            box-shadow: none;
+            background: var(--white-color);
+            border: 1px solid var(--border-color);
             width: 100%;
-            padding: var(--input-padding);
-            border: none;
-            border-bottom: 2px solid var(--border);
+            max-width: 1200px;
+            margin: 0 auto;
+            display: block;
+        }
+        .admin-table {
+            width: 100%;
+            max-width: 1150px;
+            border-collapse: collapse;
+            margin-top: 0;
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
             background: transparent;
-            color: var(--text);
-            font-size: var(--font-size-base);
-            border-radius: 0;
-            outline: none;
-            transition: border-color var(--transition);
-        }
-        .search-input:focus {
-            border-color: var(--primary);
-        }
-        .reservation-group {
-            margin-bottom: 22px;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 10px;
-            background: #f8fafc;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(37,99,235,0.04);
-        }
-        .reservation-group:last-child {
-            border-bottom: none;
-        }
-        .reservation-group-title {
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 8px;
-            font-size: 1.08em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-top: 8px;
-            padding-left: 6px;
-        }
-        .reservation-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(37,99,235,0.04);
-            padding: 8px 14px;
-            margin-bottom: 8px;
-            font-size: 0.98em;
-            border-left: 4px solid var(--primary);
-        }
-        .reservation-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1em;
-            margin-right: 4px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.10);
-        }
-        .room-name {
-            font-weight: 600;
-            color: var(--primary-dark);
-            min-width: 120px;
-            margin-right: 8px;
-        }
-        .restaurant-time {
-            color: var(--primary);
-            min-width: 120px;
-            margin-right: 8px;
-        }
-        .pax-info {
-            font-weight: 800;
-            color: #dc2626;
-            background: #fbeaea;
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 0.98em;
-            margin-left: auto;
-        }
-        .reservation-timestamp {
-            color: var(--text-light);
-            font-size: 0.93em;
-            min-width: 90px;
-            text-align: right;
-            margin-left: 12px;
-        }
-        @media (max-width: 700px) {
-            .reservation-group {
-                padding-bottom: 6px;
-                margin-bottom: 14px;
-            }
-            .reservation-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 6px;
-                padding: 8px 8px;
-                font-size: 0.96em;
-            }
-            .reservation-avatar {
-                width: 26px;
-                height: 26px;
-                font-size: 0.9em;
-            }
-            .room-name, .restaurant-time {
-                min-width: 0;
-                margin-right: 0;
-            }
-            .pax-info {
-                margin-left: 0;
-                margin-top: 4px;
-            }
-            .reservation-timestamp {
-                margin-left: 0;
-                font-size: 0.91em;
-            }
-        }
-        .no-reservations {
             text-align: center;
-            color: var(--text-light);
-            font-style: italic;
-            padding: 18px;
-            border: 1px dashed var(--border);
-            border-radius: var(--radius);
-            margin-top: 18px;
+        }
+        .admin-table th,
+        .admin-table td {
+            border: 1px solid var(--border-color);
+            padding: 10px 8px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 1em;
+            background: var(--white-color);
+            font-weight: var(--font-weight-light);
+            text-align: center;
+            max-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .admin-table td.actions, .admin-table th.actions {
+            padding: 0 4px;
+        }
+        .admin-table .actions {
+            display: inline-flex;
+            gap: 4px;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
             width: 100%;
-            box-sizing: border-box;
         }
-        /* Snackbar/Toast */
-        .snackbar {
-            visibility: hidden;
-            min-width: 250px;
-            background: var(--primary-dark);
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 2000;
-            left: 50%;
-            bottom: 30px;
-            font-size: 1em;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.4s, bottom 0.4s;
-        }
-        .snackbar.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
-        /* Loading Spinner */
-        .spinner-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(37,99,235,0.08);
-            z-index: 3000;
+        .admin-table .actions .btn {
+            min-width: 36px;
+            min-height: 36px;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            font-size: 1.1em;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            box-shadow: none;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.18s, color 0.18s;
         }
-        .spinner {
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid var(--primary);
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            animation: spin 1s linear infinite;
+        .admin-table .actions .btn .material-icons {
+            font-size: 1.3em;
+            color: inherit;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .admin-table .actions .btn.btn-danger {
+            color: #DC3545;
         }
-        /* MODERN MODAL STYLES */
+        .admin-table .actions .btn.btn-warning {
+            color: #FFC107;
+        }
+        .admin-table .actions .btn:hover, .admin-table .actions .btn:focus {
+            background: #eaf1ff;
+            color: var(--primary-color);
+        }
+        .admin-table .actions .btn.btn-danger:hover, .admin-table .actions .btn.btn-danger:focus {
+            background: #ffeaea;
+            color: #DC3545;
+        }
+        .admin-table .actions .btn.btn-warning:hover, .admin-table .actions .btn.btn-warning:focus {
+            background: #fffbe6;
+            color: #FFC107;
+        }
+
+        .loading-message, .no-reservations {
+            text-align: center;
+            font-style: italic;
+            color: var(--secondary-color);
+            padding: 18px;
+            font-size: 1em;
+            font-weight: var(--font-weight-light);
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        #adminReservationSearch {
+            flex-grow: 1;
+            padding: 12px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-size: 1em;
+            transition: border-color var(--transition-speed), background var(--transition-speed);
+            background: var(--light-color);
+            font-weight: var(--font-weight-light);
+        }
+        #adminReservationSearch:focus {
+            border-color: var(--primary-color);
+            background: var(--white-color);
+            outline: none;
+        }
+
+        /* Modal Styling Minimalista */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(30,41,59,0.35);
-            backdrop-filter: blur(4px);
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.08);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity var(--transition), visibility var(--transition);
+            transition: opacity var(--transition-speed), visibility var(--transition-speed);
             overflow-y: auto;
         }
         .modal-overlay.active {
@@ -434,548 +423,692 @@
             visibility: visible;
         }
         .modal-content {
-            padding: var(--padding-modal);
-            max-width: 350px;
-            width: 100%;
-            gap: 0;
+            background: var(--white-color);
+            padding: 24px 18px 18px 18px;
+            border-radius: var(--border-radius-md);
+            box-shadow: none;
+            border: 1px solid var(--border-color);
+            width: 95%;
+            max-width: 500px;
+            text-align: left;
+            transform: translateY(-30px);
+            transition: transform var(--transition-speed);
+            box-sizing: border-box;
+            margin: 20px auto;
+            position: relative;
+            max-height: 92vh;
             display: flex;
             flex-direction: column;
+            font-weight: var(--font-weight-light);
             align-items: center;
-            background: var(--bg-card);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(37,99,235,0.13);
             text-align: center;
-            position: relative;
-            animation: fadeInScaleUp var(--transition) forwards;
-            max-height: 92vh;
-            box-sizing: border-box;
         }
-        .modal-content h3 {
-            font-size: var(--font-size-modal-title);
-            gap: 8px;
-            margin-bottom: 0.5em;
-            margin-top: 0.2em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: var(--primary);
-            width: 100%;
-        }
-        .modal-content .modal-icon {
-            font-size: 1.1em;
-            color: var(--accent);
-        }
-        .modal-content p {
-            color: var(--text-light);
-            font-size: 0.98em;
-            margin: 0 0 18px 0;
-            text-align: center;
-            width: 100%;
-        }
-        .modal-content input[type="text"],
-        .modal-content input[type="number"],
-        .modal-content textarea {
-            width: 100%;
-            margin: 0 0 14px 0;
-            font-size: var(--font-size-base);
-            padding: var(--input-padding);
-            border: none;
-            border-bottom: 2px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            border-radius: 6px 6px 0 0;
-            outline: none;
-            transition: border-color var(--transition), box-shadow var(--transition);
-            box-sizing: border-box;
-            text-align: left;
-            display: block;
-        }
-        .modal-content input:focus,
-        .modal-content textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 2px 0 0 var(--primary);
-            background: #f0f6ff;
-        }
-        .modal-actions {
-            display: flex;
-            flex-direction: row;
-            justify-content: stretch;
-            gap: 12px;
-            margin-top: 18px;
-            width: 100%;
-        }
-        .modal-actions .btn, .modal-actions .btn-secondary {
-            flex: 1 1 0;
-            min-width: 0;
-            width: 100%;
-            margin: 0;
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
         }
         .modal-close-btn {
             position: absolute;
-            top: 10px;
-            right: 14px;
+            top: 12px;
+            right: 12px;
             background: none;
             border: none;
-            font-size: 1.5em;
+            font-size: 2em;
             cursor: pointer;
-            color: var(--text-light);
-            transition: color 0.2s, transform 0.2s;
+            color: var(--secondary-color);
+            transition: color 0.2s;
             line-height: 1;
             padding: 0;
-            z-index: 2;
         }
         .modal-close-btn:hover {
-            color: var(--primary);
-            transform: scale(1.15);
+            color: var(--primary-color);
         }
-        @keyframes fadeInItem {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
         }
-        @keyframes fadeInScaleUp {
-            from {
-                opacity: 0;
-                transform: translateY(-20px) scale(0.95);
+
+        /* Responsive Minimalista */
+        @media (max-width: 900px) {
+            .header h1 {
+                font-size: 1.3em;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
+            section h2 {
+                font-size: 1.1em;
+            }
+            .btn {
+                font-size: 0.95em;
+                padding: 10px 14px;
             }
         }
-        @media (max-width: 600px) {
-            .modal-content {
-                padding: 8px 2px 8px 2px;
-                max-width: 98vw;
-                gap: 0;
+        @media (max-width: 700px) {
+            .container {
+                padding: 6px 1px;
+                gap: 10px;
             }
-            .modal-content h3 {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+                padding-bottom: 8px;
+            }
+            .header h1 {
                 font-size: 1em;
             }
-            .modal-actions {
-                flex-direction: column;
+            .btn {
+                width: 100%;
+                font-size: 0.95em;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
                 gap: 8px;
-                margin-top: 12px;
+            }
+            .form-group-full {
+                grid-column: span 1;
+            }
+            .admin-table {
+                font-size: 0.95em;
+            }
+            .admin-table th, .admin-table td {
+                padding: 8px 6px;
+            }
+            .admin-table .actions {
+                flex-direction: column;
+                gap: 4px;
+            }
+            .admin-table .actions .btn {
+                width: 100%;
+            }
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            #adminReservationSearch {
+                width: 100%;
             }
         }
-        /* Responsive */
-        @media (max-width: 700px) {
-            .dashboard-container {
-                padding: 12px 2px 2px 2px;
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 0.9em;
             }
-            .card {
-                padding: 16px 6px;
+            section h2 {
+                font-size: 0.9em;
             }
-            .modal-content {
-                padding: 16px 6px;
+            .btn {
+                padding: 7px 8px;
+                font-size: 0.9em;
+            }
+            input[type="text"], input[type="number"], input[type="date"], input[type="time"], select, textarea {
+                padding: 8px 4px;
             }
         }
-        /* Mejorar el resumen de reservas */
-        .summary-content {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            margin-top: 8px;
-            width: 100%;
-        }
-        /* Colores para distinción visual en el resumen */
-        :root {
-            --summary-blue: #2563eb;
-            --summary-green: #22c55e;
-            --summary-orange: #f59e42;
-            --summary-purple: #a78bfa;
-            --summary-pink: #f472b6;
-            --summary-gray: #f1f5f9;
-        }
-        .summary-restaurant {
-            background: var(--summary-gray);
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.08);
-            padding: 18px 18px 14px 18px;
+        /* Print styles remain unchanged */
+
+        section.add-reservation-section {
+            background: linear-gradient(120deg, #f7f9fa 60%, #eaf1ff 100%);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            box-shadow: 0 2px 8px rgba(79,140,255,0.04);
+            padding: 36px 28px 28px 28px;
             margin-bottom: 0;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            font-size: 0.97em;
-            border-left: 7px solid var(--summary-blue);
-        }
-        /* Alternar colores de borde para restaurantes */
-        .summary-restaurant:nth-of-type(5n+1) { border-left-color: var(--summary-blue); }
-        .summary-restaurant:nth-of-type(5n+2) { border-left-color: var(--summary-green); }
-        .summary-restaurant:nth-of-type(5n+3) { border-left-color: var(--summary-orange); }
-        .summary-restaurant:nth-of-type(5n+4) { border-left-color: var(--summary-purple); }
-        .summary-restaurant:nth-of-type(5n)   { border-left-color: var(--summary-pink); }
-        .summary-restaurant h4 {
-            color: var(--primary-dark);
-            margin: 0 0 10px 0;
-            font-size: 1.13em;
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 6px;
-        }
-        .summary-restaurant h4 span {
-            font-size: 1em;
-            color: var(--summary-blue);
-            font-weight: 700;
-        }
-        .summary-time-group {
-            margin-left: 0;
-            margin-bottom: 12px;
-            padding: 12px 14px;
-            border-left: 4px solid var(--summary-blue);
-            background: #eaf1fb;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(30,64,175,0.04);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 0.96em;
+            max-width: 500px;
+            width: 100%;
             position: relative;
         }
-        .summary-time {
-            font-weight: 600;
-            color: var(--primary-dark);
-            margin-bottom: 4px;
-            font-size: 1.04em;
+        .add-reservation-section h2 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 18px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            background: none;
+            border: none;
+            padding-bottom: 0;
+        }
+        .add-reservation-section .form-grid {
+            gap: 22px;
+            width: 100%;
+        }
+        .add-reservation-section .form-group {
+            align-items: flex-start;
+        }
+        .add-reservation-section label {
+            font-size: 1.05em;
+            font-weight: var(--font-weight-medium);
+            color: var(--primary-color);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+        .add-reservation-section input,
+        .add-reservation-section select,
+        .add-reservation-section textarea {
+            font-size: 1.08em;
+            padding: 14px 12px;
+            border-radius: var(--border-radius-sm);
+            border: 1.5px solid var(--border-color);
+            background: #f7f9fa;
+            margin-bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+            font-weight: var(--font-weight-light);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .add-reservation-section input:focus,
+        .add-reservation-section select:focus,
+        .add-reservation-section textarea:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+        }
+        .add-reservation-section .form-group-full {
+            grid-column: 1 / -1;
+        }
+        .add-reservation-section button[type="submit"] {
+            margin-top: 18px;
+            width: 100%;
+            font-size: 1.1em;
+            font-weight: var(--font-weight-bold);
+            padding: 15px 0;
+            border-radius: var(--border-radius-sm);
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .add-reservation-section button[type="submit"]:hover {
+            background: #356ad6;
+            box-shadow: 0 4px 16px rgba(79,140,255,0.12);
+        }
+        .add-reservation-section::before {
+            content: '';
+            display: block;
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--primary-color);
+            opacity: 0.18;
+        }
+
+        /* FAB (Floating Action Button) */
+        .fab-add-reservation {
+            position: fixed;
+            right: 32px;
+            bottom: 32px;
+            z-index: 1200;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 16px rgba(79,140,255,0.18);
+            font-size: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .fab-add-reservation:hover {
+            background: #356ad6;
+            box-shadow: 0 8px 24px rgba(79,140,255,0.22);
+        }
+        @media (max-width: 700px) {
+            .fab-add-reservation {
+                right: 16px;
+                bottom: 16px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.7em;
+            }
+        }
+
+        /* Modal para agregar reserva - diseño mejorado */
+        #addReservationModal .modal-content {
+            max-width: 440px;
+            padding: 38px 32px 32px 32px;
+            border-radius: 1.2rem;
+            background: linear-gradient(120deg, #f7f9fa 70%, #eaf1ff 100%);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 8px 32px rgba(79,140,255,0.13);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-height: 95vh;
+            overflow: hidden;
+        }
+        #addReservationModal .modal-content form {
+            overflow-y: auto;
+            max-height: 60vh;
+            width: 100%;
+        }
+        #addReservationModal h2 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            background: none;
+            border: none;
+            padding-bottom: 0;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .summary-time-badge {
-            background: #e0e7ff !important;
-            color: #1e40af !important;
-            border-radius: 6px;
-            padding: 2px 10px;
-            font-size: 0.97em;
-            font-weight: 900;
-            margin-left: 0;
-            display: inline-block;
-            border: 1.5px solid #2563eb;
+        #addReservationModal h2 .material-icons {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            vertical-align: middle;
+        }
+        #addReservationModal .form-grid {
+            gap: 20px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        #addReservationModal .form-group {
+            align-items: flex-start;
+        }
+        #addReservationModal label {
+            font-size: 1.08em;
+            font-weight: var(--font-weight-medium);
+            color: var(--primary-color);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+        #addReservationModal input,
+        #addReservationModal select,
+        #addReservationModal textarea {
+            font-size: 1.12em;
+            padding: 15px 13px;
+            border-radius: 0.5rem;
+            border: 1.5px solid #dbeafe;
+            background: #f7f9fa;
+            margin-bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+            font-weight: var(--font-weight-light);
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.04);
+        }
+        #addReservationModal input:focus,
+        #addReservationModal select:focus,
+        #addReservationModal textarea:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(79,140,255,0.10);
+        }
+        #addReservationModal .form-group-full {
+            grid-column: 1 / -1;
+        }
+        #addReservationModal button[type="submit"] {
+            margin-top: 18px;
+            width: 100%;
+            font-size: 1.13em;
+            font-weight: var(--font-weight-bold);
+            padding: 15px 0;
+            border-radius: 0.5rem;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s;
             letter-spacing: 0.5px;
         }
-        .summary-time span {
-            color: var(--summary-green);
-            font-weight: 700;
+        #addReservationModal button[type="submit"]:hover {
+            background: #356ad6;
+            box-shadow: 0 4px 16px rgba(79,140,255,0.16);
         }
-        .summary-reservation-detail {
-            margin-left: 0;
-            font-size: 0.97em;
-            color: var(--text-light);
+        #addReservationModal .modal-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: #fff;
+            border: 2px solid #eaf1ff;
+            border-radius: 50%;
+            font-size: 1.7em;
+            width: 38px;
+            height: 38px;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #addReservationModal .modal-close-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 16px rgba(79,140,255,0.13);
+        }
+        @media (max-width: 600px) {
+            #addReservationModal .modal-content {
+                max-width: 98vw;
+                padding: 18px 6px 12px 6px;
+                border-radius: 0.7rem;
+            }
+            #addReservationModal .modal-content form {
+                max-height: 55vh;
+            }
+            #addReservationModal h2 {
+                font-size: 1.1em;
+                gap: 6px;
+            }
+            #addReservationModal input,
+            #addReservationModal select,
+            #addReservationModal textarea {
+                font-size: 1em;
+                padding: 10px 7px;
+                border-radius: 0.3rem;
+            }
+            #addReservationModal button[type="submit"] {
+                font-size: 1em;
+                padding: 10px 0;
+                border-radius: 0.3rem;
+            }
+            #addReservationModal .modal-close-btn {
+                top: 8px;
+                right: 8px;
+                width: 30px;
+                height: 30px;
+                font-size: 1.2em;
+            }
+        }
+
+        /* Modal para editar reserva - diseño mejorado */
+        #editReservationModal .modal-content {
+            max-width: 440px;
+            padding: 38px 32px 32px 32px;
+            border-radius: 1.2rem;
+            background: linear-gradient(120deg, #f7f9fa 70%, #eaf1ff 100%);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 8px 32px rgba(79,140,255,0.13);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-height: 95vh;
+            overflow: hidden;
+        }
+        #editReservationModal .modal-content form {
+            overflow-y: auto;
+            max-height: 60vh;
+            width: 100%;
+        }
+        #editReservationModal h3 {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            background: none;
+            border: none;
+            padding-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #editReservationModal h3 .material-icons {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            vertical-align: middle;
+        }
+        #editReservationModal .form-grid {
+            gap: 20px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        #editReservationModal .form-group {
+            align-items: flex-start;
+        }
+        #editReservationModal label {
+            font-size: 1.08em;
+            font-weight: var(--font-weight-medium);
+            color: var(--primary-color);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+        #editReservationModal input,
+        #editReservationModal select,
+        #editReservationModal textarea {
+            font-size: 1.12em;
+            padding: 15px 13px;
+            border-radius: 0.5rem;
+            border: 1.5px solid #dbeafe;
+            background: #f7f9fa;
             margin-bottom: 0;
-            line-height: 1.5;
+            width: 100%;
+            box-sizing: border-box;
+            font-weight: var(--font-weight-light);
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.04);
+        }
+        #editReservationModal input:focus,
+        #editReservationModal select:focus,
+        #editReservationModal textarea:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(79,140,255,0.10);
+        }
+        #editReservationModal .form-group-full {
+            grid-column: 1 / -1;
+        }
+        #editReservationModal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        #editReservationModal button[type="submit"] {
+            width: 100%;
+            font-size: 1.13em;
+            font-weight: var(--font-weight-bold);
+            padding: 15px 0;
+            border-radius: 0.5rem;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+            transition: background 0.2s, box-shadow 0.2s;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        #editReservationModal button[type="submit"]:hover {
+            background: #356ad6;
+            box-shadow: 0 4px 16px rgba(79,140,255,0.16);
+        }
+        #editReservationModal .btn.btn-secondary {
+            background: #fff;
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
+            box-shadow: none;
+            font-weight: 500;
+            transition: background 0.18s, color 0.18s, border-color 0.18s;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .summary-reservation-detail strong {
-            color: var(--accent);
-            font-weight: 600;
+        #editReservationModal .btn.btn-secondary:hover {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
         }
-        .summary-reservation-detail em {
-            color: var(--primary-dark);
-            font-style: normal;
-            font-size: 0.95em;
+        #editReservationModal .modal-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: #fff;
+            border: 2px solid #eaf1ff;
+            border-radius: 50%;
+            font-size: 1.7em;
+            width: 38px;
+            height: 38px;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(79,140,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .summary-reservation-detail span {
-            color: var(--primary);
-            font-size: 0.93em;
-        }
-        .summary-overall-pax {
-            text-align: right;
-            margin-top: 16px;
-            font-size: 1.13em;
-            font-weight: 700;
-            color: var(--summary-green);
-            padding-top: 10px;
-            border-top: 2px solid var(--summary-blue);
+        #editReservationModal .modal-close-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 16px rgba(79,140,255,0.13);
         }
         @media (max-width: 600px) {
-            #summaryModal .modal-content {
-                max-width: 99vw;
-                padding: 12px 4px 12px 4px;
+            #editReservationModal .modal-content {
+                max-width: 98vw;
+                padding: 18px 6px 12px 6px;
+                border-radius: 0.7rem;
+                max-height: 98vh;
             }
-            #summaryContent.summary-content {
-                max-height: 45vh;
-                gap: 14px;
+            #editReservationModal .form-grid {
+                max-height: 55vh;
             }
-            .summary-restaurant {
-                padding: 10px 4px 10px 4px;
-                gap: 10px;
+            #editReservationModal h3 {
+                font-size: 1.1em;
+                gap: 6px;
             }
-            .summary-restaurant h4 {
+            #editReservationModal input,
+            #editReservationModal select,
+            #editReservationModal textarea {
                 font-size: 1em;
-                padding-bottom: 3px;
+                padding: 10px 7px;
+                border-radius: 0.3rem;
             }
-            .summary-time-group {
-                padding: 7px 4px;
-                gap: 5px;
-                font-size: 0.93em;
-            }
-            .summary-time {
-                font-size: 0.98em;
-            }
-            .summary-table th, .summary-table td {
-                padding: 3px 2px;
-                font-size: 0.92em;
-            }
-            .summary-overall-pax {
+            #editReservationModal button[type="submit"] {
                 font-size: 1em;
+                padding: 10px 0;
+                border-radius: 0.3rem;
+            }
+            #editReservationModal .modal-close-btn {
+                top: 8px;
+                right: 8px;
+                width: 30px;
+                height: 30px;
+                font-size: 1.2em;
             }
         }
-        #summaryModal .modal-content {
-            max-width: 680px;
-            width: 99vw;
-            min-width: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-            padding: 28px 18px 18px 18px;
-            font-size: 0.97em;
-        }
-        #summaryContent.summary-content {
-            max-height: 60vh;
-            overflow-y: auto;
+
+        /* Gráfico de barras por restaurante */
+        .bar-chart-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 36px;
             width: 100%;
-            min-width: 0;
-            box-sizing: border-box;
-            gap: 24px;
+            max-width: 600px;
+            min-width: 260px;
         }
-        .summary-table-group {
-            margin-bottom: 18px;
+        .bar-chart-container {
+            width: 100%;
+            max-width: 600px;
         }
-        .summary-table-title {
-            font-weight: 700;
-            color: var(--primary);
+        #restaurantBarChart {
+            width: 100% !important;
+            height: 260px !important;
+        }
+        .bar-chart-label {
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            margin-top: 8px;
+            text-align: center;
+        }
+        .manage-reservations-section .table-controls {
+             width: 100%;
+             margin-bottom: 18px;
+             gap: 12px;
+             display: flex;
+             flex-wrap: wrap;
+             align-items: center;
+             justify-content: center;
+        }
+        #sendWhatsAppBtn {
             font-size: 1.08em;
-            margin: 0 0 4px 0;
-            padding: 0;
-        }
-        .summary-table-time {
-            font-weight: 600;
-            color: var(--primary-dark);
-            font-size: 0.98em;
-            margin: 6px 0 2px 0;
-            padding: 0;
-        }
-        .summary-table {
-            width: 100%;
-            min-width: 600px;
-            border-collapse: collapse;
-            background: transparent;
-            font-size: 0.97em;
-            margin-top: 2px;
-        }
-        .summary-table th, .summary-table td {
-            padding: 5px 7px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            white-space: nowrap;
-        }
-        .summary-table th {
-            background: #f1f5f9;
-            color: var(--primary-dark);
-            font-weight: 700;
-            font-size: 0.98em;
-        }
-        .summary-table tr:last-child td {
-            border-bottom: none;
-        }
-        .summary-table .pax-cell {
-            color: #dc2626;
-            font-weight: 800;
-        }
-        .summary-table .comment-cell {
-            color: var(--primary-dark);
-            font-size: 0.95em;
-        }
-        .summary-table .validator-cell {
-            color: var(--primary);
-            font-size: 0.95em;
-        }
-        .summary-overall-pax {
-            text-align: right;
-            margin-top: 16px;
-            font-size: 1.13em;
-            font-weight: 800;
-            color: #dc2626;
-            padding-top: 10px;
-            border-top: 2px solid var(--summary-blue);
-        }
-        @media (max-width: 900px) {
-            #summaryModal .modal-content {
-                max-width: 99vw;
-                padding: 10px 2vw 10px 2vw;
-                font-size: 0.97em;
-            }
-            .summary-table th, .summary-table td {
-                padding: 4px 4px;
-                font-size: 0.95em;
-            }
-        }
-        @media (max-width: 600px) {
-            #summaryModal .modal-content {
-                max-width: 99vw;
-                padding: 6px 1vw 6px 1vw;
-                font-size: 0.93em;
-            }
-            .summary-table th, .summary-table td {
-                padding: 3px 2px;
-                font-size: 0.92em;
-            }
-        }
-        #archiveModal .modal-content {
-            max-width: 900px;
-            width: 99vw;
-            min-width: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-            padding: 22px 18px 16px 18px;
-            font-size: 1em;
-        }
-        #archiveListContent.reservation-list {
-            max-height: 60vh;
-            overflow-y: auto;
-            width: 100%;
-            min-width: 0;
-            box-sizing: border-box;
-            padding: 0;
-            margin: 0;
-        }
-        .archive-table {
-            width: 100%;
-            min-width: 700px;
-            border-collapse: collapse;
-            background: #f8fafc;
-            font-size: 0.97em;
-            margin-top: 2px;
-        }
-        .archive-table th, .archive-table td {
-            padding: 6px 8px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            white-space: nowrap;
-        }
-        .archive-table th {
-            background: #2563eb;
+            padding: 13px 18px;
+            border-radius: var(--border-radius-sm);
+            background: #25D366;
             color: #fff;
-            font-weight: 700;
-            font-size: 0.98em;
+            border: none;
+            box-shadow: 0 2px 8px rgba(37,211,102,0.08);
+            transition: background 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
         }
-        .archive-table tr:nth-child(even) td {
-            background: #f3f6fa;
+        #sendWhatsAppBtn:hover {
+            background: #128C7E;
+            box-shadow: 0 4px 16px rgba(37,211,102,0.12);
         }
-        .archive-table tr:last-child td {
-            border-bottom: none;
-        }
-        .archive-table .pax-cell {
-            color: #dc2626;
-            font-weight: 800;
-        }
-        @media (max-width: 700px) {
-            #archiveModal .modal-content {
-                max-width: 99vw;
-                width: 99vw;
-                padding: 10px 2vw 10px 2vw;
-                font-size: 0.97em;
-            }
-            .archive-table th, .archive-table td {
-                padding: 4px 4px;
-                font-size: 0.95em;
-            }
-            .archive-table {
-                min-width: 400px;
-            }
-        }
-        #reservationList.reservation-list {
-            max-height: 60vh;
-            overflow-y: auto;
-            width: 100%;
-            min-width: 0;
-            box-sizing: border-box;
-            padding: 0;
-            margin: 0;
-        }
-        .reservation-table {
-            width: 100%;
-            min-width: 600px;
-            border-collapse: collapse;
-            background: #f8fafc;
-            font-size: 0.97em;
-            margin-top: 2px;
-        }
-        .reservation-table th, .reservation-table td {
-            padding: 6px 8px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            white-space: nowrap;
-        }
-        .reservation-table th {
-            background: #2563eb;
-            color: #fff;
-            font-weight: 700;
-            font-size: 0.98em;
-        }
-        .reservation-table tr:nth-child(even) td {
-            background: #f3f6fa;
-        }
-        .reservation-table tr:last-child td {
-            border-bottom: none;
-        }
-        .reservation-table .pax-cell {
-            color: #dc2626;
-            font-weight: 800;
-        }
-        @media (max-width: 700px) {
-            .reservation-table th, .reservation-table td {
-                padding: 4px 4px;
-                font-size: 0.95em;
-            }
-            .reservation-table {
-                min-width: 400px;
-            }
-        }
+
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <header class="dashboard-header">
-            <div class="dashboard-title">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21V19C3 17.8954 3.89543 17 5 17H19C20.1046 17 21 17.8954 21 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 17V7C7 5.89543 7.89543 5 9 5H15C16.1046 5 17 5.89543 17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="9" y="9" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Gestor de Reservas
-            </div>
-            <div class="dashboard-actions">
-                <button id="toggleDark" class="toggle-dark" title="Modo oscuro/claro">🌙</button>
-                <button id="addReservationBtn" class="btn">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Nueva Reserva
-                </button>
-                <button id="viewSummaryBtn" class="btn btn-secondary">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Resumen
-                </button>
-                <button id="viewArchiveBtn" class="btn btn-secondary">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V21H3V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 3H23V8H1V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Archivo
-                </button>
-            </div>
+    <div class="container">
+        <header class="header">
+            <button class="btn-float-back" onclick="window.location.href='index.html'" title="Volver">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1>Panel de Administración de Reservas</h1>
         </header>
-        <main class="main-grid">
-            <section class="card reservation-form-section">
-                <div class="form-title">Detalles de la Reserva</div>
-                <form id="reservationForm" class="form-grid">
+
+        <div class="dashboard-charts">
+            <!-- Gráfico de barras por restaurante -->
+            <section class="bar-chart-section">
+                <div class="bar-chart-container">
+                    <canvas id="restaurantBarChart" height="260"></canvas>
+                </div>
+                <div class="bar-chart-label">PAX por restaurante (hoy)</div>
+            </section>
+        </div>
+
+        <!-- FAB para agregar reserva -->
+        <button class="fab-add-reservation" id="openAddReservationModal" title="Agregar Nueva Reserva">
+            <span class="material-icons">add</span>
+        </button>
+
+        <!-- Modal para agregar nueva reserva -->
+        <div id="addReservationModal" class="modal-overlay">
+            <div class="modal-content">
+                <button class="modal-close-btn" data-modal="addReservationModal"><span class="material-icons">close</span></button>
+                <h2><span class="material-icons">event_available</span>Agregar Nueva Reserva</h2>
+                <form id="adminReservationForm" class="form-grid">
                     <div class="form-group">
-                        <label for="room">Número de Habitación:</label>
-                        <input type="number" id="room" class="input" placeholder="Ej. 1234" min="1000" max="9999" required>
+                        <label for="adminRoom">Número de Habitación:</label>
+                        <input type="number" id="adminRoom" placeholder="Ej. 1234" min="1000" max="9999" required>
                     </div>
                     <div class="form-group">
-                        <label for="guest">Nombre del Huesped:</label>
-                        <input type="text" id="guest" class="input" placeholder="Ej. Juan Pérez" required>
+                        <label for="adminGuest">Nombre del Huesped:</label>
+                        <input type="text" id="adminGuest" placeholder="Ej. Juan Pérez" required>
                     </div>
                     <div class="form-group">
-                        <label for="place">Restaurante:</label>
-                        <select id="place" class="input" required>
+                        <label for="adminPlace">Restaurante:</label>
+                        <select id="adminPlace" required>
                             <option value="">Seleccione un restaurante</option>
                             <option value="El Patio">El Patio</option>
                             <option value="Bluewater">Bluewater</option>
@@ -986,100 +1119,128 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="time">Hora de Reserva:</label>
-                        <select id="time" class="input" required>
-                            <option value="">Seleccione un restaurante primero</option>
-                        </select>
-                        <div id="availabilityInfo" class="availability-info"></div>
+                        <label for="adminTime">Hora de Reserva:</label>
+                        <input type="time" id="adminTime" required>
                     </div>
                     <div class="form-group">
-                        <label for="pax">Cantidad de Personas:</label>
-                        <input type="number" id="pax" class="input" min="1" value="1" required>
+                        <label for="adminPax">Cantidad de Personas:</label>
+                        <input type="number" id="adminPax" min="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminDate">Fecha de Reserva:</label>
+                        <input type="date" id="adminDate" required>
                     </div>
                     <div class="form-group form-group-full">
-                        <label for="comment">Comentario:</label>
-                        <textarea id="comment" class="input" rows="3" placeholder="Notas especiales, alergias, etc."></textarea>
+                        <label for="adminComment">Comentario:</label>
+                        <textarea id="adminComment" rows="3" placeholder="Notas especiales, alergias, etc."></textarea>
                     </div>
-                    <div id="operatingHoursMessage" class="operating-hours-message" style="display:none;">
-                        Las reservas solo se pueden registrar entre las 7:00 AM y las 4:30 PM.
+                    <div class="form-group form-group-full">
+                        <label for="adminValidator">Solicitado por:</label>
+                        <input type="text" id="adminValidator" placeholder="Nombre del solicitante" required>
                     </div>
-                    <button type="submit" class="btn" id="submitReservationBtn">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Registrar Reserva
-                    </button>
+                    <div class="form-group-full">
+                        <button type="submit" class="btn btn-success">Agregar Reserva</button>
+                    </div>
                 </form>
-            </section>
-            <section class="card reservation-list-section">
-                <div class="form-title">Reservas del Día</div>
-                <div class="reservation-list-container">
-                    <input type="text" id="reservationSearch" class="search-input" placeholder="Buscar por habitación o huésped...">
-                    <div id="reservationList" class="reservation-list">
-                        <p class="no-reservations" id="noReservationsMessage">No hay reservas programadas para hoy.</p>
-                    </div>
+            </div>
+        </div>
+
+        <section class="manage-reservations-section">
+            <h2><span class="material-icons">table_view</span>Gestionar Reservas Existentes</h2>
+            <div class="table-controls">
+                <input type="text" id="adminReservationSearch" placeholder="Buscar por habitación, comensal, restaurante o fecha...">
+                <button type="button" id="printReservationsBtn" class="btn btn-info">Imprimir Reservas</button>
+                <button type="button" id="sendWhatsAppBtn"><span class="material-icons">send</span>Enviar</button>
+            </div>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Habitación</th>
+                            <th>Huesped</th>
+                            <th>Restaurante</th>
+                            <th>Hora</th>
+                            <th>PAX</th>
+                            <th>Comentario</th>
+                            <th>Solicitado por</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminReservationsTableBody">
+                        </tbody>
+                </table>
+                <p id="loadingMessage" class="loading-message">Cargando reservas...</p>
+                <p id="noReservationsAdminMessage" class="no-reservations" style="display:none;">No hay reservas para mostrar.</p>
+            </div>
+        </section>
+    </div>
+
+    <div id="editReservationModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-modal="editReservationModal"><span class="material-icons">close</span></button>
+            <h3><span class="material-icons">edit_calendar</span>Editar Reserva</h3>
+            <form id="editReservationForm" class="form-grid">
+                <input type="hidden" id="editReservationId">
+                 <div class="form-group">
+                    <label for="editDate">Fecha de Reserva:</label>
+                    <input type="date" id="editDate" required>
                 </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- MODERNIZED MODALS -->
-    <div id="validationModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close-btn" data-modal="validationModal">&times;</button>
-            <h3><span class="modal-icon">🛡️</span> Validar Solicitante</h3>
-            <p>Por favor, ingrese el nombre de la persona que realiza la reserva.</p>
-            <input type="text" id="validatorNameInput" placeholder="Nombre del Solicitante" required>
-            <div class="modal-actions">
-                <button id="confirmValidationBtn" class="btn">Confirmar</button>
-                <button id="cancelValidationBtn" class="btn btn-secondary">Cancelar</button>
-            </div>
+                <div class="form-group">
+                    <label for="editRoom">Número de Habitación:</label>
+                    <input type="number" id="editRoom" min="1000" max="9999" required>
+                </div>
+                <div class="form-group">
+                    <label for="editGuest">Nombre del Comensal:</label>
+                    <input type="text" id="editGuest" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPlace">Restaurante:</label>
+                    <select id="editPlace" required>
+                        <option value="El Patio">El Patio</option>
+                        <option value="Bluewater">Bluewater</option>
+                        <option value="Bordeaux">Bordeaux</option>
+                        <option value="Himitsu">Himitsu</option>
+                        <option value="Hibachi">Hibachi</option>
+                        <option value="El Olio">El Olio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editTime">Hora de Reserva:</label>
+                    <input type="time" id="editTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPax">Cantidad de Personas:</label>
+                    <input type="number" id="editPax" min="1" required>
+                </div>
+                <div class="form-group form-group-full">
+                    <label for="editComment">Comentario:</label>
+                    <textarea id="editComment" rows="3"></textarea>
+                </div>
+                <div class="form-group form-group-full">
+                    <label for="editValidator">Solicitado por:</label>
+                    <input type="text" id="editValidator" required>
+                </div>
+                <div class="form-group-full modal-actions">
+                    <button type="submit" class="btn btn-primary"><span class="material-icons">save</span>Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" data-modal="editReservationModal"><span class="material-icons">close</span>Cancelar</button>
+                </div>
+            </form>
         </div>
-    </div>
-    <div id="summaryModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close-btn" data-modal="summaryModal">&times;</button>
-            <h3><span class="modal-icon">📋</span> <span id="summaryTitle">Resumen de Reservas</span></h3>
-            <div id="summaryContent" class="summary-content">
-                <p>Cargando resumen...</p>
-            </div>
-            <p id="overallPaxTotal" class="summary-overall-pax"></p>
-            <div class="modal-actions">
-                <button id="closeSummaryBtn" class="btn btn-secondary">Cerrar</button>
-            </div>
-        </div>
-    </div>
-    <div id="archiveModal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close-btn" data-modal="archiveModal">&times;</button>
-            <h3><span class="modal-icon">🗂️</span> <span id="archiveTitle">Archivo de Reservas Históricas</span></h3>
-            <input type="text" id="archiveSearch" placeholder="Buscar en el archivo por habitación, comensal o fecha...">
-            <div id="archiveListContent" class="reservation-list">
-                <p class="no-reservations" id="noArchivedReservationsMessage">No hay reservas archivadas.</p>
-            </div>
-            <div class="modal-actions">
-                <button id="closeArchiveBtn" class="btn btn-secondary">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Snackbar/Toast -->
-    <div id="snackbar" class="snackbar"></div>
-    <!-- Loading Spinner -->
-    <div id="spinnerOverlay" class="spinner-overlay" style="display:none;">
-        <div class="spinner"></div>
     </div>
 
     <script type="module">
-        // Importar las funciones de Firebase
+        // Importar las funciones que necesitas de los SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        // Importante: Asegúrate de importar getDatabase y las funciones necesarias para la base de datos
+        import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // Tu configuración de Firebase
+        // Tu configuración de Firebase (DEBE SER LA MISMA QUE EN index.html)
         const firebaseConfig = {
             apiKey: "AIzaSyALR-b68phh_u92V3rw9B9Ei7FcexU2xc8",
             authDomain: "proyectos17-98695.firebaseapp.com",
-            databaseURL: "https://proyectos17-98695-default-rtdb.firebaseio.com",
             projectId: "proyectos17-98695",
-            storageBucket: "proyectos17-98695.appspot.com",
+            storageBucket: "proyectos17-98695.firebasestorage.app",
             messagingSenderId: "951673973410",
             appId: "1:951673973410:web:4bc355e825cf86308645fb",
             measurementId: "G-6YK06W16FZ"
@@ -1087,965 +1248,672 @@
 
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app); // Obtener referencia a la Realtime Database
+        const database = getDatabase(app);
 
-        // Declaraciones globales necesarias para evitar ReferenceError
-        let currentReservationData = null;
-
-        function getTodayDateString() {
-            const today = new Date();
-            return today.toISOString().slice(0, 10);
-        }
+        // Opcional: Agrega un console.log para verificar si la base de datos se inicializó
+        console.log("Firebase Database initialized:", database);
 
         document.addEventListener('DOMContentLoaded', () => {
-            const addReservationBtn = document.getElementById('addReservationBtn');
-            const viewSummaryBtn = document.getElementById('viewSummaryBtn');
-            const viewArchiveBtn = document.getElementById('viewArchiveBtn');
-            const reservationForm = document.getElementById('reservationForm');
-            const reservationListDiv = document.getElementById('reservationList');
-            const noReservationsMessage = document.getElementById('noReservationsMessage');
-            const validationModal = document.getElementById('validationModal');
-            const validatorNameInput = document.getElementById('validatorNameInput');
-            const confirmValidationBtn = document.getElementById('confirmValidationBtn');
-            const cancelValidationBtn = document.getElementById('cancelValidationBtn');
-
-            const summaryModal = document.getElementById('summaryModal');
-            const summaryTitle = document.getElementById('summaryTitle');
-            const summaryContent = document.getElementById('summaryContent');
-            const overallPaxTotal = document.getElementById('overallPaxTotal');
-            const closeSummaryBtn = document.getElementById('closeSummaryBtn');
-
-            const archiveModal = document.getElementById('archiveModal');
-            const archiveTitle = document.getElementById('archiveTitle');
-            const archiveSearchInput = document.getElementById('archiveSearch');
-            const archiveListContent = document.getElementById('archiveListContent');
-            const noArchivedReservationsMessage = document.getElementById('noArchivedReservationsMessage');
-            const closeArchiveBtn = document.getElementById('closeArchiveBtn');
-
+            // --- FAB y Modal para agregar reserva ---
+            const openAddReservationModalBtn = document.getElementById('openAddReservationModal');
+            const addReservationModal = document.getElementById('addReservationModal');
+            const adminReservationForm = document.getElementById('adminReservationForm');
+            // Declarar modalCloseButtons solo una vez para todos los modales
             const modalCloseButtons = document.querySelectorAll('.modal-close-btn');
 
-            const roomInput = document.getElementById('room');
-            const placeSelect = document.getElementById('place');
-            const timeSelect = document.getElementById('time');
-            const paxInput = document.getElementById('pax');
-            const availabilityInfo = document.getElementById('availabilityInfo');
+            openAddReservationModalBtn.addEventListener('click', () => {
+                addReservationModal.classList.add('active');
+            });
+            modalCloseButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    if (e.target.dataset.modal === 'addReservationModal') {
+                        addReservationModal.classList.remove('active');
+                    }
+                });
+            });
+            addReservationModal.addEventListener('click', (e) => {
+                if (e.target === addReservationModal) {
+                    addReservationModal.classList.remove('active');
+                }
+            });
 
-            const reservationSearchInput = document.getElementById('reservationSearch');
-            const submitReservationBtn = document.getElementById('submitReservationBtn');
-            const operatingHoursMessage = document.getElementById('operatingHoursMessage');
+            const adminReservationSearchInput = document.getElementById('adminReservationSearch');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const noReservationsAdminMessage = document.getElementById('noReservationsAdminMessage');
+            const printReservationsBtn = document.getElementById('printReservationsBtn');
 
-            let reservations = []; // Reservas del día actual, ahora se sincronizarán con Firebase
-            let archivedReservations = []; // Reservas de días anteriores, también desde Firebase
-            let lastAccessDate = localStorage.getItem('lastAccessDate'); // Todavía usado para control de fecha de acceso
+            // Elementos del modal de edición
+            const editReservationModal = document.getElementById('editReservationModal');
+            const editReservationForm = document.getElementById('editReservationForm');
+            const editReservationIdInput = document.getElementById('editReservationId');
+            const editDateInput = document.getElementById('editDate');
+            const editRoomInput = document.getElementById('editRoom');
+            const editGuestInput = document.getElementById('editGuest');
+            const editPlaceSelect = document.getElementById('editPlace');
+            const editTimeInput = document.getElementById('editTime');
+            const editPaxInput = document.getElementById('editPax');
+            const editCommentInput = document.getElementById('editComment');
+            const editValidatorInput = document.getElementById('editValidator');
 
-            const restaurantTimes = {
-                "El Patio": ["18:00", "21:00"],
-                "Bluewater": ["18:00", "21:00"],
-                "Bordeaux": ["18:00", "21:00"],
-                "Himitsu": ["18:00", "21:00"],
-                "Hibachi": ["17:30", "18:45", "20:00", "21:15"],
-                "El Olio": ["18:30", "21:00"]
-            };
+            let allReservations = []; // Contendrá todas las reservas (del día y archivadas)
+            let dailyReservationsData = []; // Cache para dailyReservations
+            let archivedReservationsData = []; // Cache para archivedReservations
+            let currentFilteredReservations = []; // Para almacenar las reservas actualmente filtradas/mostradas
 
-            const restaurantPaxLimits = {
-                "El Patio": 8,
-                "Bluewater": 8,
-                "Bordeaux": 6,
-                "Himitsu": 8,
-                "Hibachi": 10,
-                "El Olio": 8
-            };
 
             // --- Funciones de Utilidad de Fecha y Hora ---
             function getTodayDateString() {
                 const today = new Date();
-                return today.toISOString().slice(0, 10); // Formato YYYY-MM-DD
+                // Asegurar que la fecha se formatee como YYYY-MM-DD en la zona horaria local de Punta Cana
+                // Esto es crucial para que coincida con cómo Firebase guarda las fechas diarias.
+                const year = today.getFullYear();
+                const month = (today.getMonth() + 1).toString().padStart(2, '0');
+                const day = today.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
+
 
             function getFormattedDate(dateString) {
                 if (!dateString) return 'Fecha desconocida';
-                const date = new Date(dateString + 'T12:00:00'); // Añadir T12:00:00 para evitar problemas de zona horaria
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                return date.toLocaleDateString('es-ES', options);
-            }
-
-            // Nueva función para verificar el horario de operación
-            function checkOperatingHours() {
-                const now = new Date();
-                const currentHour = now.getHours();
-                const currentMinute = now.getMinutes();
-
-                const currentTimeInMinutes = currentHour * 60 + currentMinute;
-
-                const startHourInMinutes = 7 * 60; // 7:00 AM
-                const endHourInMinutes = 16 * 60 + 30; // 4:30 PM (16:30 PM)
-
-                const isInOperatingHours = currentTimeInMinutes >= startHourInMinutes && currentTimeInMinutes <= endHourInMinutes;
-
-                submitReservationBtn.disabled = !isInOperatingHours;
-                if (!isInOperatingHours) {
-                    operatingHoursMessage.style.display = 'block';
-                } else {
-                    operatingHoursMessage.style.display = 'none';
-                }
-                return isInOperatingHours;
-            }
-
-            // --- Lógica de Carga y Archivamiento con Firebase ---
-            async function loadAndArchiveReservations() {
-                const today = getTodayDateString();
-                const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
-                const allArchivedReservationsRef = ref(database, 'archivedReservations');
-
                 try {
-                    // Cargar reservas archivadas (todas)
-                    const archiveSnapshot = await get(allArchivedReservationsRef);
-                    if (archiveSnapshot.exists()) {
-                        archivedReservations = [];
-                        archiveSnapshot.forEach(dateNode => {
-                            dateNode.forEach(resNode => {
-                                archivedReservations.push({ id: resNode.key, ...resNode.val() });
-                            });
-                        });
-                    } else {
-                        archivedReservations = [];
+                    const date = new Date(dateString + 'T12:00:00'); // Añadir T12:00:00 para evitar problemas de zona horaria
+                    if (isNaN(date.getTime())) {
+                        return dateString;
                     }
-
-                    if (lastAccessDate && lastAccessDate !== today) {
-                        // Es un nuevo día, archivar las reservas del día anterior
-                        const previousDayReservationsRef = ref(database, `dailyReservations/${lastAccessDate}`);
-                        const previousDaySnapshot = await get(previousDayReservationsRef);
-
-                        if (previousDaySnapshot.exists()) {
-                            const previousDayData = previousDaySnapshot.val();
-                            const updates = {};
-                            for (const key in previousDayData) {
-                                const res = previousDayData[key];
-                                res.archiveDate = lastAccessDate; // Asegurarse de que tengan la fecha de archivo
-                                // Mover a la ruta de archivados bajo su fecha original
-                                updates[`archivedReservations/${lastAccessDate}/${key}`] = res;
-                            }
-                            // Eliminar las reservas del día anterior después de moverlas
-                            updates[`dailyReservations/${lastAccessDate}`] = null;
-
-                            await set(ref(database), updates); // Realizar la operación de actualización en lote
-                            console.log(`Reservas del ${lastAccessDate} archivadas y borradas.`);
-                        }
-                        // Después de archivar, las reservas del día actual se reinician (se cargan de Firebase, que estará vacío para el nuevo día)
-                        reservations = [];
-                        // La carga del día actual se manejará con onValue para actualizaciones en tiempo real
-                    }
-
-                    // Actualizar la fecha de último acceso en localStorage
-                    localStorage.setItem('lastAccessDate', today);
-                    lastAccessDate = today;
-
-                    // Escuchar cambios en las reservas del día actual en tiempo real
-                    onValue(dailyReservationsRef, (snapshot) => {
-                        const data = snapshot.val();
-                        reservations = [];
-                        if (data) {
-                            for (const key in data) {
-                                reservations.push({ id: key, ...data[key] });
-                            }
-                        }
-                        renderReservations(); // Volver a renderizar cada vez que cambian las reservas
-                        updateAvailabilityInfo(); // Actualizar disponibilidad también
-                    });
-
-                } catch (error) {
-                    console.error("Error al cargar o archivar reservas:", error);
-                    alert("Hubo un error al cargar los datos de las reservas. Por favor, intente de nuevo.");
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    return date.toLocaleDateString('es-ES', options);
+                } catch (e) {
+                    console.error("Error formatting date:", dateString, e);
+                    return dateString;
                 }
-
-                checkOperatingHours(); // Verificar horario y deshabilitar/habilitar botón
             }
 
-
-            // Llamar a la función de carga y archivo al inicio
-            loadAndArchiveReservations();
-
-            // Evento para mostrar el formulario de agregar reserva
-            addReservationBtn.addEventListener('click', () => {
-                reservationForm.reset();
-                placeSelect.value = "";
-                updateTimeOptions(placeSelect.value);
-                timeSelect.disabled = true;
-                availabilityInfo.textContent = '';
-                availabilityInfo.className = 'availability-info';
-                roomInput.focus();
-                reservationForm.scrollIntoView({ behavior: 'smooth' });
-                reservationSearchInput.value = '';
-                filterReservations();
-                checkOperatingHours();
-            });
-
-            // Evento para abrir el popup de resumen
-            viewSummaryBtn.addEventListener('click', () => {
-                generateReservationsSummary();
-                showSummaryModal();
-            });
-
-            // Reemplaza el evento de viewArchiveBtn y la carga de archivo por:
-            viewArchiveBtn.addEventListener('click', async () => {
-                archiveSearchInput.value = '';
-                const dailyReservationsRef = ref(database, 'dailyReservations');
+            // Fecha formato corto DD/MM/YY
+            function getShortDate(dateString) {
+                if (!dateString) return '';
                 try {
-                    const snapshot = await get(dailyReservationsRef);
-                    archivedReservations = [];
-                    const today = getTodayDateString();
-                    if (snapshot.exists()) {
-                        snapshot.forEach(dateNode => {
-                            const dateKey = dateNode.key;
-                            if (dateKey !== today) {
-                                dateNode.forEach(resNode => {
-                                    archivedReservations.push({
-                                        id: resNode.key,
-                                        ...resNode.val(),
-                                        archiveDate: dateKey // Guardar la fecha de la reserva
-                                    });
-                                });
-                            }
-                        });
-                    }
-                    renderArchivedReservations();
-                    showArchiveModal();
-                } catch (error) {
-                    console.error('Error al cargar el archivo de reservas:', error);
-                    alert('No se pudo cargar el archivo de reservas. Por favor, intente de nuevo.');
-                }
-            });
-
-            // Evento para cerrar el popup de resumen
-            closeSummaryBtn.addEventListener('click', () => {
-                hideSummaryModal();
-            });
-
-            // Nuevo: Evento para cerrar el popup de archivo
-            closeArchiveBtn.addEventListener('click', () => {
-                hideArchiveModal();
-            });
-
-            // Eventos para cerrar modales al hacer clic en el botón 'X'
-            modalCloseButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const modalId = e.target.dataset.modal;
-                    if (modalId === 'validationModal') {
-                        hideValidationModal();
-                        currentReservationData = null;
-                    } else if (modalId === 'summaryModal') {
-                        hideSummaryModal();
-                    } else if (modalId === 'archiveModal') {
-                        hideArchiveModal();
-                    }
-                });
-            });
-
-            // Eventos para cerrar modales al hacer clic fuera
-            validationModal.addEventListener('click', (e) => {
-                if (e.target === validationModal) {
-                    hideValidationModal();
-                    currentReservationData = null;
-                }
-            });
-
-            summaryModal.addEventListener('click', (e) => {
-                if (e.target === summaryModal) {
-                    hideSummaryModal();
-                }
-            });
-
-            archiveModal.addEventListener('click', (e) => {
-                if (e.target === archiveModal) {
-                    hideArchiveModal();
-                }
-            });
-
-            // Eventos para actualizar el contador de disponibilidad
-            placeSelect.addEventListener('change', () => {
-                const selectedRestaurant = placeSelect.value;
-                updateTimeOptions(selectedRestaurant);
-                updateAvailabilityInfo();
-            });
-
-            timeSelect.addEventListener('change', () => {
-                updateAvailabilityInfo();
-            });
-
-            paxInput.addEventListener('input', () => {
-                updateAvailabilityInfo();
-            });
-
-            // Evento para el buscador de reservas del día
-            reservationSearchInput.addEventListener('input', () => {
-                filterReservations();
-            });
-
-            // Nuevo: Evento para el buscador de reservas archivadas
-            archiveSearchInput.addEventListener('input', () => {
-                filterArchivedReservations();
-            });
-
-            // Función para actualizar las opciones de hora según el restaurante seleccionado
-            function updateTimeOptions(restaurant) {
-                timeSelect.innerHTML = '';
-                if (restaurant && restaurantTimes[restaurant]) {
-                    timeSelect.disabled = false;
-                    const times = restaurantTimes[restaurant];
-                    const defaultTimeOption = document.createElement('option');
-                    defaultTimeOption.value = "";
-                    defaultTimeOption.textContent = "Seleccione una hora";
-                    timeSelect.appendChild(defaultTimeOption);
-
-                    times.forEach(time24h => {
-                        const option = document.createElement('option');
-                        option.value = time24h;
-                        option.textContent = convertTo12HourFormat(time24h);
-                        timeSelect.appendChild(option);
-                    });
-                } else {
-                    timeSelect.disabled = true;
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = "";
-                    defaultOption.textContent = "Seleccione un restaurante primero";
-                    timeSelect.appendChild(defaultOption);
+                    const date = new Date(dateString + 'T12:00:00');
+                    if (isNaN(date.getTime())) return dateString;
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const year = date.getFullYear().toString().slice(-2);
+                    return `${day}/${month}/${year}`;
+                } catch (e) {
+                    return dateString;
                 }
             }
-
-            // Función para calcular y mostrar la disponibilidad
-            function updateAvailabilityInfo() {
-                const selectedRestaurant = placeSelect.value;
-                const selectedTime = timeSelect.value;
-                const requestedPax = parseInt(paxInput.value, 10);
-
-                if (!selectedRestaurant || !selectedTime) {
-                    availabilityInfo.textContent = 'Seleccione restaurante y hora para ver disponibilidad.';
-                    availabilityInfo.className = 'availability-info';
-                    timeSelect.setCustomValidity('');
-                    return;
-                }
-
-                const maxPax = restaurantPaxLimits[selectedRestaurant];
-                if (maxPax === undefined) {
-                    availabilityInfo.textContent = 'Límite de PAX no definido para este restaurante.';
-                    availabilityInfo.className = 'availability-info';
-                    return;
-                }
-
-                const occupiedPax = reservations
-                    .filter(res => res.place === selectedRestaurant && res.time === selectedTime)
-                    .reduce((sum, res) => sum + res.pax, 0);
-
-                const remainingPax = maxPax - occupiedPax;
-
-                availabilityInfo.textContent = `Espacios disponibles: ${remainingPax} de ${maxPax}`;
-
-                availabilityInfo.className = 'availability-info';
-                if (remainingPax > 0) {
-                    if (requestedPax > remainingPax) {
-                        availabilityInfo.textContent += ` (Solo quedan ${remainingPax})`;
-                        availabilityInfo.classList.add('limited');
-                        timeSelect.setCustomValidity('');
-                    } else {
-                        availabilityInfo.classList.add('available');
-                        timeSelect.setCustomValidity('');
-                    }
-                } else {
-                    availabilityInfo.textContent = '¡No hay espacios disponibles para esta hora!';
-                    availabilityInfo.classList.add('full');
-                    timeSelect.setCustomValidity('No hay espacios disponibles en este horario.');
-                    timeSelect.reportValidity();
-                }
-            }
-
-
-            // Evento para manejar el envío del formulario
-            reservationForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                if (!checkOperatingHours()) {
-                    alert('No se pueden registrar reservas fuera del horario de operación (7:00 AM - 4:30 PM).');
-                    return;
-                }
-
-                const room = document.getElementById('room').value;
-                const guest = document.getElementById('guest').value;
-                const place = document.getElementById('place').value;
-                const time = document.getElementById('time').value;
-                const pax = parseInt(document.getElementById('pax').value, 10);
-                const comment = document.getElementById('comment').value;
-
-                if (room.length !== 4 || isNaN(room) || parseInt(room, 10) < 1000 || parseInt(room, 10) > 9999) {
-                    alert('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).');
-                    roomInput.focus();
-                    return;
-                }
-
-                if (!time) {
-                    alert('Por favor, seleccione una hora de reserva válida para el restaurante elegido.');
-                    return;
-                }
-
-                const maxPax = restaurantPaxLimits[place];
-                const occupiedPax = reservations
-                    .filter(res => res.place === place && res.time === time)
-                    .reduce((sum, res) => sum + res.pax, 0);
-
-                const remainingPax = maxPax - occupiedPax;
-
-                if (pax > remainingPax) {
-                    alert(`Lo sentimos, solo quedan ${remainingPax} espacios disponibles para ${place} a las ${convertTo12HourFormat(time)}. Por favor, ajuste la cantidad de personas.`);
-                    paxInput.focus();
-                    return;
-                }
-
-                currentReservationData = {
-                    room,
-                    guest,
-                    place,
-                    time,
-                    pax,
-                    comment,
-                    timestamp: new Date().getTime(),
-                    date: getTodayDateString()
-                };
-
-                showValidationModal();
-            });
-
-            // Evento para confirmar la validación del nombre
-            confirmValidationBtn.addEventListener('click', async () => {
-                const validatorName = validatorNameInput.value.trim();
-                if (validatorName) {
-                    currentReservationData.validator = validatorName;
-                    await addReservationWithUndo(currentReservationData); // NUEVO: con deshacer y feedback
-                    hideValidationModal();
-                    reservationForm.reset();
-                    placeSelect.value = "";
-                    updateTimeOptions(placeSelect.value);
-                    timeSelect.disabled = true;
-                    availabilityInfo.textContent = '';
-                    availabilityInfo.className = 'availability-info';
-                    currentReservationData = null;
-                    checkOperatingHours();
-                } else {
-                    showSnackbar('Por favor, ingrese el nombre de quien solicita la reserva.', 3000);
-                    validatorNameInput.focus();
-                }
-            });
-
-            // Evento para cancelar la validación
-            cancelValidationBtn.addEventListener('click', () => {
-                hideValidationModal();
-                currentReservationData = null;
-            });
-
-            // Funciones para mostrar/ocultar modales
-            function showValidationModal() {
-                validationModal.classList.add('active');
-                validatorNameInput.value = '';
-                validatorNameInput.focus();
-            }
-
-            function hideValidationModal() {
-                validationModal.classList.remove('active');
-            }
-
-            function showSummaryModal() {
-                summaryModal.classList.add('active');
-                summaryModal.focus();
-            }
-
-            function hideSummaryModal() {
-                summaryModal.classList.remove('active');
-            }
-
-            function showArchiveModal() {
-                archiveModal.classList.add('active');
-                archiveModal.focus();
-            }
-
-            function hideArchiveModal() {
-                archiveModal.classList.remove('active');
-            }
-
-            // Función para añadir reserva a Firebase
-            async function addReservation(data) {
-                const today = getTodayDateString();
-                const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
-                try {
-                    await push(dailyReservationsRef, data); // 'push' crea un ID único y añade los datos
-                    console.log("Reserva añadida a Firebase con éxito.");
-                } catch (error) {
-                    console.error("Error al añadir reserva a Firebase:", error);
-                    alert("Error al registrar la reserva. Por favor, intente de nuevo.");
-                }
-            }
-
-            // Función principal para renderizar reservas (ahora usa los datos de `reservations` que se actualizan desde Firebase)
-            function renderReservations(filteredReservations = reservations) {
-                // Agrupar por restaurante y hora
-                const grouped = {};
-                filteredReservations.forEach(res => {
-                    if (!grouped[res.place]) grouped[res.place] = {};
-                    if (!grouped[res.place][res.time]) grouped[res.place][res.time] = [];
-                    grouped[res.place][res.time].push(res);
-                });
-                reservationListDiv.innerHTML = '';
-                const places = Object.keys(grouped).sort();
-                if (filteredReservations.length === 0) {
-                    noReservationsMessage.textContent = reservations.length === 0 ?
-                        'No hay reservas programadas para hoy.' :
-                        'No se encontraron reservas con los criterios de búsqueda.';
-                    noReservationsMessage.style.display = 'block';
-                } else {
-                    noReservationsMessage.style.display = 'none';
-                    places.forEach(place => {
-                        const times = Object.keys(grouped[place]).sort();
-                        times.forEach(time => {
-                            const groupDiv = document.createElement('div');
-                            groupDiv.className = 'reservation-group';
-                            const groupTitle = document.createElement('div');
-                            groupTitle.className = 'reservation-group-title';
-                            groupTitle.innerHTML = `<span>🍽️</span> ${place} - ${convertTo12HourFormat(time)}`;
-                            groupDiv.appendChild(groupTitle);
-                            // Ordenar por hora de ingreso (timestamp ascendente)
-                            grouped[place][time].sort((a, b) => {
-                                if (a.timestamp && b.timestamp) return a.timestamp - b.timestamp;
-                                if (a.timestamp) return -1;
-                                if (b.timestamp) return 1;
-                                return 0;
-                            });
-                            grouped[place][time].forEach(res => {
-                                const reservationItem = document.createElement('div');
-                                reservationItem.classList.add('reservation-item');
-                                const initials = res.guest.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-                                function formatTimeFromTimestamp(ts) {
-                                    if (!ts) return '';
-                                    const d = new Date(ts);
-                                    return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                                }
-                                reservationItem.innerHTML = `
-                                    <span class="reservation-avatar">${initials}</span>
-                                    <span class="room-name">${res.room} - ${res.guest}</span>
-                                    <span class="restaurant-time">${res.place} - ${convertTo12HourFormat(res.time)}</span>
-                                    <span class="pax-info">${res.pax} PAX</span>
-                                    <span class="reservation-timestamp">🕒 ${formatTimeFromTimestamp(res.timestamp)}</span>
-                                `;
-                                groupDiv.appendChild(reservationItem);
-                            });
-                            reservationListDiv.appendChild(groupDiv);
-                        });
-                    });
-                }
-            }
-
-            // Función para renderizar reservas archivadas (ahora usa los datos de `archivedReservations` que se actualizan desde Firebase)
-            function renderArchivedReservations(filteredArchived = archivedReservations) {
-                // Agrupar por fecha, restaurante y hora
-                const rows = [];
-                filteredArchived.forEach(res => {
-                    rows.push({
-                        date: res.archiveDate || '',
-                        restaurant: res.place || '',
-                        time: res.time || '',
-                        room: res.room || '',
-                        guest: res.guest || '',
-                        pax: res.pax || '',
-                        comment: res.comment || '',
-                        validator: res.validator || ''
-                    });
-                });
-                // Ordenar por fecha descendente, restaurante, hora
-                rows.sort((a, b) => {
-                    const dateComp = new Date(b.date) - new Date(a.date);
-                    if (dateComp !== 0) return dateComp;
-                    const restComp = a.restaurant.localeCompare(b.restaurant);
-                    if (restComp !== 0) return restComp;
-                    const timeComp = a.time.localeCompare(b.time);
-                    if (timeComp !== 0) return timeComp;
-                    return parseInt(a.room) - parseInt(b.room);
-                });
-                archiveListContent.innerHTML = '';
-                if (rows.length === 0) {
-                    noArchivedReservationsMessage.textContent = archivedReservations.length === 0 ?
-                        'No hay reservas archivadas.' :
-                        'No se encontraron reservas archivadas con los criterios de búsqueda.';
-                    noArchivedReservationsMessage.style.display = 'block';
-                } else {
-                    noArchivedReservationsMessage.style.display = 'none';
-                    let tableHtml = `<table class="archive-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Restaurante</th>
-                                <th>Hora</th>
-                                <th>Hab.</th>
-                                <th>Huésped</th>
-                                <th>PAX</th>
-                                <th>Comentario</th>
-                                <th>Solicitante</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                    rows.forEach(row => {
-                        tableHtml += `<tr>
-                            <td>${row.date}</td>
-                            <td>${row.restaurant}</td>
-                            <td>${row.time}</td>
-                            <td>${row.room}</td>
-                            <td>${row.guest}</td>
-                            <td class="pax-cell">${row.pax}</td>
-                            <td>${row.comment}</td>
-                            <td>${row.validator}</td>
-                        </tr>`;
-                    });
-                    tableHtml += `</tbody></table>`;
-                    archiveListContent.innerHTML = tableHtml;
-                }
-            }
-
-            // Función para filtrar reservas del día
-            function filterReservations() {
-                const searchTerm = reservationSearchInput.value.toLowerCase().trim();
-
-                if (!searchTerm) {
-                    renderReservations(reservations);
-                    return;
-                }
-
-                const filtered = reservations.filter(res => {
-                    const roomMatches = String(res.room).includes(searchTerm);
-                    const guestMatches = res.guest.toLowerCase().includes(searchTerm);
-                    const restaurantMatches = res.place.toLowerCase().includes(searchTerm);
-                    const timeMatches = convertTo12HourFormat(res.time).toLowerCase().includes(searchTerm);
-                    return roomMatches || guestMatches || restaurantMatches || timeMatches;
-                });
-
-                renderReservations(filtered);
-            }
-
-            // Nueva función para filtrar reservas archivadas
-            function filterArchivedReservations() {
-                const searchTerm = archiveSearchInput.value.toLowerCase().trim();
-
-                if (!searchTerm) {
-                    renderArchivedReservations(archivedReservations);
-                    return;
-                }
-
-                const filtered = archivedReservations.filter(res => {
-                    const roomMatches = String(res.room).includes(searchTerm);
-                    const guestMatches = res.guest.toLowerCase().includes(searchTerm);
-                    const restaurantMatches = res.place.toLowerCase().includes(searchTerm);
-                    const timeMatches = convertTo12HourFormat(res.time).toLowerCase().includes(searchTerm);
-                    const dateMatches = getFormattedDate(res.archiveDate).toLowerCase().includes(searchTerm) || res.archiveDate.includes(searchTerm);
-                    return roomMatches || guestMatches || restaurantMatches || timeMatches || dateMatches;
-                });
-
-                renderArchivedReservations(filtered);
-            }
-
-
-            // Las funciones saveReservations y saveArchivedReservations ya no son necesarias directamente
-            // porque las operaciones de Firebase (push, set) se encargan de la persistencia.
-            // Las variables `reservations` y `archivedReservations` se actualizan mediante `onValue` de Firebase.
 
             function convertTo12HourFormat(time24h) {
+                if (!time24h) return '';
                 const [hours, minutes] = time24h.split(':');
                 const hour = parseInt(hours, 10);
                 const ampm = hour >= 12 ? 'PM' : 'AM';
-                const displayHour = hour % 12 || 12;
+                const displayHour = hour % 12 || 12; // 0 becomes 12 for 12 AM/PM
                 return `${displayHour}:${minutes} ${ampm}`;
             }
 
-            function getTodayDateFormatted() {
-                const today = new Date();
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                return today.toLocaleDateString('es-ES', options);
-            }
+            // --- Funciones de Interacción con Firebase ---
 
-            // Función para generar y mostrar el resumen de reservas en formato de lista/tabla
-            function generateReservationsSummary() {
-                const groupedReservations = {};
-                let totalOverallPax = 0;
-                reservations.forEach(res => {
-                    const restaurant = res.place;
-                    const time = res.time;
-                    const pax = res.pax;
-                    if (!groupedReservations[restaurant]) groupedReservations[restaurant] = { totalRestaurantPax: 0, times: {} };
-                    if (!groupedReservations[restaurant].times[time]) groupedReservations[restaurant].times[time] = [];
-                    groupedReservations[restaurant].totalRestaurantPax += pax;
-                    groupedReservations[restaurant].times[time].push(res);
-                    totalOverallPax += pax;
-                });
-                let summaryHtml = '';
-                const sortedRestaurants = Object.keys(groupedReservations).sort();
-                if (sortedRestaurants.length === 0) {
-                    summaryHtml = '<p style="text-align: center; margin-top: 50px;">No hay reservas registradas para hoy.</p>';
-                } else {
-                    sortedRestaurants.forEach(restaurant => {
-                        const restaurantData = groupedReservations[restaurant];
-                        summaryHtml += `<div class="summary-restaurant">
-                            <h4>${restaurant} <span>(Total PAX: ${restaurantData.totalRestaurantPax})</span></h4>`;
-                        const sortedTimes = Object.keys(restaurantData.times).sort();
-                        sortedTimes.forEach(time24h => {
-                            const timeData = restaurantData.times[time24h];
-                            summaryHtml += `<div class="summary-time-group">
-                                <div class="summary-time"><span class="summary-time-badge">${convertTo12HourFormat(time24h)}</span>: <span>${timeData.reduce((sum, r) => sum + r.pax, 0)} PAX</span></div>
-                                <table class="summary-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Hab.</th>
-                                            <th>Huésped</th>
-                                            <th>PAX</th>
-                                            <th>Comentario</th>
-                                            <th>Solicitante</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
-                            timeData.sort((a, b) => parseInt(a.room) - parseInt(b.room));
-                            timeData.forEach(detail => {
-                                summaryHtml += `<tr>
-                                    <td>${detail.room}</td>
-                                    <td>${detail.guest}</td>
-                                    <td class="pax-cell">${detail.pax}</td>
-                                    <td class="comment-cell">${detail.comment ? detail.comment : ''}</td>
-                                    <td class="validator-cell">${detail.validator ? detail.validator : ''}</td>
-                                </tr>`;
-                            });
-                            summaryHtml += `</tbody></table></div>`;
-                        });
-                        summaryHtml += `</div>`;
-                    });
-                }
-                summaryTitle.textContent = `Resumen de Reservas para ${getTodayDateFormatted()}`;
-                summaryContent.innerHTML = summaryHtml;
-                overallPaxTotal.textContent = `PAX Total del Día: ${totalOverallPax}`;
-            }
+            // Configurar listeners para la carga en tiempo real de todas las reservas
+            function setupFirebaseListeners() {
+                loadingMessage.style.display = 'block';
+                noReservationsAdminMessage.style.display = 'none';
 
-            // Asegurarse de que el campo de hora esté deshabilitado al inicio y el contador limpio
-            timeSelect.disabled = true;
-            availabilityInfo.textContent = '';
-
-            // Llamar checkOperatingHours() cada minuto para actualizar el estado del botón
-            setInterval(checkOperatingHours, 60 * 1000); // Cada minuto
-        });
-
-        // --- NUEVAS MEJORAS UI/UX ---
-        // Snackbar/Toast
-        function showSnackbar(message, duration = 3000) {
-            const snackbar = document.getElementById('snackbar');
-            snackbar.textContent = message;
-            snackbar.className = 'snackbar show';
-            setTimeout(() => {
-                snackbar.className = 'snackbar';
-            }, duration);
-        }
-        // Loading Spinner
-        function showSpinner() {
-            document.getElementById('spinnerOverlay').style.display = 'flex';
-        }
-        function hideSpinner() {
-            document.getElementById('spinnerOverlay').style.display = 'none';
-        }
-        // --- Mejorar accesibilidad y enfoque automático ---
-        function focusFirstInput(form) {
-            const first = form.querySelector('input, select, textarea');
-            if (first) first.focus();
-        }
-        // --- Confirmación visual y deshacer ---
-        let lastReservationUndo = null;
-        async function addReservationWithUndo(data) {
-            showSpinner();
-            const today = getTodayDateString();
-            const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
-            try {
-                const newRef = await push(dailyReservationsRef, data);
-                lastReservationUndo = { id: newRef.key, data, ref: dailyReservationsRef };
-                showSnackbar('Reserva registrada. ', 4000);
-                // Mostrar botón de deshacer
-                showUndoSnackbar();
-            } catch (error) {
-                showSnackbar('Error al registrar la reserva.', 4000);
-            } finally {
-                hideSpinner();
-            }
-        }
-        function showUndoSnackbar() {
-            const snackbar = document.getElementById('snackbar');
-            snackbar.innerHTML = 'Reserva registrada. <button id="undoBtn" style="margin-left:12px;padding:4px 12px;border-radius:4px;border:none;background:#FFC107;color:#333;cursor:pointer;">Deshacer</button>';
-            snackbar.className = 'snackbar show';
-            document.getElementById('undoBtn').onclick = async () => {
-                if (lastReservationUndo) {
-                    showSpinner();
-                    try {
-                        await remove(child(ref(database), `${lastReservationUndo.ref.key}/${lastReservationUndo.id}`));
-                        showSnackbar('Reserva eliminada.', 3000);
-                        lastReservationUndo = null;
-                    } catch {
-                        showSnackbar('No se pudo deshacer.', 3000);
-                    } finally {
-                        hideSpinner();
-                    }
-                }
-            };
-            setTimeout(() => {
-                snackbar.className = 'snackbar';
-            }, 6000);
-        }
-        // --- Mejorar renderizado de reservas con avatares y separación visual ---
-        function renderReservations(filteredReservations = reservations) {
-            // Agrupar por restaurante y hora
-            const grouped = {};
-            filteredReservations.forEach(res => {
-                if (!grouped[res.place]) grouped[res.place] = {};
-                if (!grouped[res.place][res.time]) grouped[res.place][res.time] = [];
-                grouped[res.place][res.time].push(res);
-            });
-            reservationListDiv.innerHTML = '';
-            const places = Object.keys(grouped).sort();
-            if (filteredReservations.length === 0) {
-                noReservationsMessage.textContent = reservations.length === 0 ?
-                                                    'No hay reservas programadas para hoy.' :
-                                                    'No se encontraron reservas con los criterios de búsqueda.';
-                noReservationsMessage.style.display = 'block';
-            } else {
-                noReservationsMessage.style.display = 'none';
-                places.forEach(place => {
-                    const times = Object.keys(grouped[place]).sort();
-                    times.forEach(time => {
-                        const groupDiv = document.createElement('div');
-                        groupDiv.className = 'reservation-group';
-                        const groupTitle = document.createElement('div');
-                        groupTitle.className = 'reservation-group-title';
-                        groupTitle.innerHTML = `<span>🍽️</span> ${place} - ${convertTo12HourFormat(time)}`;
-                        groupDiv.appendChild(groupTitle);
-                        // Ordenar por hora de ingreso (timestamp ascendente)
-                        grouped[place][time].sort((a, b) => {
-                            if (a.timestamp && b.timestamp) return a.timestamp - b.timestamp;
-                            if (a.timestamp) return -1;
-                            if (b.timestamp) return 1;
-                            return 0;
-                        });
-                        grouped[place][time].forEach(res => {
-                            const reservationItem = document.createElement('div');
-                            reservationItem.classList.add('reservation-item');
-                            const initials = res.guest.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-                            function formatTimeFromTimestamp(ts) {
-                                if (!ts) return '';
-                                const d = new Date(ts);
-                                return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                // Listener para dailyReservations (todos los nodos de fecha dentro)
+                onValue(ref(database, 'dailyReservations'), (snapshot) => {
+                    const data = snapshot.val();
+                    dailyReservationsData = [];
+                    if (data) {
+                        for (const dateKey in data) {
+                            if (data.hasOwnProperty(dateKey)) {
+                                for (const resKey in data[dateKey]) {
+                                    if (data[dateKey].hasOwnProperty(resKey)) {
+                                        dailyReservationsData.push({ id: resKey, date: dateKey, ...data[dateKey][resKey], type: 'daily' });
+                                    }
+                                }
                             }
-                            reservationItem.innerHTML = `
-                                <span class="reservation-avatar">${initials}</span>
-                                <span class="room-name">${res.room} - ${res.guest}</span>
-                                <span class="restaurant-time">${res.place} - ${convertTo12HourFormat(res.time)}</span>
-                                <span class="pax-info">${res.pax} PAX</span>
-                                <span class="reservation-timestamp">🕒 ${formatTimeFromTimestamp(res.timestamp)}</span>
-                            `;
-                            groupDiv.appendChild(reservationItem);
-                        });
-                        reservationListDiv.appendChild(groupDiv);
-                    });
-                });
-            }
-        }
-        // --- Mejorar renderizado de reservas archivadas con avatares y separación visual ---
-        function renderArchivedReservations(filteredArchived = archivedReservations) {
-            // Agrupar por fecha, restaurante y hora
-            const rows = [];
-            filteredArchived.forEach(res => {
-                rows.push({
-                    date: res.archiveDate || '',
-                    restaurant: res.place || '',
-                    time: res.time || '',
-                    room: res.room || '',
-                    guest: res.guest || '',
-                    pax: res.pax || '',
-                    comment: res.comment || '',
-                    validator: res.validator || ''
-                });
-            });
-            // Ordenar por fecha descendente, restaurante, hora
-            rows.sort((a, b) => {
-                const dateComp = new Date(b.date) - new Date(a.date);
-                if (dateComp !== 0) return dateComp;
-                const restComp = a.restaurant.localeCompare(b.restaurant);
-                if (restComp !== 0) return restComp;
-                const timeComp = a.time.localeCompare(b.time);
-                if (timeComp !== 0) return timeComp;
-                return parseInt(a.room) - parseInt(b.room);
-            });
-            archiveListContent.innerHTML = '';
-            if (rows.length === 0) {
-                noArchivedReservationsMessage.textContent = archivedReservations.length === 0 ?
-                    'No hay reservas archivadas.' :
-                    'No se encontraron reservas archivadas con los criterios de búsqueda.';
-                noArchivedReservationsMessage.style.display = 'block';
-            } else {
-                noArchivedReservationsMessage.style.display = 'none';
-                let tableHtml = `<table class="archive-table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Restaurante</th>
-                            <th>Hora</th>
-                            <th>Hab.</th>
-                            <th>Huésped</th>
-                            <th>PAX</th>
-                            <th>Comentario</th>
-                            <th>Solicitante</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-                rows.forEach(row => {
-                    tableHtml += `<tr>
-                        <td>${row.date}</td>
-                        <td>${row.restaurant}</td>
-                        <td>${row.time}</td>
-                        <td>${row.room}</td>
-                        <td>${row.guest}</td>
-                        <td class="pax-cell">${row.pax}</td>
-                        <td>${row.comment}</td>
-                        <td>${row.validator}</td>
-                    </tr>`;
-                });
-                tableHtml += `</tbody></table>`;
-                archiveListContent.innerHTML = tableHtml;
-            }
-        }
-        // --- Mejorar accesibilidad: navegación por teclado en modales ---
-        [validationModal, summaryModal, archiveModal].forEach(modal => {
-            if (modal) {
-                modal.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        modal.classList.remove('active');
+                        }
                     }
+                    updateCombinedReservationsWithChart();
+                }, (error) => {
+                    console.error("Error fetching daily reservations:", error);
+                    alert("Error al cargar reservas activas. Por favor, revise la conexión a Firebase.");
+                    loadingMessage.style.display = 'none'; // Ocultar mensaje de carga en caso de error
+                });
+
+                // Listener para archivedReservations (todos los nodos de fecha dentro)
+                onValue(ref(database, 'archivedReservations'), (snapshot) => {
+                    const data = snapshot.val();
+                    archivedReservationsData = [];
+                    if (data) {
+                        for (const dateKey in data) {
+                            if (data.hasOwnProperty(dateKey)) {
+                                for (const resKey in data[dateKey]) {
+                                    if (data[dateKey].hasOwnProperty(resKey)) {
+                                        archivedReservationsData.push({ id: resKey, date: dateKey, ...data[dateKey][resKey], type: 'archived' });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    updateCombinedReservationsWithChart();
+                }, (error) => {
+                    console.error("Error fetching archived reservations:", error);
+                    alert("Error al cargar reservas archivadas. Por favor, revise la conexión a Firebase.");
+                    loadingMessage.style.display = 'none'; // Ocultar mensaje de carga en caso de error
                 });
             }
+
+            // Función para combinar y actualizar la lista global de reservas
+            function updateCombinedReservations() {
+                // Combinar todas las reservas diarias y archivadas
+                allReservations = [...dailyReservationsData, ...archivedReservationsData];
+
+                loadingMessage.style.display = 'none';
+                filterAdminReservations(); // Esto llamará a renderAdminReservationsTable
+            }
+
+
+            // Añadir una nueva reserva desde el formulario de administrador
+            adminReservationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const room = document.getElementById('adminRoom').value;
+                const guest = document.getElementById('adminGuest').value;
+                const place = document.getElementById('adminPlace').value;
+                const time = document.getElementById('adminTime').value;
+                const pax = parseInt(document.getElementById('adminPax').value, 10);
+                const date = document.getElementById('adminDate').value; // Nueva fecha
+                const comment = document.getElementById('adminComment').value;
+                const validator = document.getElementById('adminValidator').value;
+
+                if (!room || !guest || !place || !time || !pax || !date || !validator) {
+                    alert('Por favor, complete todos los campos obligatorios.');
+                    return;
+                }
+                 if (room.length !== 4 || isNaN(room) || parseInt(room, 10) < 1000 || parseInt(room, 10) > 9999) {
+                    alert('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).');
+                    return;
+                }
+
+                const newReservation = {
+                    room: room,
+                    guest: guest,
+                    place: place,
+                    time: time,
+                    pax: pax,
+                    comment: comment,
+                    validator: validator,
+                    timestamp: new Date().getTime(),
+                    date: date // Fecha de la reserva
+                };
+
+                try {
+                    // Siempre agregar a dailyReservations bajo la fecha especificada
+                    const reservationsRef = ref(database, `dailyReservations/${date}`);
+                    await push(reservationsRef, newReservation);
+                    alert('Reserva agregada con éxito!');
+                    adminReservationForm.reset();
+                }
+                catch (error) {
+                    console.error("Error al agregar reserva:", error);
+                    alert("Error al agregar la reserva. Por favor, intente de nuevo. Revise la consola para más detalles.");
+                }
+            });
+
+            // Actualizar una reserva existente
+            editReservationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const id = editReservationIdInput.value;
+                const originalDate = editReservationIdInput.dataset.originalDate; // Fecha de la reserva original
+                const originalType = editReservationIdInput.dataset.originalType; // 'daily' o 'archived'
+                const newDate = editDateInput.value; // La fecha que se ha ingresado en el formulario de edición
+                const room = editRoomInput.value;
+                const guest = editGuestInput.value;
+                const place = editPlaceSelect.value;
+                const time = editTimeInput.value;
+                const pax = parseInt(editPaxInput.value, 10);
+                const comment = editCommentInput.value;
+                const validator = editValidatorInput.value;
+
+                if (!id || !originalDate || !room || !guest || !place || !time || !pax || !validator || !newDate) {
+                    alert('Por favor, complete todos los campos para editar.');
+                    return;
+                }
+                if (room.length !== 4 || isNaN(room) || parseInt(room, 10) < 1000 || parseInt(room, 10) > 9999) {
+                    alert('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).');
+                    return;
+                }
+
+                const updatedReservation = {
+                    room: room,
+                    guest: guest,
+                    place: place,
+                    time: time,
+                    pax: pax,
+                    comment: comment,
+                    validator: validator,
+                    date: newDate // Actualizar la fecha de la reserva
+                };
+
+                try {
+                    if (originalDate === newDate) { // Si la fecha de la reserva no cambia
+                        let path;
+                        if (originalType === 'daily') {
+                            path = `dailyReservations/${originalDate}/${id}`;
+                        } else { // originalType === 'archived'
+                            path = `archivedReservations/${originalDate}/${id}`;
+                        }
+                        await update(ref(database, path), updatedReservation);
+                    } else { // Si la fecha de la reserva ha cambiado
+                        // Primero, eliminar de la ubicación antigua
+                        let oldPath;
+                        if (originalType === 'daily') {
+                            oldPath = `dailyReservations/${originalDate}/${id}`;
+                        } else { // originalType === 'archived'
+                            oldPath = `archivedReservations/${originalDate}/${id}`;
+                        }
+                        await remove(ref(database, oldPath));
+                        console.log("Reserva eliminada de la ubicación antigua:", oldPath);
+
+                        // Luego, añadirla a la nueva ubicación (siempre como 'daily' en la nueva fecha)
+                        // El sistema de archivado del `index.html` se encargará de moverla a 'archived' si es una fecha pasada.
+                        const newReservationsRef = ref(database, `dailyReservations/${newDate}`);
+                        const newRef = push(newReservationsRef);
+                        await set(newRef, { ...updatedReservation, timestamp: new Date().getTime() }); // Asegurar nuevo timestamp y ID
+                        console.log("Reserva añadida a la nueva ubicación:", newDate);
+                    }
+
+                    alert('Reserva actualizada con éxito!');
+                    hideEditModal();
+                } catch (error) {
+                    console.error("Error al actualizar reserva:", error);
+                    alert("Error al actualizar la reserva. Por favor, intente de nuevo. Revise la consola para más detalles.");
+                }
+            });
+
+            // Eliminar una reserva
+            async function deleteReservation(reservationId, reservationDate, reservationType) {
+                if (!confirm('¿Está seguro de que desea eliminar esta reserva? Esta acción no se puede deshacer.')) {
+                    return;
+                }
+
+                let path;
+                if (reservationType === 'archived') {
+                    path = `archivedReservations/${reservationDate}/${reservationId}`;
+                } else { // type === 'daily'
+                    path = `dailyReservations/${reservationDate}/${reservationId}`;
+                }
+
+                try {
+                    await remove(ref(database, path));
+                    alert('Reserva eliminada con éxito!');
+                } catch (error) {
+                    console.error("Error al eliminar reserva:", error);
+                    alert("Error al eliminar la reserva. Por favor, intente de nuevo. Revise la consola para más detalles.");
+                }
+            }
+
+
+            // --- Funciones de Renderizado y Filtrado de Tabla ---
+
+            function renderAdminReservationsTable(filteredReservations = allReservations) {
+                adminReservationsTableBody.innerHTML = '';
+                currentFilteredReservations = filteredReservations; // Guarda las reservas que se muestran actualmente
+
+                // Ordenar por fecha (más reciente primero), luego restaurante, luego hora, luego habitación
+                filteredReservations.sort((a, b) => {
+                    // Comparación de fechas: Más recientes primero
+                    const dateA = new Date(a.date + 'T' + a.time);
+                    const dateB = new Date(b.date + 'T' + b.time);
+                    const dateComparison = dateB.getTime() - dateA.getTime();
+                    if (dateComparison !== 0) return dateComparison;
+
+                    // Luego por restaurante
+                    const restaurantComparison = a.place.localeCompare(b.place);
+                    if (restaurantComparison !== 0) return restaurantComparison;
+
+                    // Finalmente por número de habitación
+                    return parseInt(a.room) - parseInt(b.room);
+                });
+
+
+                if (filteredReservations.length === 0) {
+                    noReservationsAdminMessage.style.display = 'block';
+                } else {
+                    noReservationsAdminMessage.style.display = 'none';
+                    filteredReservations.forEach(res => {
+                        const row = adminReservationsTableBody.insertRow();
+                        const reservationType = res.type; // 'daily' o 'archived'
+
+                        row.innerHTML = `
+                            <td>${getShortDate(res.date)}</td>
+                            <td>${res.room}</td>
+                            <td>${res.guest}</td>
+                            <td>${res.place}</td>
+                            <td>${convertTo12HourFormat(res.time)}</td>
+                            <td>${res.pax}</td>
+                            <td>${res.comment || ''}</td>
+                            <td>${res.validator || ''}</td>
+                            <td class="actions actions">
+                                <button class="btn btn-warning btn-sm" data-action="edit" data-id="${res.id}" data-date="${res.date}" data-type="${reservationType}" title="Editar"><span class="material-icons">edit</span></button>
+                                <button class="btn btn-danger btn-sm" data-action="delete" data-id="${res.id}" data-date="${res.date}" data-type="${reservationType}" title="Eliminar"><span class="material-icons">delete</span></button>
+                            </td>
+                        `;
+                    });
+                }
+            }
+
+            function filterAdminReservations() {
+                const searchTerm = adminReservationSearchInput.value.toLowerCase().trim();
+
+                if (!searchTerm) {
+                    renderAdminReservationsTable(allReservations);
+                    return;
+                }
+
+                const filtered = allReservations.filter(res => {
+                    const roomMatches = String(res.room).includes(searchTerm);
+                    const guestMatches = res.guest.toLowerCase().includes(searchTerm);
+                    const restaurantMatches = res.place.toLowerCase().includes(searchTerm);
+                    const timeMatches = convertTo12HourFormat(res.time).toLowerCase().includes(searchTerm);
+                    const commentMatches = (res.comment || '').toLowerCase().includes(searchTerm);
+                    const validatorMatches = (res.validator || '').toLowerCase().includes(searchTerm);
+                    const dateMatches = getFormattedDate(res.date).toLowerCase().includes(searchTerm) || res.date.includes(searchTerm);
+
+                    return roomMatches || guestMatches || restaurantMatches || timeMatches || commentMatches || validatorMatches || dateMatches;
+                });
+
+                renderAdminReservationsTable(filtered);
+            }
+
+            adminReservationSearchInput.addEventListener('input', filterAdminReservations);
+
+
+            // --- Lógica del Modal de Edición ---
+            adminReservationsTableBody.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                const date = btn.dataset.date;
+                const type = btn.dataset.type;
+                if (action === 'edit') {
+                    const reservationToEdit = allReservations.find(res => res.id === id && res.date === date && res.type === type);
+                    if (reservationToEdit) {
+                        showEditModal(reservationToEdit);
+                    } else {
+                        alert('No se encontró la reserva para editar. Puede que haya sido eliminada o que los datos no estén sincronizados.');
+                    }
+                } else if (action === 'delete') {
+                    deleteReservation(id, date, type);
+                }
+            });
+
+            function showEditModal(reservation) {
+                editReservationIdInput.value = reservation.id;
+                // Guardar la fecha y tipo original en un dataset para usar en la actualización
+                editReservationIdInput.dataset.originalDate = reservation.date;
+                editReservationIdInput.dataset.originalType = reservation.type;
+
+                editDateInput.value = reservation.date;
+                editRoomInput.value = reservation.room;
+                editGuestInput.value = reservation.guest;
+                editPlaceSelect.value = reservation.place;
+                editTimeInput.value = reservation.time;
+                editPaxInput.value = reservation.pax;
+                editCommentInput.value = reservation.comment;
+                editValidatorInput.value = reservation.validator;
+                editReservationModal.classList.add('active');
+            }
+
+            function hideEditModal() {
+                editReservationModal.classList.remove('active');
+            }
+
+            // Eventos para cerrar el modal de edición
+            // Delegar el cierre del modal de edición a cualquier botón con data-modal='editReservationModal'
+            document.addEventListener('click', (e) => {
+                const closeBtn = e.target.closest('[data-modal="editReservationModal"]');
+                if (closeBtn) {
+                    hideEditModal();
+                }
+            });
+            // También cerrar el modal al hacer click en el botón de cancelar
+            const editCancelBtn = document.querySelector('#editReservationModal .btn.btn-secondary');
+            if (editCancelBtn) {
+                editCancelBtn.addEventListener('click', hideEditModal);
+            }
+
+            editReservationModal.addEventListener('click', (e) => {
+                if (e.target === editReservationModal) {
+                    hideEditModal();
+                }
+            });
+
+            // --- Funcionalidad de Impresión ---
+            printReservationsBtn.addEventListener('click', printReservations);
+
+            function printReservations() {
+                const todayDateString = getTodayDateString(); // Obtiene la fecha de hoy en formato YYYY-MM-DD
+
+                // Filtra las reservas para obtener solo las del día en curso
+                const reservationsForToday = dailyReservationsData.filter(res => res.date === todayDateString);
+
+                if (reservationsForToday.length === 0) {
+                    alert('No hay reservas para el día de hoy para imprimir.');
+                    return;
+                }
+
+                // Agrupar reservas por restaurante
+                const reservationsByRestaurant = reservationsForToday.reduce((acc, res) => {
+                    if (!acc[res.place]) {
+                        acc[res.place] = [];
+                    }
+                    acc[res.place].push(res);
+                    return acc;
+                }, {});
+
+                // Obtener la fecha y hora actual para el encabezado de impresión (ajustado a la ubicación Punta Cana)
+                const now = new Date();
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                    timeZone: 'America/Santo_Domingo' // Zona horaria de Punta Cana
+                };
+                const printDate = now.toLocaleString('es-ES', options);
+
+
+                let printContent = `
+                    <div class="print-page-content">
+                        <h1>Reservas para Hoy: ${getFormattedDate(todayDateString)}</h1>
+                        <p class="print-date-header">Fecha de Impresión: ${printDate}</p>
+                `;
+
+                // Ordenar los restaurantes alfabéticamente
+                const sortedRestaurants = Object.keys(reservationsByRestaurant).sort();
+
+                sortedRestaurants.forEach(place => {
+                    printContent += `<h3>${place}</h3>`;
+                    printContent += `<ul>`;
+
+                    // Ordenar las reservas dentro de cada restaurante por hora y luego por habitación
+                    reservationsByRestaurant[place].sort((a, b) => {
+                        // Primero por hora
+                        const timeComparison = a.time.localeCompare(b.time);
+                        if (timeComparison !== 0) return timeComparison;
+                        // Luego por habitación (para desempate)
+                        return parseInt(a.room) - parseInt(b.room);
+                    });
+
+                    reservationsByRestaurant[place].forEach(res => {
+                        // Formato: Habitación - Nombre - Restaurante - Hora - PAX - Comentario
+                        const commentText = res.comment ? ` - ${res.comment}` : '';
+                        printContent += `
+                            <li>
+                                <strong>${res.room}</strong> - ${res.guest} - ${res.place} - ${convertTo12HourFormat(res.time)} - PAX: ${res.pax}${commentText}
+                            </li>
+                        `;
+                    });
+                    printContent += `</ul>`;
+                });
+
+                printContent += `</div>`;
+
+                const printWindow = window.open('', '_blank', 'height=800,width=1000');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Imprimir Reservas del Día</title>
+                        <style>
+                            /* Estilos para la ventana de impresión, optimizados para papel */
+                            body { font-family: 'Poppins', sans-serif; margin: 20px; color: #333; }
+                            h1 { text-align: center; color: #007BFF; font-size: 24px; margin-bottom: 20px; }
+                            h3 { color: #343A40; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+                            ul { list-style: none; padding: 0; margin-left: 20px; }
+                            li { margin-bottom: 8px; line-height: 1.4; }
+                            li strong { font-weight: 600; } /* Para "Habitación" */
+                            .print-date-header { text-align: center; font-style: italic; color: #666; margin-bottom: 30px; }
+
+                            /* Estilos para cuando realmente se imprime */
+                            @media print {
+                                body { margin: 10mm; font-size: 10pt; }
+                                h1 { font-size: 20pt; }
+                                h3 { font-size: 14pt; margin-top: 15px; }
+                                li { font-size: 9pt; }
+                                .print-date-header { font-size: 10pt; }
+                                ul { margin-left: 10px; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${printContent}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+                // printWindow.close(); // Puedes descomentar esto si quieres que la ventana se cierre automáticamente después de imprimir
+            }
+
+            // --- Botón Enviar WhatsApp ---
+            const sendWhatsAppBtn = document.getElementById('sendWhatsAppBtn');
+            sendWhatsAppBtn.addEventListener('click', () => {
+                const todayDateString = getTodayDateString();
+                const reservationsForToday = dailyReservationsData.filter(res => res.date === todayDateString);
+                if (reservationsForToday.length === 0) {
+                    alert('No hay reservas para el día de hoy para enviar.');
+                    return;
+                }
+                // Agrupar reservas por restaurante
+                const reservationsByRestaurant = reservationsForToday.reduce((acc, res) => {
+                    if (!acc[res.place]) acc[res.place] = [];
+                    acc[res.place].push(res);
+                    return acc;
+                }, {});
+                // Ordenar restaurantes alfabéticamente
+                const sortedRestaurants = Object.keys(reservationsByRestaurant).sort();
+                // Encabezado bonito
+                let message = `*🌟 Reservas del día ${getShortDate(todayDateString)} 🌟*\n\n`;
+                sortedRestaurants.forEach(place => {
+                    message += `*${place}*\n`;
+                    // Ordenar reservas por hora
+                    reservationsByRestaurant[place].sort((a, b) => a.time.localeCompare(b.time));
+                    reservationsByRestaurant[place].forEach(res => {
+                        const hora = convertTo12HourFormat(res.time);
+                        const habitacion = res.room;
+                        const nombre = res.guest;
+                        const pax = res.pax;
+                        const comentario = res.comment ? ` - ${res.comment}` : '';
+                        message += `• ${hora} - Hab. ${habitacion} - ${nombre} - PAX: ${pax}${comentario}\n`;
+                    });
+                    message += '\n';
+                });
+                message += '\n_Enviado desde el Panel de Administración de Reservas_';
+                // Codificar mensaje para URL
+                const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                window.open(url, '_blank');
+            });
+
+            // --- Gráfico de barras por restaurante ---
+            let restaurantBarChart;
+            const restaurantBarChartCanvas = document.getElementById('restaurantBarChart');
+
+            function updateRestaurantBarChart() {
+                // Calcular total de PAX por restaurante para el día en curso
+                const todayDateString = getTodayDateString();
+                const reservationsForToday = dailyReservationsData.filter(res => res.date === todayDateString);
+                // Agrupar por restaurante
+                const paxByRestaurant = {};
+                reservationsForToday.forEach(res => {
+                    if (!paxByRestaurant[res.place]) paxByRestaurant[res.place] = 0;
+                    paxByRestaurant[res.place] += parseInt(res.pax, 10) || 0;
+                });
+                // Ordenar restaurantes alfabéticamente
+                const labels = Object.keys(paxByRestaurant).sort();
+                const dataValues = labels.map(label => paxByRestaurant[label]);
+
+                // Si no hay datos, mostrar un restaurante "Sin reservas"
+                const chartLabels = labels.length ? labels : ['Sin reservas'];
+                const chartData = labels.length ? dataValues : [0];
+
+                const data = {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'PAX',
+                        data: chartData,
+                        backgroundColor: 'rgba(79, 140, 255, 0.7)',
+                        borderRadius: 8,
+                        maxBarThickness: 38
+                    }]
+                };
+                const options = {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#23272f', font: { family: 'Inter', weight: 500 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#eaf1ff' },
+                            ticks: { color: '#6C757D', font: { family: 'Inter', weight: 400 } }
+                        }
+                    }
+                };
+                if (restaurantBarChart) {
+                    restaurantBarChart.data = data;
+                    restaurantBarChart.options = options;
+                    restaurantBarChart.update();
+                } else {
+                    restaurantBarChart = new Chart(restaurantBarChartCanvas, {
+                        type: 'bar',
+                        data,
+                        options
+                    });
+                }
+            }
+
+            // Actualizar el gráfico cada vez que cambian las reservas
+            function updateCombinedReservationsWithChart() {
+                updateCombinedReservations();
+                updateRestaurantBarChart();
+            }
+
+            // Iniciar los listeners de Firebase al cargar la página
+            setupFirebaseListeners();
         });
-        // --- Enfoque automático en modales ---
-        function showValidationModal() {
-            validationModal.classList.add('active');
-            validatorNameInput.value = '';
-            validatorNameInput.focus();
-        }
-        function showSummaryModal() {
-            summaryModal.classList.add('active');
-            summaryModal.focus();
-        }
-        function showArchiveModal() {
-            archiveModal.classList.add('active');
-            archiveModal.focus();
-        }
-     
-        // --- Mostrar spinner en operaciones largas ---
-        // Ya integrado en addReservationWithUndo y undo
-        // --- Mejorar mensajes de error cerca de campos ---
-        // (Opcional: para validaciones más avanzadas, se puede mostrar mensajes debajo de cada input)
-        // --- Animación de scroll a la reserva recién agregada ---
-        // (Opcional: se puede implementar si se requiere)
     </script>
 </body>
 </html>
