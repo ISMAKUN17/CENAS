@@ -1077,8 +1077,9 @@
         const firebaseConfig = {
             apiKey: "AIzaSyALR-b68phh_u92V3rw9B9Ei7FcexU2xc8",
             authDomain: "proyectos17-98695.firebaseapp.com",
+            databaseURL: "https://proyectos17-98695-default-rtdb.firebaseio.com",
             projectId: "proyectos17-98695",
-            storageBucket: "proyectos17-98695.firebasestorage.app",
+            storageBucket: "proyectos17-98695.appspot.com",
             messagingSenderId: "951673973410",
             appId: "1:951673973410:web:4bc355e825cf86308645fb",
             measurementId: "G-6YK06W16FZ"
@@ -1087,6 +1088,14 @@
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app); // Obtener referencia a la Realtime Database
+
+        // Declaraciones globales necesarias para evitar ReferenceError
+        let currentReservationData = null;
+
+        function getTodayDateString() {
+            const today = new Date();
+            return today.toISOString().slice(0, 10);
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             const addReservationBtn = document.getElementById('addReservationBtn');
@@ -1127,7 +1136,6 @@
 
             let reservations = []; // Reservas del día actual, ahora se sincronizarán con Firebase
             let archivedReservations = []; // Reservas de días anteriores, también desde Firebase
-            let currentReservationData = null;
             let lastAccessDate = localStorage.getItem('lastAccessDate'); // Todavía usado para control de fecha de acceso
 
             const restaurantTimes = {
@@ -1510,7 +1518,7 @@
                 const validatorName = validatorNameInput.value.trim();
                 if (validatorName) {
                     currentReservationData.validator = validatorName;
-                    await addReservationWithUndo(currentReservationData); // Esperar la operación de Firebase
+                    await addReservationWithUndo(currentReservationData); // NUEVO: con deshacer y feedback
                     hideValidationModal();
                     reservationForm.reset();
                     placeSelect.value = "";
@@ -2031,26 +2039,7 @@
             archiveModal.classList.add('active');
             archiveModal.focus();
         }
-        // --- Usar addReservationWithUndo en vez de addReservation ---
-        confirmValidationBtn.addEventListener('click', async () => {
-            const validatorName = validatorNameInput.value.trim();
-            if (validatorName) {
-                currentReservationData.validator = validatorName;
-                await addReservationWithUndo(currentReservationData); // NUEVO: con deshacer y feedback
-                hideValidationModal();
-                reservationForm.reset();
-                placeSelect.value = "";
-                updateTimeOptions(placeSelect.value);
-                timeSelect.disabled = true;
-                availabilityInfo.textContent = '';
-                availabilityInfo.className = 'availability-info';
-                currentReservationData = null;
-                checkOperatingHours();
-            } else {
-                showSnackbar('Por favor, ingrese el nombre de quien solicita la reserva.', 3000);
-                validatorNameInput.focus();
-            }
-        });
+     
         // --- Mostrar spinner en operaciones largas ---
         // Ya integrado en addReservationWithUndo y undo
         // --- Mejorar mensajes de error cerca de campos ---
