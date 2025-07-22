@@ -1066,6 +1066,48 @@
             box-shadow: 0 4px 16px rgba(37,211,102,0.12);
         }
 
+        @media (max-width: 700px) {
+            .manage-reservations-section {
+                padding: 10px 2px;
+            }
+            .manage-reservations-section .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .manage-reservations-section #adminReservationSearch,
+            .manage-reservations-section #printReservationsBtn,
+            .manage-reservations-section #sendWhatsAppBtn {
+                width: 100%;
+                min-width: 0;
+                font-size: 1em;
+            }
+            .bar-chart-section {
+                max-width: 100vw;
+                min-width: 0;
+            }
+            .bar-chart-container {
+                max-width: 100vw;
+                min-width: 0;
+            }
+            #restaurantBarChart {
+                width: 100vw !important;
+                min-width: 0 !important;
+                height: 180px !important;
+            }
+            .admin-table th, .admin-table td {
+                padding: 7px 4px;
+                font-size: 0.95em;
+            }
+            .header {
+                padding: 32px 0 18px 0;
+                margin-bottom: 18px;
+            }
+            .header h1 {
+                font-size: 1.1em;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1820,10 +1862,12 @@
                 }, {});
                 // Ordenar restaurantes alfabéticamente
                 const sortedRestaurants = Object.keys(reservationsByRestaurant).sort();
-                // Encabezado bonito
-                let message = `*🌟 Reservas del día ${getShortDate(todayDateString)} 🌟*\n\n`;
+                // Encabezado y formato personalizado solicitado
+                let message = `*👋 ¡Hola, Buenas Tardes!*\n\n`;
+                message += `*🍽️ Reservas VIP para hoy (${getShortDate(todayDateString)})*\n`;
+                message += `-----------------------------------\n`;
                 sortedRestaurants.forEach(place => {
-                    message += `*${place}*\n`;
+                    message += `\n*${place.toUpperCase()}*\n`;
                     // Ordenar reservas por hora
                     reservationsByRestaurant[place].sort((a, b) => a.time.localeCompare(b.time));
                     reservationsByRestaurant[place].forEach(res => {
@@ -1831,12 +1875,13 @@
                         const habitacion = res.room;
                         const nombre = res.guest;
                         const pax = res.pax;
-                        const comentario = res.comment ? ` - ${res.comment}` : '';
-                        message += `• ${hora} - Hab. ${habitacion} - ${nombre} - PAX: ${pax}${comentario}\n`;
+                        const comentario = res.comment ? ` | Nota: ${res.comment}` : '';
+                        message += `•  ${habitacion} |  ${nombre}  |  ${hora} |  PAX: ${pax}${comentario} |\n`;
                     });
-                    message += '\n';
                 });
-                message += '\n_Enviado desde el Panel de Administración de Reservas_';
+                message += `\n-----------------------------------\n`;
+                message += `¡Gracias! 🙌`;
+                message += `\n_Enviado desde el Panel de Administración de Reservas_`;
                 // Codificar mensaje para URL
                 const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
                 window.open(url, '_blank');
