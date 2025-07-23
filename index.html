@@ -1071,7 +1071,7 @@
     <script type="module">
         // Importar las funciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         // Tu configuración de Firebase
         const firebaseConfig = {
@@ -1228,7 +1228,7 @@
                             // Eliminar las reservas del día anterior después de moverlas
                             updates[`dailyReservations/${lastAccessDate}`] = null;
 
-                            await set(ref(database), updates); // Realizar la operación de actualización en lote
+                            await update(ref(database), updates); // Realizar la operación de actualización en lote
                             console.log(`Reservas del ${lastAccessDate} archivadas y borradas.`);
                         }
                         // Después de archivar, las reservas del día actual se reinician (se cargan de Firebase, que estará vacío para el nuevo día)
