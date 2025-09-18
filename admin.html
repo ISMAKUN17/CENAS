@@ -9,33 +9,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #4f8cff;
-            --secondary-color: #6C757D;
-            --success-color: #28A745;
-            --danger-color: #DC3545;
-            --warning-color: #FFC107;
-            --info-color: #17A2B8;
-            --dark-color: #23272f;
-            --light-color: #f7f9fa;
-            --white-color: #FFFFFF;
-            --border-color: #f0f1f3;
-            --border-radius-sm: 0.25rem;
-            --border-radius-md: 0.5rem;
-            --transition-speed: 0.2s;
-            --font-family: 'Inter', 'Poppins', 'Segoe UI', Arial, sans-serif;
+            --primary-color: #6366f1;
+            --primary-light: #a5b4fc;
+            --primary-dark: #4f46e5;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #06b6d4;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --white-color: #ffffff;
+            --border-color: #e2e8f0;
+            --border-radius-sm: 0.375rem;
+            --border-radius-md: 0.75rem;
+            --border-radius-lg: 1rem;
+            --transition-speed: 0.3s;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             --font-weight-light: 300;
             --font-weight-normal: 400;
             --font-weight-medium: 500;
-            --font-weight-bold: 600;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
             --text-color: var(--dark-color);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
 
         body {
             font-family: var(--font-family);
-            font-weight: var(--font-weight-light);
-            line-height: 1.7;
+            font-weight: var(--font-weight-normal);
+            line-height: 1.6;
             color: var(--text-color);
-            background: var(--light-color);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -46,74 +54,75 @@
         }
 
         .container {
-            max-width: 700px;
+            max-width: 1200px;
             width: 100%;
             background: var(--white-color);
-            border-radius: var(--border-radius-md);
+            border-radius: var(--border-radius-lg);
             border: 1px solid var(--border-color);
-            box-shadow: none;
-            padding: 32px 18px 18px 18px;
-            margin: 40px 0;
+            box-shadow: var(--shadow-xl);
+            padding: 0;
+            margin: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 32px;
+            overflow: hidden;
         }
 
         .header {
             position: relative;
-            z-index: 10;
-            background: #fff;
-            box-shadow: 0 2px 12px rgba(79,140,255,0.04);
-            border-bottom: 1.5px solid var(--border-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
             width: 100%;
-            padding: 64px 0 48px 0;
-            margin-bottom: 48px;
+            padding: 60px 40px 40px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-        .header h1 {
-            margin: 0;
-            color: var(--primary-color);
-            font-size: 2.3em;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-            line-height: 1.1;
-            width: 100%;
             text-align: center;
         }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: var(--font-weight-bold);
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
         .header h1 .material-icons {
-            font-size: 1.3em;
-            color: var(--primary-color);
+            font-size: 2rem;
+            margin-right: 12px;
             vertical-align: middle;
         }
         .btn-float-back {
             position: absolute;
-            top: 22px;
-            left: 32px;
-            width: 34px;
-            height: 34px;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: #fff;
-            border: 1.5px solid var(--primary-color);
-            color: var(--primary-color);
-            box-shadow: 0 2px 8px rgba(79,140,255,0.10);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1em;
+            font-size: 1.2rem;
             cursor: pointer;
-            transition: background 0.18s, color 0.18s, border-color 0.18s;
+            transition: all var(--transition-speed);
+            z-index: 2;
         }
         .btn-float-back:hover, .btn-float-back:focus {
-            background: var(--primary-color);
-            color: #fff;
-            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
         .btn-float-back .material-icons {
-            font-size: 1.1em;
+            font-size: 1.2rem;
         }
+    
         @media (max-width: 600px) {
             .btn-float-back {
                 top: 8px;
@@ -129,107 +138,152 @@
         }
 
         .btn {
-            padding: 12px 22px;
-            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border: none;
             border-radius: var(--border-radius-sm);
-            font-size: 1em;
-            font-weight: var(--font-weight-normal);
+            font-size: 0.875rem;
+            font-weight: var(--font-weight-medium);
             cursor: pointer;
-            transition: background var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
-            background: var(--white-color);
-            color: var(--primary-color);
-            box-shadow: none;
+            transition: all var(--transition-speed);
             display: inline-flex;
             align-items: center;
             gap: 8px;
             justify-content: center;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
         }
         .btn .material-icons {
-            font-size: 1.1em;
-            vertical-align: middle;
+            font-size: 1.125rem;
         }
         .btn-primary {
             background: var(--primary-color);
-            color: var(--white-color);
-            border: 1px solid var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
         .btn-primary:hover {
-            background: #356ad6;
-            color: var(--white-color);
-            border: 1px solid #356ad6;
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
         .btn-success {
             background: var(--success-color);
-            color: var(--white-color);
-            border: 1px solid var(--success-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
         .btn-success:hover {
-            background: #218838;
-            border: 1px solid #218838;
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
         .btn-danger {
             background: var(--danger-color);
-            color: var(--white-color);
-            border: 1px solid var(--danger-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
         .btn-danger:hover {
-            background: #b52a3a;
-            border: 1px solid #b52a3a;
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
         .btn-warning {
             background: var(--warning-color);
-            color: var(--dark-color);
-            border: 1px solid var(--warning-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
         .btn-warning:hover {
-            background: #e0a800;
-            border: 1px solid #e0a800;
+            background: #d97706;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
         .btn-info {
             background: var(--info-color);
-            color: var(--white-color);
-            border: 1px solid var(--info-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
         .btn-info:hover {
-            background: #138496;
-            border: 1px solid #138496;
+            background: #0891b2;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
         .btn-secondary {
             background: var(--secondary-color);
-            color: var(--white-color);
-            border: 1px solid var(--secondary-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
         .btn-secondary:hover {
-            background: #5a6268;
-            border: 1px solid #5a6268;
+            background: #475569;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
-
         section {
             background: var(--white-color);
-            padding: 24px 18px;
-            border-radius: var(--border-radius-md);
-            border: 1px solid var(--border-color);
+            padding: 32px;
+            margin: 0;
+            border-radius: 0;
+            border: none;
             box-shadow: none;
-            margin-bottom: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        section h2 {
-            color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 1.2em;
-            font-weight: var(--font-weight-medium);
+        section:not(:last-child) {
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            letter-spacing: 0.2px;
-            line-height: 1.2;
-            width: 100%;
-            text-align: center;
         }
 
+        section h2 {
+            color: var(--dark-color);
+            margin: 0 0 24px 0;
+            font-size: 1.5rem;
+            font-weight: var(--font-weight-semibold);
+            letter-spacing: -0.025em;
+            line-height: 1.3;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        section h2 .material-icons {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        /* FAB (Floating Action Button) */
+        .fab-add-reservation {
+            position: fixed;
+            right: 32px;
+            bottom: 32px;
+            z-index: 1200;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            box-shadow: var(--shadow-xl);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+        .fab-add-reservation:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        @media (max-width: 700px) {
+            .fab-add-reservation {
+                right: 20px;
+                bottom: 20px;
+                width: 56px;
+                height: 56px;
+                font-size: 1.25rem;
+            }
+        }
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -470,6 +524,51 @@
             padding-top: 12px;
             border-top: 1px solid var(--border-color);
         }
+        /* Animaciones adicionales */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        section:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        section:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
 
         /* Responsive Minimalista */
         @media (max-width: 900px) {
@@ -546,8 +645,8 @@
                 padding: 8px 4px;
             }
         }
-        /* Print styles remain unchanged */
 
+        /* Sección de agregar reserva */
         section.add-reservation-section {
             background: linear-gradient(120deg, #f7f9fa 60%, #eaf1ff 100%);
             border: 1.5px solid var(--border-color);
@@ -639,40 +738,6 @@
             border-radius: 3px;
             background: var(--primary-color);
             opacity: 0.18;
-        }
-
-        /* FAB (Floating Action Button) */
-        .fab-add-reservation {
-            position: fixed;
-            right: 32px;
-            bottom: 32px;
-            z-index: 1200;
-            width: 62px;
-            height: 62px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            box-shadow: 0 4px 16px rgba(79,140,255,0.18);
-            font-size: 2.5em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        .fab-add-reservation:hover {
-            background: #356ad6;
-            box-shadow: 0 8px 24px rgba(79,140,255,0.22);
-        }
-        @media (max-width: 700px) {
-            .fab-add-reservation {
-                right: 16px;
-                bottom: 16px;
-                width: 50px;
-                height: 50px;
-                font-size: 1.7em;
-            }
         }
 
         /* Modal para agregar reserva - diseño mejorado */
@@ -1013,6 +1078,265 @@
             }
         }
 
+        /* Estilos para el modal de bloquear restaurantes */
+        #blockRestaurantsModal .modal-content {
+            max-width: 500px;
+            padding: 38px 32px 32px 32px;
+            border-radius: 1.2rem;
+            background: linear-gradient(120deg, #f7f9fa 70%, #fff3cd 100%);
+            border: 2px solid var(--warning-color);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.13);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-height: 95vh;
+            overflow: hidden;
+        }
+
+        #blockRestaurantsModal h3 {
+            color: var(--warning-color);
+            font-size: 1.5em;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            background: none;
+            border: none;
+            padding-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #blockRestaurantsModal h3 .material-icons {
+            font-size: 1.2em;
+            color: var(--warning-color);
+            vertical-align: middle;
+        }
+
+        .restaurant-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            font-weight: var(--font-weight-medium);
+            color: var(--dark-color);
+        }
+
+        .checkbox-label:hover {
+            background: #f8f9fa;
+            border-color: var(--warning-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            position: relative;
+            transition: all var(--transition-speed);
+            background: #fff;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark {
+            background: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked ~ span:not(.checkmark) {
+            color: var(--warning-color);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        @media (max-width: 600px) {
+            #blockRestaurantsModal .modal-content {
+                max-width: 98vw;
+                padding: 18px 6px 12px 6px;
+                border-radius: 0.7rem;
+            }
+            
+            .restaurant-checkboxes {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .checkbox-label {
+                padding: 10px;
+                font-size: 0.95em;
+            }
+            
+            #blockRestaurantsModal h3 {
+                font-size: 1.1em;
+                gap: 6px;
+            }
+        }
+
+        /* Estilos para el modal de análisis de reservas */
+        #analyzeReservationsModal .modal-content {
+            max-width: 800px;
+            padding: 38px 32px 32px 32px;
+            border-radius: 1.2rem;
+            background: linear-gradient(120deg, #f7f9fa 70%, #d4edda 100%);
+            border: 2px solid var(--success-color);
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.13);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        #analyzeReservationsModal h3 {
+            color: var(--success-color);
+            font-size: 1.5em;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            background: none;
+            border: none;
+            padding-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analysis-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .analysis-summary {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2em;
+            font-weight: var(--font-weight-bold);
+            color: var(--success-color);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .validators-ranking {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .validator-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-speed);
+        }
+
+        .validator-item.top-1 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-color: #ffc107;
+        }
+
+        .validator-item.top-2 {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%);
+            border-color: #6c757d;
+        }
+
+        .validator-item.top-3 {
+            background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+            border-color: #d97706;
+        }
+
+        .validator-rank {
+            font-size: 1.2em;
+            font-weight: var(--font-weight-bold);
+            color: var(--dark-color);
+            min-width: 30px;
+        }
+
+        .validator-name {
+            flex-grow: 1;
+            font-weight: var(--font-weight-semibold);
+            color: var(--dark-color);
+            margin-left: 12px;
+        }
+
+        .validator-count {
+            font-size: 1.1em;
+            font-weight: var(--font-weight-bold);
+            color: var(--success-color);
+        }
+
+        /* Dashboard de gráficos */
+        .dashboard-charts {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px 0;
+        }
+
         /* Gráfico de barras por restaurante */
         .bar-chart-section {
             display: flex;
@@ -1027,6 +1351,9 @@
         .bar-chart-container {
             width: 100%;
             max-width: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         #restaurantBarChart {
             width: 100% !important;
@@ -1120,12 +1447,12 @@
         </header>
 
         <div class="dashboard-charts">
-            <!-- Gráfico de barras por restaurante -->
+            <!-- Gráfico de barras semanal -->
             <section class="bar-chart-section">
                 <div class="bar-chart-container">
-                    <canvas id="restaurantBarChart" height="260"></canvas>
+                    <canvas id="weeklyBarChart" height="180"></canvas>
                 </div>
-                <div class="bar-chart-label">PAX por restaurante (hoy)</div>
+                <div class="bar-chart-label">Ocupación semanal total (PAX)</div>
             </section>
         </div>
 
@@ -1193,6 +1520,8 @@
                 <input type="text" id="adminReservationSearch" placeholder="Buscar por habitación, comensal, restaurante o fecha...">
                 <button type="button" id="printReservationsBtn" class="btn btn-info">Imprimir Reservas</button>
                 <button type="button" id="sendWhatsAppBtn"><span class="material-icons">send</span>Enviar</button>
+                <button type="button" id="blockRestaurantsBtn" class="btn btn-warning"><span class="material-icons">block</span>Bloquear Restaurantes</button>
+                <button type="button" id="analyzeReservationsBtn" class="btn btn-success"><span class="material-icons">analytics</span>Analizar Reservas</button>
             </div>
             <div class="table-container">
                 <table class="admin-table">
@@ -1271,6 +1600,97 @@
         </div>
     </div>
 
+    <!-- Modal para bloquear restaurantes -->
+    <div id="blockRestaurantsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-modal="blockRestaurantsModal"><span class="material-icons">close</span></button>
+            <h3><span class="material-icons">block</span>Bloquear Restaurantes</h3>
+            <form id="blockRestaurantsForm" class="form-grid">
+                <div class="form-group form-group-full">
+                    <label for="blockDate">Fecha a bloquear:</label>
+                    <input type="date" id="blockDate" required>
+                </div>
+                <div class="form-group form-group-full">
+                    <label>Seleccionar restaurantes a cerrar:</label>
+                    <div class="restaurant-checkboxes">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="blockElPatio" value="El Patio">
+                            <span class="checkmark"></span>
+                            El Patio
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="blockBluewater" value="Bluewater">
+                            <span class="checkmark"></span>
+                            Bluewater
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="blockBordeaux" value="Bordeaux">
+                            <span class="checkmark"></span>
+                            Bordeaux
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="blockHimitsu" value="Himitsu">
+                            <span class="checkmark"></span>
+                            Himitsu
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="blockHibachi" value="Hibachi">
+                            <span class="checkmark"></span>
+                            Hibachi
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="blockElOlio" value="El Olio">
+                            <span class="checkmark"></span>
+                            El Olio
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group-full modal-actions">
+                    <button type="submit" class="btn btn-warning"><span class="material-icons">block</span>Bloquear Restaurantes</button>
+                    <button type="button" class="btn btn-secondary" data-modal="blockRestaurantsModal"><span class="material-icons">close</span>Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para análisis de reservas -->
+    <div id="analyzeReservationsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-modal="analyzeReservationsModal"><span class="material-icons">close</span></button>
+            <h3><span class="material-icons">analytics</span>Análisis de Reservas</h3>
+            <div class="analysis-content">
+                <div class="analysis-summary">
+                    <h4>📊 Resumen General</h4>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalReservations">0</span>
+                            <span class="stat-label">Total Reservas</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalValidators">0</span>
+                            <span class="stat-label">Solicitantes Únicos</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalPaxAnalysis">0</span>
+                            <span class="stat-label">Total PAX</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-results">
+                    <h4>🏆 Top Solicitantes</h4>
+                    <div class="validators-ranking" id="validatorsRanking">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" data-modal="analyzeReservationsModal"><span class="material-icons">close</span>Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Importar las funciones que necesitas de los SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -1306,18 +1726,7 @@
             openAddReservationModalBtn.addEventListener('click', () => {
                 addReservationModal.classList.add('active');
             });
-            modalCloseButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    if (e.target.dataset.modal === 'addReservationModal') {
-                        addReservationModal.classList.remove('active');
-                    }
-                });
-            });
-            addReservationModal.addEventListener('click', (e) => {
-                if (e.target === addReservationModal) {
-                    addReservationModal.classList.remove('active');
-                }
-            });
+            // Los eventos de cierre ahora se manejan globalmente
 
             const adminReservationSearchInput = document.getElementById('adminReservationSearch');
             const loadingMessage = document.getElementById('loadingMessage');
@@ -1337,10 +1746,60 @@
             const editCommentInput = document.getElementById('editComment');
             const editValidatorInput = document.getElementById('editValidator');
 
+            // Elementos del modal de bloquear restaurantes
+            const blockRestaurantsBtn = document.getElementById('blockRestaurantsBtn');
+            const blockRestaurantsModal = document.getElementById('blockRestaurantsModal');
+            const blockRestaurantsForm = document.getElementById('blockRestaurantsForm');
+            const blockDateInput = document.getElementById('blockDate');
+
+            // Elementos del modal de análisis de reservas
+            const analyzeReservationsBtn = document.getElementById('analyzeReservationsBtn');
+            const analyzeReservationsModal = document.getElementById('analyzeReservationsModal');
+
             let allReservations = []; // Contendrá todas las reservas (del día y archivadas)
             let dailyReservationsData = []; // Cache para dailyReservations
             let archivedReservationsData = []; // Cache para archivedReservations
             let currentFilteredReservations = []; // Para almacenar las reservas actualmente filtradas/mostradas
+
+            // --- Función centralizada para cerrar modales ---
+            function closeModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            }
+
+            // --- Evento global para cerrar modales ---
+            document.addEventListener('click', (e) => {
+                // Cerrar modal al hacer clic en botones de cerrar (X)
+                const closeBtn = e.target.closest('.modal-close-btn');
+                if (closeBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const modalId = closeBtn.getAttribute('data-modal');
+                    if (modalId) {
+                        closeModal(modalId);
+                    }
+                    return;
+                }
+                
+                // Cerrar modal al hacer clic en botones con data-modal (Cancelar)
+                const modalBtn = e.target.closest('[data-modal]');
+                if (modalBtn && modalBtn.textContent.includes('Cancelar')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const modalId = modalBtn.getAttribute('data-modal');
+                    if (modalId) {
+                        closeModal(modalId);
+                    }
+                    return;
+                }
+                
+                // Cerrar modal al hacer clic fuera del contenido
+                if (e.target.classList.contains('modal-overlay')) {
+                    e.target.classList.remove('active');
+                }
+            });
 
 
             // --- Funciones de Utilidad de Fecha y Hora ---
@@ -1711,7 +2170,7 @@
             }
 
             function hideEditModal() {
-                editReservationModal.classList.remove('active');
+                closeModal('editReservationModal');
             }
 
             // Eventos para cerrar el modal de edición
@@ -1731,6 +2190,45 @@
             editReservationModal.addEventListener('click', (e) => {
                 if (e.target === editReservationModal) {
                     hideEditModal();
+                }
+            });
+
+            // --- Modal de Bloquear Restaurantes ---
+            blockRestaurantsBtn.addEventListener('click', () => {
+                blockRestaurantsModal.classList.add('active');
+            });
+
+            // Eventos para cerrar el modal de bloquear restaurantes
+            document.addEventListener('click', (e) => {
+                const closeBtn = e.target.closest('[data-modal="blockRestaurantsModal"]');
+                if (closeBtn) {
+                    blockRestaurantsModal.classList.remove('active');
+                }
+            });
+
+            blockRestaurantsModal.addEventListener('click', (e) => {
+                if (e.target === blockRestaurantsModal) {
+                    blockRestaurantsModal.classList.remove('active');
+                }
+            });
+
+            // --- Modal de Análisis de Reservas ---
+            analyzeReservationsBtn.addEventListener('click', () => {
+                analyzeReservationsModal.classList.add('active');
+                analyzeReservations();
+            });
+
+            // Eventos para cerrar el modal de análisis
+            document.addEventListener('click', (e) => {
+                const closeBtn = e.target.closest('[data-modal="analyzeReservationsModal"]');
+                if (closeBtn) {
+                    analyzeReservationsModal.classList.remove('active');
+                }
+            });
+
+            analyzeReservationsModal.addEventListener('click', (e) => {
+                if (e.target === analyzeReservationsModal) {
+                    analyzeReservationsModal.classList.remove('active');
                 }
             });
 
@@ -1757,7 +2255,7 @@
                     return acc;
                 }, {});
 
-                // Obtener la fecha y hora actual para el encabezado de impresión (ajustado a la ubicación Punta Cana)
+                // Obtener la fecha y hora actual para el encabezado de impresión
                 const now = new Date();
                 const options = {
                     year: 'numeric',
@@ -1765,72 +2263,294 @@
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true,
-                    timeZone: 'America/Santo_Domingo' // Zona horaria de Punta Cana
+                    timeZone: 'America/Santo_Domingo'
                 };
                 const printDate = now.toLocaleString('es-ES', options);
 
+                // Calcular total de PAX
+                const totalPax = reservationsForToday.reduce((sum, res) => sum + parseInt(res.pax, 10), 0);
+
+                // Función para determinar el color según la hora específica (todos PM)
+                function getTimeColor(time) {
+                    const timeStr = time.toString();
+                    switch(timeStr) {
+                        case '17:30':
+                            return 'early'; // 5:30 PM - Muy Temprano (Azul muy claro)
+                        case '18:00':
+                            return 'morning'; // 6:00 PM - Cena Temprana (Amarillo claro)
+                        case '18:45':
+                            return 'morning-late'; // 6:45 PM - Cena Temprana Tardía (Amarillo claro)
+                        case '20:00':
+                            return 'dinner'; // 8:00 PM - Cena Principal (Rojo claro)
+                        case '21:00':
+                            return 'dinner-late'; // 9:00 PM - Cena Tardía (Azul claro)
+                        case '21:15':
+                            return 'late'; // 9:15 PM - Muy Tarde (Azul claro)
+                        default:
+                            return 'default'; // Otros horarios - No especificado (Gris muy claro)
+                    }
+                }
 
                 let printContent = `
                     <div class="print-page-content">
-                        <h1>Reservas para Hoy: ${getFormattedDate(todayDateString)}</h1>
-                        <p class="print-date-header">Fecha de Impresión: ${printDate}</p>
+                        <div class="print-header">
+                            <h1>RESERVAS VIP - ${getFormattedDate(todayDateString)}</h1>
+                            <div class="print-info">${printDate} | ${reservationsForToday.length} reservas | ${totalPax} PAX</div>
+                        </div>
+                        <div class="print-content">
                 `;
 
                 // Ordenar los restaurantes alfabéticamente
                 const sortedRestaurants = Object.keys(reservationsByRestaurant).sort();
 
                 sortedRestaurants.forEach(place => {
-                    printContent += `<h3>${place}</h3>`;
-                    printContent += `<ul>`;
+                    const restaurantPax = reservationsByRestaurant[place].reduce((sum, res) => sum + parseInt(res.pax, 10), 0);
+                    printContent += `
+                        <div class="restaurant-section">
+                            <h3>${place} (${reservationsByRestaurant[place].length} reservas | ${restaurantPax} PAX)</h3>
+                            <div class="reservations-list">
+                    `;
 
                     // Ordenar las reservas dentro de cada restaurante por hora y luego por habitación
                     reservationsByRestaurant[place].sort((a, b) => {
-                        // Primero por hora
                         const timeComparison = a.time.localeCompare(b.time);
                         if (timeComparison !== 0) return timeComparison;
-                        // Luego por habitación (para desempate)
                         return parseInt(a.room) - parseInt(b.room);
                     });
 
-                    reservationsByRestaurant[place].forEach(res => {
-                        // Formato: Habitación - Nombre - Restaurante - Hora - PAX - Comentario
+                    reservationsByRestaurant[place].forEach((res, index) => {
                         const commentText = res.comment ? ` - ${res.comment}` : '';
+                        const timeColor = getTimeColor(res.time);
+                        
                         printContent += `
-                            <li>
-                                <strong>${res.room}</strong> - ${res.guest} - ${res.place} - ${convertTo12HourFormat(res.time)} - PAX: ${res.pax}${commentText}
-                            </li>
+                            <div class="reservation-item ${timeColor}">
+                                ${res.room} - ${res.guest} - ${convertTo12HourFormat(res.time)} - ${res.pax} PAX${commentText}
+                            </div>
                         `;
                     });
-                    printContent += `</ul>`;
+                    
+                    printContent += `
+                            </div>
+                        </div>
+                    `;
                 });
 
-                printContent += `</div>`;
+                printContent += `
+                        </div>
+                    </div>
+                `;
 
                 const printWindow = window.open('', '_blank', 'height=800,width=1000');
                 printWindow.document.write(`
                     <html>
                     <head>
-                        <title>Imprimir Reservas del Día</title>
+                        <title>Reservas VIP - ${getFormattedDate(todayDateString)}</title>
+                        <meta charset="UTF-8">
                         <style>
-                            /* Estilos para la ventana de impresión, optimizados para papel */
-                            body { font-family: 'Poppins', sans-serif; margin: 20px; color: #333; }
-                            h1 { text-align: center; color: #007BFF; font-size: 24px; margin-bottom: 20px; }
-                            h3 { color: #343A40; font-size: 18px; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
-                            ul { list-style: none; padding: 0; margin-left: 20px; }
-                            li { margin-bottom: 8px; line-height: 1.4; }
-                            li strong { font-weight: 600; } /* Para "Habitación" */
-                            .print-date-header { text-align: center; font-style: italic; color: #666; margin-bottom: 30px; }
+                            /* Estilos ultra-compactos */
+                            * { 
+                                box-sizing: border-box; 
+                                margin: 0; 
+                                padding: 0; 
+                            }
+                            
+                            body { 
+                                font-family: 'Arial', sans-serif; 
+                                font-size: 9pt; 
+                                line-height: 1.1; 
+                                color: #000; 
+                                background: #fff;
+                                margin: 0;
+                                padding: 5mm;
+                            }
+                            
+                            .print-page-content {
+                                width: 100%;
+                                max-width: 100%;
+                            }
+                            
+                            .print-header {
+                                text-align: center;
+                                margin-bottom: 8mm;
+                                padding: 3mm;
+                                background: #f0f0f0;
+                                border: 1px solid #333;
+                            }
+                            
+                            .print-header h1 {
+                                font-size: 12pt;
+                                font-weight: bold;
+                                margin-bottom: 2mm;
+                                color: #333;
+                            }
+                            
+                            .print-info {
+                                font-size: 8pt;
+                                color: #666;
+                            }
+                            
+                            .print-content {
+                                margin: 0;
+                            }
+                            
+                            .restaurant-section {
+                                margin-bottom: 3mm;
+                                border: 1px solid #ccc;
+                            }
+                            
+                            .restaurant-section h3 {
+                                background: #e0e0e0;
+                                padding: 2mm 3mm;
+                                font-size: 10pt;
+                                font-weight: bold;
+                                color: #333;
+                                margin: 0;
+                                border-bottom: 1px solid #ccc;
+                            }
+                            
+                            .reservations-list {
+                                background: #fff;
+                            }
+                            
+                            .reservation-item {
+                                padding: 1mm 3mm;
+                                border-bottom: 1px solid #f0f0f0;
+                                font-size: 9pt;
+                                line-height: 1.2;
+                            }
+                            
+                            .reservation-item:last-child {
+                                border-bottom: none;
+                            }
+                            
+                            .reservation-item:nth-child(even) {
+                                background: #fafafa;
+                            }
+                            
+                            /* Colores según horarios específicos (todos PM) */
+                            .reservation-item.early {
+                                background: #e8f4fd !important; /* Azul muy claro - 5:30 PM */
+                                border-left: 3px solid #0d6efd;
+                            }
+                            
+                            .reservation-item.morning {
+                                background: #fff3cd !important; /* Amarillo claro - 6:00 PM */
+                                border-left: 3px solid #ffc107;
+                            }
+                            
+                            .reservation-item.morning-late {
+                                background: #fff3cd !important; /* Amarillo claro - 6:45 PM */
+                                border-left: 3px solid #ffc107;
+                            }
+                            
+                            .reservation-item.dinner {
+                                background: #f8d7da !important; /* Rojo claro - 8:00 PM */
+                                border-left: 3px solid #dc3545;
+                            }
+                            
+                            .reservation-item.dinner-late {
+                                background: #d1ecf1 !important; /* Azul claro - 9:00 PM */
+                                border-left: 3px solid #17a2b8;
+                            }
+                            
+                            .reservation-item.late {
+                                background: #d1ecf1 !important; /* Azul claro - 9:15 PM */
+                                border-left: 3px solid #17a2b8;
+                            }
+                            
+                            .reservation-item.default {
+                                background: #f8f9fa !important; /* Gris muy claro - Horario no especificado */
+                                border-left: 3px solid #adb5bd;
+                            }
 
-                            /* Estilos para cuando realmente se imprime */
+                            /* Optimización ultra-compacta para impresión */
                             @media print {
-                                body { margin: 10mm; font-size: 10pt; }
-                                h1 { font-size: 20pt; }
-                                h3 { font-size: 14pt; margin-top: 15px; }
-                                li { font-size: 9pt; }
-                                .print-date-header { font-size: 10pt; }
-                                ul { margin-left: 10px; }
+                                body { 
+                                    margin: 0; 
+                                    padding: 3mm; 
+                                    font-size: 8pt; 
+                                }
+                                
+                                .print-page-content {
+                                    max-width: none;
+                                    width: 100%;
+                                }
+                                
+                                .print-header {
+                                    margin-bottom: 3mm;
+                                    padding: 2mm;
+                                }
+                                
+                                .print-header h1 {
+                                    font-size: 11pt;
+                                }
+                                
+                                .print-info {
+                                    font-size: 7pt;
+                                }
+                                
+                                .restaurant-section {
+                                    margin-bottom: 2mm;
+                                    page-break-inside: avoid;
+                                }
+                                
+                                .restaurant-section h3 {
+                                    padding: 1mm 2mm;
+                                    font-size: 9pt;
+                                }
+                                
+                                .reservation-item {
+                                    padding: 0.5mm 2mm;
+                                    font-size: 8pt;
+                                    line-height: 1.1;
+                                }
+                                
+                                /* Preservar colores específicos en impresión */
+                                .reservation-item.early {
+                                    background: #e8f4fd !important;
+                                    border-left: 2px solid #0d6efd;
+                                }
+                                
+                                .reservation-item.morning {
+                                    background: #fff3cd !important;
+                                    border-left: 2px solid #ffc107;
+                                }
+                                
+                                .reservation-item.morning-late {
+                                    background: #fff3cd !important;
+                                    border-left: 2px solid #ffc107;
+                                }
+                                
+                                .reservation-item.dinner {
+                                    background: #f8d7da !important;
+                                    border-left: 2px solid #dc3545;
+                                }
+                                
+                                .reservation-item.dinner-late {
+                                    background: #d1ecf1 !important;
+                                    border-left: 2px solid #17a2b8;
+                                }
+                                
+                                .reservation-item.late {
+                                    background: #d1ecf1 !important;
+                                    border-left: 2px solid #17a2b8;
+                                }
+                                
+                                .reservation-item.default {
+                                    background: #f8f9fa !important;
+                                    border-left: 2px solid #adb5bd;
+                                }
+                                
+                                /* Forzar que todo quepa en una página */
+                                @page {
+                                    margin: 3mm;
+                                    size: A4;
+                                }
+                                
+                                * {
+                                    -webkit-print-color-adjust: exact;
+                                    color-adjust: exact;
+                                }
                             }
                         </style>
                     </head>
@@ -1842,7 +2562,6 @@
                 printWindow.document.close();
                 printWindow.focus();
                 printWindow.print();
-                // printWindow.close(); // Puedes descomentar esto si quieres que la ventana se cierre automáticamente después de imprimir
             }
 
             // --- Botón Enviar WhatsApp ---
@@ -1854,95 +2573,384 @@
                     alert('No hay reservas para el día de hoy para enviar.');
                     return;
                 }
+                
                 // Agrupar reservas por restaurante
                 const reservationsByRestaurant = reservationsForToday.reduce((acc, res) => {
                     if (!acc[res.place]) acc[res.place] = [];
                     acc[res.place].push(res);
                     return acc;
                 }, {});
+                
                 // Ordenar restaurantes alfabéticamente
                 const sortedRestaurants = Object.keys(reservationsByRestaurant).sort();
-                // Encabezado y formato personalizado solicitado
-                let message = `*👋 ¡Hola, Buenas Tardes!*\n\n`;
-                message += `*🍽️ Reservas VIP para hoy (${getShortDate(todayDateString)})*\n`;
-                message += `-----------------------------------\n`;
+                
+                // Calcular totales
+                const totalReservations = reservationsForToday.length;
+                const totalPax = reservationsForToday.reduce((sum, res) => sum + parseInt(res.pax, 10), 0);
+                
+                // Función para obtener emoji según horario
+                function getTimeEmoji(time) {
+                    const timeStr = time.toString();
+                    switch(timeStr) {
+                        case '17:30': return '🌅'; // Muy temprano
+                        case '18:00': return '🌆'; // Cena temprana
+                        case '18:45': return '🌇'; // Cena temprana tardía
+                        case '20:00': return '🌃'; // Cena principal
+                        case '21:00': return '🌙'; // Cena tardía
+                        case '21:15': return '🌚'; // Muy tarde
+                        default: return '🕐'; // Otros horarios
+                    }
+                }
+                
+                // Función para obtener color según horario
+                function getTimeColor(time) {
+                    const timeStr = time.toString();
+                    switch(timeStr) {
+                        case '17:30': return '🔵'; // Azul muy claro
+                        case '18:00': return '🟡'; // Amarillo claro
+                        case '18:45': return '🟡'; // Amarillo claro
+                        case '20:00': return '🔴'; // Rojo claro
+                        case '21:00': return '🔵'; // Azul claro
+                        case '21:15': return '🔵'; // Azul claro
+                        default: return '⚫'; // Gris claro
+                    }
+                }
+                
+                // Encabezado personalizado
+                let message = `*🍽️ RESERVAS VIP - ${getFormattedDate(todayDateString)}*\n`;
+                message += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                message += `📊 *RESUMEN DEL DÍA:*\n`;
+                message += `• Total de Reservas: *${totalReservations}*\n`;
+                message += `• Total de PAX: *${totalPax}*\n`;
+                message += `• Restaurantes: *${sortedRestaurants.length}*\n\n`;
+                
+                // Detalle por restaurante
                 sortedRestaurants.forEach(place => {
-                    message += `\n*${place.toUpperCase()}*\n`;
+                    const restaurantReservations = reservationsByRestaurant[place];
+                    const restaurantPax = restaurantReservations.reduce((sum, res) => sum + parseInt(res.pax, 10), 0);
+                    
+                    message += `🏨 *${place.toUpperCase()}*\n`;
+                    message += `┌─ ${restaurantReservations.length} reservas | ${restaurantPax} PAX\n`;
+                    
                     // Ordenar reservas por hora
-                    reservationsByRestaurant[place].sort((a, b) => a.time.localeCompare(b.time));
-                    reservationsByRestaurant[place].forEach(res => {
+                    restaurantReservations.sort((a, b) => a.time.localeCompare(b.time));
+                    
+                    restaurantReservations.forEach(res => {
                         const hora = convertTo12HourFormat(res.time);
                         const habitacion = res.room;
                         const nombre = res.guest;
                         const pax = res.pax;
-                        const comentario = res.comment ? ` | Nota: ${res.comment}` : '';
-                        message += `•  ${habitacion} |  ${nombre}  |  ${hora} |  PAX: ${pax}${comentario} |\n`;
+                        const comentario = res.comment ? ` | 💬 ${res.comment}` : '';
+                        const emoji = getTimeEmoji(res.time);
+                        const color = getTimeColor(res.time);
+                        
+                        message += `│ ${emoji} ${color} *${habitacion}* | ${nombre} | ${hora} | *${pax} PAX*${comentario}\n`;
                     });
+                    message += `└─────────────────────────────────────\n\n`;
                 });
-                message += `\n-----------------------------------\n`;
-                message += `¡Gracias! 🙌`;
-                message += `\n_Enviado desde el Panel de Administración de Reservas_`;
+                
+                // Pie del mensaje
+                message += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+                message += `✅ *Todas las reservas están confirmadas*\n`;
+                message += `📱 *Enviado desde el Panel de Administración*\n`;
+                message += `🕐 *Generado el ${new Date().toLocaleString('es-ES', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    timeZone: 'America/Santo_Domingo'
+                })}*`;
+                
                 // Codificar mensaje para URL
                 const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
                 window.open(url, '_blank');
             });
 
-            // --- Gráfico de barras por restaurante ---
-            let restaurantBarChart;
-            const restaurantBarChartCanvas = document.getElementById('restaurantBarChart');
+            // --- Funcionalidad de Bloquear Restaurantes ---
+            blockRestaurantsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-            function updateRestaurantBarChart() {
-                // Calcular total de PAX por restaurante para el día en curso
-                const todayDateString = getTodayDateString();
-                const reservationsForToday = dailyReservationsData.filter(res => res.date === todayDateString);
-                // Agrupar por restaurante
-                const paxByRestaurant = {};
-                reservationsForToday.forEach(res => {
-                    if (!paxByRestaurant[res.place]) paxByRestaurant[res.place] = 0;
-                    paxByRestaurant[res.place] += parseInt(res.pax, 10) || 0;
+                const selectedDate = blockDateInput.value;
+                const selectedRestaurants = [];
+
+                // Obtener restaurantes seleccionados
+                const checkboxes = document.querySelectorAll('#blockRestaurantsForm input[type="checkbox"]:checked');
+                checkboxes.forEach(checkbox => {
+                    selectedRestaurants.push(checkbox.value);
                 });
-                // Ordenar restaurantes alfabéticamente
-                const labels = Object.keys(paxByRestaurant).sort();
-                const dataValues = labels.map(label => paxByRestaurant[label]);
 
-                // Si no hay datos, mostrar un restaurante "Sin reservas"
-                const chartLabels = labels.length ? labels : ['Sin reservas'];
-                const chartData = labels.length ? dataValues : [0];
+                if (!selectedDate) {
+                    alert('Por favor, seleccione una fecha.');
+                    return;
+                }
+
+                if (selectedRestaurants.length === 0) {
+                    alert('Por favor, seleccione al menos un restaurante para bloquear.');
+                    return;
+                }
+
+                if (!confirm(`¿Está seguro de que desea bloquear ${selectedRestaurants.length} restaurante(s) para el ${getFormattedDate(selectedDate)}?`)) {
+                    return;
+                }
+
+                try {
+                    // Crear reservas de bloqueo para cada restaurante seleccionado
+                    for (const restaurant of selectedRestaurants) {
+                        const blockReservations = createBlockReservations(restaurant);
+                        
+                        for (const blockReservation of blockReservations) {
+                            const reservationsRef = ref(database, `dailyReservations/${selectedDate}`);
+                            await push(reservationsRef, blockReservation);
+                        }
+                    }
+
+                    alert(`Restaurantes bloqueados exitosamente para el ${getFormattedDate(selectedDate)}!`);
+                    blockRestaurantsForm.reset();
+                    blockRestaurantsModal.classList.remove('active');
+                } catch (error) {
+                    console.error("Error al bloquear restaurantes:", error);
+                    alert("Error al bloquear los restaurantes. Por favor, intente de nuevo.");
+                }
+            });
+
+            // Función para crear reservas de bloqueo según el restaurante
+            function createBlockReservations(restaurant) {
+                const blockReservations = [];
+                const timestamp = new Date().getTime();
+
+                if (restaurant === 'Hibachi') {
+                    // Para Hibachi: 5:30PM, 6:45PM, 8:00PM, 9:15PM con 10 PAX
+                    const hibachiTimes = ['17:30', '18:45', '20:00', '21:15'];
+                    hibachiTimes.forEach(time => {
+                        blockReservations.push({
+                            room: '0000',
+                            guest: 'CERRADO',
+                            place: restaurant,
+                            time: time,
+                            pax: 10,
+                            comment: 'CERRADO',
+                            validator: 'Sistema',
+                            timestamp: timestamp,
+                            date: blockDateInput.value,
+                            isBlocked: true
+                        });
+                    });
+                } else {
+                    // Para todos los demás: 6:00PM y 9:00PM con 8 PAX
+                    const standardTimes = ['18:00', '21:00'];
+                    standardTimes.forEach(time => {
+                        blockReservations.push({
+                            room: '0000',
+                            guest: 'CERRADO',
+                            place: restaurant,
+                            time: time,
+                            pax: 8,
+                            comment: 'CERRADO',
+                            validator: 'Sistema',
+                            timestamp: timestamp,
+                            date: blockDateInput.value,
+                            isBlocked: true
+                        });
+                    });
+                }
+
+                return blockReservations;
+            }
+
+            // --- Funcionalidad de Análisis de Reservas ---
+            function analyzeReservations() {
+                // Filtrar reservas que no sean de bloqueo
+                const validReservations = allReservations.filter(res => !res.isBlocked && res.validator);
+                
+                if (validReservations.length === 0) {
+                    alert('No hay reservas válidas para analizar.');
+                    return;
+                }
+
+                // Calcular estadísticas generales
+                const totalReservations = validReservations.length;
+                const totalPax = validReservations.reduce((sum, res) => sum + parseInt(res.pax, 10), 0);
+                
+                // Agrupar por solicitante (validator)
+                const validatorStats = {};
+                validReservations.forEach(res => {
+                    const validator = res.validator;
+                    if (!validatorStats[validator]) {
+                        validatorStats[validator] = {
+                            name: validator,
+                            count: 0,
+                            pax: 0,
+                            restaurants: {}
+                        };
+                    }
+                    validatorStats[validator].count++;
+                    validatorStats[validator].pax += parseInt(res.pax, 10);
+                    
+                    if (!validatorStats[validator].restaurants[res.place]) {
+                        validatorStats[validator].restaurants[res.place] = 0;
+                    }
+                    validatorStats[validator].restaurants[res.place]++;
+                });
+
+                // Ordenar por número de reservas
+                const sortedValidators = Object.values(validatorStats)
+                    .sort((a, b) => b.count - a.count);
+
+                // Actualizar estadísticas generales
+                document.getElementById('totalReservations').textContent = totalReservations;
+                document.getElementById('totalValidators').textContent = sortedValidators.length;
+                document.getElementById('totalPaxAnalysis').textContent = totalPax;
+
+                // Generar ranking
+                const rankingContainer = document.getElementById('validatorsRanking');
+                rankingContainer.innerHTML = '';
+                
+                sortedValidators.slice(0, 10).forEach((validator, index) => {
+                    const rankClass = index < 3 ? `top-${index + 1}` : '';
+                    const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                    
+                    const validatorItem = document.createElement('div');
+                    validatorItem.className = `validator-item ${rankClass}`;
+                    validatorItem.innerHTML = `
+                        <span class="validator-rank">${rankEmoji}</span>
+                        <span class="validator-name">${validator.name}</span>
+                        <span class="validator-count">${validator.count} reservas</span>
+                    `;
+                    rankingContainer.appendChild(validatorItem);
+                });
+
+            }
+
+            // --- Gráfico de barras semanal ---
+            let weeklyBarChart;
+            const weeklyBarChartCanvas = document.getElementById('weeklyBarChart');
+
+            function updateWeeklyBarChart() {
+                // Obtener las fechas de la semana actual
+                const today = new Date();
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay()); // Domingo
+                
+                const weekDates = [];
+                const weekLabels = [];
+                
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(startOfWeek);
+                    date.setDate(startOfWeek.getDate() + i);
+                    const dateString = date.toISOString().split('T')[0];
+                    weekDates.push(dateString);
+                    
+                    // Crear etiquetas en español
+                    const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                    const dayName = dayNames[date.getDay()];
+                    const dayNumber = date.getDate();
+                    weekLabels.push(`${dayName} ${dayNumber}`);
+                }
+
+                // Calcular PAX total por día de la semana
+                const paxByDay = {};
+                weekDates.forEach(dateString => {
+                    paxByDay[dateString] = 0;
+                });
+
+                // Sumar PAX de todas las reservas (daily y archived) para cada día
+                [...dailyReservationsData, ...archivedReservationsData].forEach(res => {
+                    if (weekDates.includes(res.date) && !res.isBlocked) {
+                        paxByDay[res.date] += parseInt(res.pax, 10) || 0;
+                    }
+                });
+
+                // Preparar datos para el gráfico
+                const chartData = weekDates.map(date => paxByDay[date]);
+                
+                // Colores diferentes para cada día
+                const backgroundColors = [
+                    'rgba(255, 99, 132, 0.7)',   // Domingo - Rojo
+                    'rgba(54, 162, 235, 0.7)',   // Lunes - Azul
+                    'rgba(255, 205, 86, 0.7)',   // Martes - Amarillo
+                    'rgba(75, 192, 192, 0.7)',  // Miércoles - Verde
+                    'rgba(153, 102, 255, 0.7)', // Jueves - Púrpura
+                    'rgba(255, 159, 64, 0.7)',  // Viernes - Naranja
+                    'rgba(199, 199, 199, 0.7)'  // Sábado - Gris
+                ];
 
                 const data = {
-                    labels: chartLabels,
+                    labels: weekLabels,
                     datasets: [{
-                        label: 'PAX',
+                        label: 'PAX Total',
                         data: chartData,
-                        backgroundColor: 'rgba(79, 140, 255, 0.7)',
+                        backgroundColor: backgroundColors,
                         borderRadius: 8,
-                        maxBarThickness: 38
+                        maxBarThickness: 35,
+                        borderWidth: 2,
+                        borderColor: backgroundColors.map(color => color.replace('0.7', '1'))
                     }]
                 };
+
                 const options = {
                     responsive: true,
                     plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
+                        legend: { 
+                            display: false 
+                        },
+                        tooltip: { 
+                            enabled: true,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    return `Total PAX: ${context.parsed.y}`;
+                                }
+                            }
+                        }
                     },
                     scales: {
                         x: {
-                            grid: { display: false },
-                            ticks: { color: '#23272f', font: { family: 'Inter', weight: 500 } }
+                            grid: { 
+                                display: false 
+                            },
+                            ticks: { 
+                                color: '#23272f', 
+                                font: { 
+                                    family: 'Inter', 
+                                    weight: 500,
+                                    size: 10
+                                } 
+                            }
                         },
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#eaf1ff' },
-                            ticks: { color: '#6C757D', font: { family: 'Inter', weight: 400 } }
+                            grid: { 
+                                color: '#eaf1ff',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#6C757D', 
+                                font: { 
+                                    family: 'Inter', 
+                                    weight: 400,
+                                    size: 10
+                                },
+                                callback: function(value) {
+                                    return value + ' PAX';
+                                }
+                            }
                         }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
                     }
                 };
-                if (restaurantBarChart) {
-                    restaurantBarChart.data = data;
-                    restaurantBarChart.options = options;
-                    restaurantBarChart.update();
+
+                if (weeklyBarChart) {
+                    weeklyBarChart.data = data;
+                    weeklyBarChart.options = options;
+                    weeklyBarChart.update();
                 } else {
-                    restaurantBarChart = new Chart(restaurantBarChartCanvas, {
+                    weeklyBarChart = new Chart(weeklyBarChartCanvas, {
                         type: 'bar',
                         data,
                         options
@@ -1953,7 +2961,7 @@
             // Actualizar el gráfico cada vez que cambian las reservas
             function updateCombinedReservationsWithChart() {
                 updateCombinedReservations();
-                updateRestaurantBarChart();
+                updateWeeklyBarChart();
             }
 
             // Iniciar los listeners de Firebase al cargar la página
