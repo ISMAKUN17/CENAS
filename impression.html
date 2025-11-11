@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impression - Reservas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #000000;
+            --primary-dark: #1a1a1a;
+            --accent: #f59e42;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --bg: #f7f9fb;
+            --bg-card: #fff;
+            --text: #222;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 2px 16px rgba(0,0,0,0.07);
+            --radius: 16px;
+            --transition: 0.25s cubic-bezier(.4,0,.2,1);
+            --font-size-base: 15px;
+            --font-size-title: 1.2em;
+            --font-size-modal-title: 1.08em;
+            --font-size-btn: 1em;
+            --padding-card: 18px 12px;
+            --padding-modal: 18px 10px 14px 10px;
+            --padding-btn: 8px 18px;
+            --input-padding: 8px 8px 7px 8px;
+            --icon-size: 1.1em;
+        }
+        body.dark {
+            --primary: #ffffff;
+            --primary-dark: #d4d4d4;
+            --accent: #fbbf24;
+            --success: #22d3ee;
+            --danger: #f87171;
+            --bg: #18181b;
+            --bg-card: #23232a;
+            --text: #f3f4f6;
+            --text-light: #a1a1aa;
+            --border: #27272a;
+            --shadow: 0 2px 16px rgba(0,0,0,0.15);
+        }
+        html, body {
+            height: 100%;
+        }
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            transition: background var(--transition), color var(--transition);
+            font-size: var(--font-size-base);
+        }
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 16px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+            padding-bottom: 8px;
+        }
+        .dashboard-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5em;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .dashboard-title svg {
+            width: 36px;
+            height: 36px;
+            color: var(--primary);
+        }
+        .dashboard-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle-dark {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: var(--primary);
+            transition: color var(--transition);
+        }
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--padding-card);
+            transition: background var(--transition), box-shadow var(--transition);
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 32px;
+        }
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-title {
+                font-size: 1.15em;
+            }
+            .card {
+                padding: 10px 4px;
+            }
+        }
+        .form-title {
+            font-size: var(--font-size-title);
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: var(--primary);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 24px;
+        }
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-group-full {
+            grid-column: span 2;
+        }
+        label {
+            font-size: 1em;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        .input, select, textarea {
+            font-family: inherit;
+            font-size: var(--font-size-base);
+            padding: var(--input-padding);
+            border: none;
+            border-bottom: 2px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 0;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+        .input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 2px 0 0 var(--primary);
+        }
+        textarea {
+            resize: vertical;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: var(--padding-btn);
+            border: none;
+            border-radius: 999px;
+            font-size: var(--font-size-btn);
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.07);
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        }
+        .btn svg {
+            width: var(--icon-size);
+            height: var(--icon-size);
+        }
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn:disabled {
+            background: var(--border);
+            color: var(--text-light);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        /* Spinner para botones */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .btn-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+        
+        .availability-info {
+            font-size: 0.98em;
+            margin-top: 2px;
+            min-height: 1.5em;
+            color: var(--text-light);
+        }
+        .availability-info.available {
+            color: var(--success);
+        }
+        .availability-info.limited {
+            color: var(--accent);
+        }
+        .availability-info.full {
+            color: var(--danger);
+        }
+        .operating-hours-message {
+            grid-column: span 2;
+            text-align: center;
+            font-size: 0.98em;
+            color: var(--danger);
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: var(--radius);
+            padding: 10px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        .reservation-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .search-input {
+            width: 100%;
+            padding: var(--input-padding);
+            border: none;
+            border-bottom: 2px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            font-size: var(--font-size-base);
+            border-radius: 0;
+            outline: none;
+            transition: border-color var(--transition);
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+        .reservation-group {
+            margin-bottom: 22px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(37,99,235,0.04);
+        }
+        .reservation-group:last-child {
+            border-bottom: none;
+        }
+        .reservation-group-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 1.08em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-top: 8px;
+            padding-left: 6px;
+        }
+        .reservation-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(37,99,235,0.04);
+            padding: 8px 14px;
+            margin-bottom: 8px;
+            font-size: 0.98em;
+            border-left: 4px solid var(--primary);
+        }
+        .reservation-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1em;
+            margin-right: 4px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.10);
+        }
+        .room-name {
+            font-weight: 600;
+            color: var(--primary-dark);
+            min-width: 120px;
+            margin-right: 8px;
+        }
+        .restaurant-time {
+            color: var(--primary);
+            min-width: 120px;
+            margin-right: 8px;
+        }
+        .pax-info {
+            font-weight: 800;
+            color: #dc2626;
+            background: #fbeaea;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.98em;
+            margin-left: auto;
+        }
+        .reservation-timestamp {
+            color: var(--text-light);
+            font-size: 0.93em;
+            min-width: 90px;
+            text-align: right;
+            margin-left: 12px;
+        }
+        @media (max-width: 700px) {
+            .reservation-group {
+                padding-bottom: 6px;
+                margin-bottom: 14px;
+            }
+            .reservation-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+                padding: 8px 8px;
+                font-size: 0.96em;
+            }
+            .reservation-avatar {
+                width: 26px;
+                height: 26px;
+                font-size: 0.9em;
+            }
+            .room-name, .restaurant-time {
+                min-width: 0;
+                margin-right: 0;
+            }
+            .pax-info {
+                margin-left: 0;
+                margin-top: 4px;
+            }
+            .reservation-timestamp {
+                margin-left: 0;
+                font-size: 0.91em;
+            }
+        }
+        .no-reservations {
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            padding: 18px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            margin-top: 18px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        /* Snackbar/Toast */
+        .snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background: var(--primary-dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            bottom: 30px;
+            font-size: 1em;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.4s, bottom 0.4s;
+        }
+        .snackbar.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(37,99,235,0.08);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--primary);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* MODERN MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(30,41,59,0.35);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition), visibility var(--transition);
+            overflow-y: auto;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            padding: var(--padding-modal);
+            max-width: 350px;
+            width: 100%;
+            gap: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-card);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(37,99,235,0.13);
+            text-align: center;
+            position: relative;
+            animation: fadeInScaleUp var(--transition) forwards;
+            max-height: 92vh;
+            box-sizing: border-box;
+        }
+        .modal-content h3 {
+            font-size: var(--font-size-modal-title);
+            gap: 8px;
+            margin-bottom: 0.5em;
+            margin-top: 0.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary);
+            width: 100%;
+        }
+        .modal-content .modal-icon {
+            font-size: 1.1em;
+            color: var(--accent);
+        }
+        .modal-content p {
+            color: var(--text-light);
+            font-size: 0.98em;
+            margin: 0 0 18px 0;
+            text-align: center;
+            width: 100%;
+        }
+        .modal-content input[type="text"],
+        .modal-content input[type="number"],
+        .modal-content textarea {
+            width: 100%;
+            margin: 0 0 14px 0;
+            font-size: var(--font-size-base);
+            padding: var(--input-padding);
+            border: none;
+            border-bottom: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            border-radius: 6px 6px 0 0;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            box-sizing: border-box;
+            text-align: left;
+            display: block;
+        }
+        .modal-content input:focus,
+        .modal-content textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 2px 0 0 var(--primary);
+            background: #f0f6ff;
+        }
+        .modal-actions {
+            display: flex;
+            flex-direction: row;
+            justify-content: stretch;
+            gap: 12px;
+            margin-top: 18px;
+            width: 100%;
+        }
+        .modal-actions .btn, .modal-actions .btn-secondary {
+            flex: 1 1 0;
+            min-width: 0;
+            width: 100%;
+            margin: 0;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: color 0.2s, transform 0.2s;
+            line-height: 1;
+            padding: 0;
+            z-index: 2;
+        }
+        .modal-close-btn:hover {
+            color: var(--primary);
+            transform: scale(1.15);
+        }
+        @keyframes fadeInItem {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInScaleUp {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @media (max-width: 600px) {
+            .modal-content {
+                padding: 8px 2px 8px 2px;
+                max-width: 98vw;
+                gap: 0;
+            }
+            .modal-content h3 {
+                font-size: 1em;
+            }
+            .modal-actions {
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 12px;
+            }
+        }
+        /* Responsive */
+        @media (max-width: 700px) {
+            .dashboard-container {
+                padding: 12px 2px 2px 2px;
+            }
+            .card {
+                padding: 16px 6px;
+            }
+            .modal-content {
+                padding: 16px 6px;
+            }
+        }
+        /* Mejorar el resumen de reservas */
+        .summary-content {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 8px;
+            width: 100%;
+        }
+        /* Colores para distinción visual en el resumen */
+        :root {
+            --summary-blue: #2563eb;
+            --summary-green: #22c55e;
+            --summary-orange: #f59e42;
+            --summary-purple: #a78bfa;
+            --summary-pink: #f472b6;
+            --summary-gray: #f1f5f9;
+        }
+        .summary-restaurant {
+            background: var(--summary-gray);
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+            padding: 18px 18px 14px 18px;
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            font-size: 0.97em;
+            border-left: 7px solid var(--summary-blue);
+        }
+        /* Alternar colores de borde para restaurantes */
+        .summary-restaurant:nth-of-type(5n+1) { border-left-color: var(--summary-blue); }
+        .summary-restaurant:nth-of-type(5n+2) { border-left-color: var(--summary-green); }
+        .summary-restaurant:nth-of-type(5n+3) { border-left-color: var(--summary-orange); }
+        .summary-restaurant:nth-of-type(5n+4) { border-left-color: var(--summary-purple); }
+        .summary-restaurant:nth-of-type(5n)   { border-left-color: var(--summary-pink); }
+        .summary-restaurant h4 {
+            color: var(--primary-dark);
+            margin: 0 0 10px 0;
+            font-size: 1.13em;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+        .summary-restaurant h4 span {
+            font-size: 1em;
+            color: var(--summary-blue);
+            font-weight: 700;
+        }
+        .summary-time-group {
+            margin-left: 0;
+            margin-bottom: 12px;
+            padding: 12px 14px;
+            border-left: 4px solid var(--summary-blue);
+            background: #eaf1fb;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(30,64,175,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.96em;
+            position: relative;
+        }
+        .summary-time {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+            font-size: 1.04em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .summary-time-badge {
+            background: #e0e7ff !important;
+            color: #1e40af !important;
+            border-radius: 6px;
+            padding: 2px 10px;
+            font-size: 0.97em;
+            font-weight: 900;
+            margin-left: 0;
+            display: inline-block;
+            border: 1.5px solid #2563eb;
+            letter-spacing: 0.5px;
+        }
+        .summary-time span {
+            color: var(--summary-green);
+            font-weight: 700;
+        }
+        .summary-reservation-detail {
+            margin-left: 0;
+            font-size: 0.97em;
+            color: var(--text-light);
+            margin-bottom: 0;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .summary-reservation-detail strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .summary-reservation-detail em {
+            color: var(--primary-dark);
+            font-style: normal;
+            font-size: 0.95em;
+        }
+        .summary-reservation-detail span {
+            color: var(--primary);
+            font-size: 0.93em;
+        }
+        .summary-overall-pax {
+            text-align: right;
+            margin-top: 16px;
+            font-size: 1.13em;
+            font-weight: 700;
+            color: var(--summary-green);
+            padding-top: 10px;
+            border-top: 2px solid var(--summary-blue);
+        }
+        @media (max-width: 600px) {
+            #summaryModal .modal-content {
+                max-width: 99vw;
+                padding: 12px 4px 12px 4px;
+            }
+            #summaryContent.summary-content {
+                max-height: 45vh;
+                gap: 14px;
+            }
+            .summary-restaurant {
+                padding: 10px 4px 10px 4px;
+                gap: 10px;
+            }
+            .summary-restaurant h4 {
+                font-size: 1em;
+                padding-bottom: 3px;
+            }
+            .summary-time-group {
+                padding: 7px 4px;
+                gap: 5px;
+                font-size: 0.93em;
+            }
+            .summary-time {
+                font-size: 0.98em;
+            }
+            .summary-table th, .summary-table td {
+                padding: 3px 2px;
+                font-size: 0.92em;
+            }
+            .summary-overall-pax {
+                font-size: 1em;
+            }
+        }
+        #summaryModal .modal-content {
+            max-width: 680px;
+            width: 99vw;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 28px 18px 18px 18px;
+            font-size: 0.97em;
+        }
+        #summaryContent.summary-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            gap: 24px;
+        }
+        .summary-table-group {
+            margin-bottom: 18px;
+        }
+        .summary-table-title {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.08em;
+            margin: 0 0 4px 0;
+            padding: 0;
+        }
+        .summary-table-time {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 0.98em;
+            margin: 6px 0 2px 0;
+            padding: 0;
+        }
+        .summary-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            background: transparent;
+            font-size: 0.97em;
+            margin-top: 2px;
+        }
+        .summary-table th, .summary-table td {
+            padding: 5px 7px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+        .summary-table th {
+            background: #f1f5f9;
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 0.98em;
+        }
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+        .summary-table .pax-cell {
+            color: #dc2626;
+            font-weight: 800;
+        }
+        .summary-table .comment-cell {
+            color: var(--primary-dark);
+            font-size: 0.95em;
+        }
+        .summary-table .validator-cell {
+            color: var(--primary);
+            font-size: 0.95em;
+        }
+        .summary-overall-pax {
+            text-align: right;
+            margin-top: 16px;
+            font-size: 1.13em;
+            font-weight: 800;
+            color: #dc2626;
+            padding-top: 10px;
+            border-top: 2px solid var(--summary-blue);
+        }
+        @media (max-width: 900px) {
+            #summaryModal .modal-content {
+                max-width: 99vw;
+                padding: 10px 2vw 10px 2vw;
+                font-size: 0.97em;
+            }
+            .summary-table th, .summary-table td {
+                padding: 4px 4px;
+                font-size: 0.95em;
+            }
+        }
+        @media (max-width: 600px) {
+            #summaryModal .modal-content {
+                max-width: 99vw;
+                padding: 6px 1vw 6px 1vw;
+                font-size: 0.93em;
+            }
+            .summary-table th, .summary-table td {
+                padding: 3px 2px;
+                font-size: 0.92em;
+            }
+        }
+        #archiveModal .modal-content {
+            max-width: 900px;
+            width: 99vw;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 22px 18px 16px 18px;
+            font-size: 1em;
+        }
+        #archiveListContent.reservation-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+        .archive-table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+            background: #f8fafc;
+            font-size: 0.97em;
+            margin-top: 2px;
+        }
+        .archive-table th, .archive-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+        .archive-table th {
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.98em;
+        }
+        .archive-table tr:nth-child(even) td {
+            background: #f3f6fa;
+        }
+        .archive-table tr:last-child td {
+            border-bottom: none;
+        }
+        .archive-table .pax-cell {
+            color: #dc2626;
+            font-weight: 800;
+        }
+        @media (max-width: 700px) {
+            #archiveModal .modal-content {
+                max-width: 99vw;
+                width: 99vw;
+                padding: 10px 2vw 10px 2vw;
+                font-size: 0.97em;
+            }
+            .archive-table th, .archive-table td {
+                padding: 4px 4px;
+                font-size: 0.95em;
+            }
+            .archive-table {
+                min-width: 400px;
+            }
+        }
+        #reservationList.reservation-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+        .reservation-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            background: #f8fafc;
+            font-size: 0.97em;
+            margin-top: 2px;
+        }
+        .reservation-table th, .reservation-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+        .reservation-table th {
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.98em;
+        }
+        .reservation-table tr:nth-child(even) td {
+            background: #f3f6fa;
+        }
+        .reservation-table tr:last-child td {
+            border-bottom: none;
+        }
+        .reservation-table .pax-cell {
+            color: #dc2626;
+            font-weight: 800;
+        }
+        @media (max-width: 700px) {
+            .reservation-table th, .reservation-table td {
+                padding: 4px 4px;
+                font-size: 0.95em;
+            }
+            .reservation-table {
+                min-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="dashboard-title">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Impression - Reservas
+            </div>
+            <div class="dashboard-actions">
+                <button id="backBtn" class="btn btn-secondary" title="Volver al gestor principal">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Volver
+                </button>
+                <button id="toggleDark" class="toggle-dark" title="Modo oscuro/claro">🌙</button>
+                <button id="addReservationBtn" class="btn">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Nueva Reserva
+                </button>
+                <button id="viewSummaryBtn" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Resumen
+                </button>
+                <button id="viewArchiveBtn" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V21H3V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 3H23V8H1V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Archivo
+                </button>
+            </div>
+        </header>
+        <main class="main-grid">
+            <section class="card reservation-form-section">
+                <div class="form-title">Reserva de Cena Impression</div>
+                <form id="reservationForm" class="form-grid">
+                    <div class="form-group">
+                        <label for="day">Día de la Semana:</label>
+                        <select id="day" class="input" required>
+                            <option value="">Seleccione un día</option>
+                            <option value="Lunes">Lunes</option>
+                            <option value="Martes">Martes</option>
+                            <option value="Miércoles">Miércoles</option>
+                            <option value="Jueves">Jueves</option>
+                            <option value="Viernes">Viernes</option>
+                            <option value="Sábado">Sábado</option>
+                            <option value="Domingo">Domingo</option>
+                        </select>
+                        <div id="dayAvailabilityInfo" class="availability-info"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="room">Número de Habitación:</label>
+                        <input type="number" id="room" class="input" placeholder="Ej. 1400" min="1000" max="9999" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guest">Nombre del Huésped:</label>
+                        <input type="text" id="guest" class="input" placeholder="Ej. Ismael Duran" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guestType">Tipo de Huésped:</label>
+                        <select id="guestType" class="input" required>
+                            <option value="">Seleccione un tipo</option>
+                            <option value="Impression">Impression</option>
+                            <option value="Diamond">Diamond</option>
+                            <option value="Globalist">Globalist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pax">Cantidad de Personas:</label>
+                        <input type="number" id="pax" class="input" min="1" value="1" required>
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="allergies">Alergias:</label>
+                        <input type="text" id="allergies" class="input" placeholder="Ej. Gluten, Mariscos, etc.">
+                    </div>
+                    <div class="form-group form-group-full">
+                        <label for="notes">Notas:</label>
+                        <textarea id="notes" class="input" rows="3" placeholder="Notas adicionales, preferencias especiales, etc."></textarea>
+                    </div>
+                    <button type="submit" class="btn" id="submitReservationBtn">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Registrar Reserva
+                    </button>
+                </form>
+            </section>
+            <section class="card reservation-list-section">
+                <div class="form-title">Reservas Semanales - Impression</div>
+                <div class="reservation-list-container">
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <button id="prevWeekBtn" class="btn btn-secondary" style="padding: 6px 12px;">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Semana Anterior
+                        </button>
+                        <button id="nextWeekBtn" class="btn btn-secondary" style="padding: 6px 12px;">
+                            Semana Siguiente
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button id="currentWeekBtn" class="btn btn-secondary" style="padding: 6px 12px; margin-left: auto;">
+                            Semana Actual
+                        </button>
+                    </div>
+                    <div id="weekDisplay" style="text-align: center; margin-bottom: 12px; font-weight: 600; color: var(--primary);"></div>
+                    <input type="text" id="reservationSearch" class="search-input" placeholder="Buscar por habitación, huésped o día...">
+                    <div id="reservationList" class="reservation-list">
+                        <p class="no-reservations" id="noReservationsMessage">No hay reservas para esta semana.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODERNIZED MODALS -->
+    <div id="validationModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-modal="validationModal">&times;</button>
+            <h3><span class="modal-icon">🛡️</span> Validar Solicitante</h3>
+            <p>Por favor, ingrese el nombre de la persona que realiza la reserva.</p>
+            <input type="text" id="validatorNameInput" placeholder="Nombre del Solicitante" required>
+            <div class="modal-actions">
+                <button id="confirmValidationBtn" class="btn">Confirmar</button>
+                <button id="cancelValidationBtn" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="summaryModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-modal="summaryModal">&times;</button>
+            <h3><span class="modal-icon">📋</span> <span id="summaryTitle">Resumen de Reservas</span></h3>
+            <div id="summaryContent" class="summary-content">
+                <p>Cargando resumen...</p>
+            </div>
+            <p id="overallPaxTotal" class="summary-overall-pax"></p>
+            <div class="modal-actions">
+                <button id="closeSummaryBtn" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <div id="archiveModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-modal="archiveModal">&times;</button>
+            <h3><span class="modal-icon">🗂️</span> <span id="archiveTitle">Archivo de Reservas Históricas - Impression</span></h3>
+            <input type="text" id="archiveSearch" placeholder="Buscar en el archivo por habitación, huésped, día, semana, alergias o notas...">
+            <div id="archiveListContent" class="reservation-list">
+                <p class="no-reservations" id="noArchivedReservationsMessage">No hay reservas archivadas.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="closeArchiveBtn" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snackbar/Toast -->
+    <div id="snackbar" class="snackbar"></div>
+    <!-- Loading Spinner -->
+    <div id="spinnerOverlay" class="spinner-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script type="module">
+        // Importar las funciones de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, remove, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // Tu configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyALR-b68phh_u92V3rw9B9Ei7FcexU2xc8",
+            authDomain: "proyectos17-98695.firebaseapp.com",
+            databaseURL: "https://proyectos17-98695-default-rtdb.firebaseio.com",
+            projectId: "proyectos17-98695",
+            storageBucket: "proyectos17-98695.appspot.com",
+            messagingSenderId: "951673973410",
+            appId: "1:951673973410:web:4bc355e825cf86308645fb",
+            measurementId: "G-6YK06W16FZ"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app); // Obtener referencia a la Realtime Database
+
+        // Declaraciones globales
+        let currentReservationData = null;
+        let currentWeek = 0; // 0 = semana actual, negativo = semanas pasadas, positivo = semanas futuras
+        let availableDaysByWeek = {}; // Días disponibles por semana: { "2024-W01": "Viernes", ... }
+        let reservations = []; // Reservas de la semana actual
+        let unsubscribeReservations = null; // Función para desconectar el listener de Firebase
+        let unsubscribeConfig = null; // Función para desconectar el listener de configuración
+
+        // --- Funciones de Utilidad de Semana (ISO 8601 simplificado) ---
+        function getWeekNumber(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            // Obtener el día de la semana (0 = domingo, 6 = sábado)
+            const dayOfWeek = d.getDay();
+            // Ajustar para que lunes sea 0
+            const adjustedDay = (dayOfWeek + 6) % 7;
+            // Obtener el lunes de esta semana
+            const monday = new Date(d);
+            monday.setDate(d.getDate() - adjustedDay);
+            
+            // Obtener el 4 de enero del mismo año (siempre en semana 1)
+            const jan4 = new Date(monday.getFullYear(), 0, 4);
+            const jan4Day = (jan4.getDay() + 6) % 7;
+            const jan4Monday = new Date(jan4);
+            jan4Monday.setDate(jan4.getDate() - jan4Day);
+            
+            // Calcular diferencia en días
+            const diffTime = monday - jan4Monday;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const weekNumber = Math.floor(diffDays / 7) + 1;
+            
+            return weekNumber;
+        }
+
+        function getWeekDates(weekOffset = 0) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const currentWeek = getWeekNumber(today);
+            const targetWeek = currentWeek + weekOffset;
+            const year = today.getFullYear();
+            
+            // Calcular el lunes de la semana objetivo
+            // Obtener el 4 de enero del año
+            const jan4 = new Date(year, 0, 4);
+            const jan4Day = (jan4.getDay() + 6) % 7;
+            const jan4Monday = new Date(jan4);
+            jan4Monday.setDate(jan4.getDate() - jan4Day);
+            jan4Monday.setHours(0, 0, 0, 0);
+            
+            // Calcular días a agregar
+            const weeksToAdd = targetWeek - 1;
+            const weekStart = new Date(jan4Monday);
+            weekStart.setDate(jan4Monday.getDate() + (weeksToAdd * 7));
+            
+            // Asegurar que sea lunes
+            const dayOfWeek = (weekStart.getDay() + 6) % 7;
+            if (dayOfWeek !== 0) {
+                weekStart.setDate(weekStart.getDate() - dayOfWeek);
+            }
+            
+            const weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(weekStart.getDate() + i);
+                weekDates.push(date);
+            }
+            
+            // Si la semana calculada está en el año anterior o siguiente, ajustar
+            let finalYear = weekStart.getFullYear();
+            let finalWeek = targetWeek;
+            
+            // Si estamos en enero y la semana es 52 o 53, puede ser del año anterior
+            if (finalWeek > 52 && weekStart.getMonth() === 0) {
+                finalYear = year - 1;
+            }
+            // Si estamos en diciembre y la semana es 1, puede ser del año siguiente
+            if (finalWeek < 1) {
+                finalYear = year - 1;
+                finalWeek = 52;
+            }
+            if (finalWeek > 52) {
+                finalYear = year + 1;
+                finalWeek = 1;
+            }
+            
+            return {
+                year: finalYear,
+                weekNumber: finalWeek,
+                startDate: weekDates[0],
+                endDate: weekDates[6],
+                dates: weekDates
+            };
+        }
+
+        function formatWeekDisplay(weekInfo) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const startStr = weekInfo.startDate.toLocaleDateString('es-ES', options);
+            const endStr = weekInfo.endDate.toLocaleDateString('es-ES', options);
+            return `Semana ${weekInfo.weekNumber} (${startStr} - ${endStr})`;
+        }
+
+        function getDayName(date) {
+            const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            return days[date.getDay()];
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const backBtn = document.getElementById('backBtn');
+            const addReservationBtn = document.getElementById('addReservationBtn');
+            const viewSummaryBtn = document.getElementById('viewSummaryBtn');
+            const viewArchiveBtn = document.getElementById('viewArchiveBtn');
+            const reservationForm = document.getElementById('reservationForm');
+            const reservationListDiv = document.getElementById('reservationList');
+            const noReservationsMessage = document.getElementById('noReservationsMessage');
+            const validationModal = document.getElementById('validationModal');
+            const validatorNameInput = document.getElementById('validatorNameInput');
+            const confirmValidationBtn = document.getElementById('confirmValidationBtn');
+            const cancelValidationBtn = document.getElementById('cancelValidationBtn');
+
+            const summaryModal = document.getElementById('summaryModal');
+            const summaryTitle = document.getElementById('summaryTitle');
+            const summaryContent = document.getElementById('summaryContent');
+            const overallPaxTotal = document.getElementById('overallPaxTotal');
+            const closeSummaryBtn = document.getElementById('closeSummaryBtn');
+
+            const archiveModal = document.getElementById('archiveModal');
+            const archiveTitle = document.getElementById('archiveTitle');
+            const archiveSearchInput = document.getElementById('archiveSearch');
+            const archiveListContent = document.getElementById('archiveListContent');
+            const noArchivedReservationsMessage = document.getElementById('noArchivedReservationsMessage');
+            const closeArchiveBtn = document.getElementById('closeArchiveBtn');
+
+            const modalCloseButtons = document.querySelectorAll('.modal-close-btn');
+
+            const roomInput = document.getElementById('room');
+            const daySelect = document.getElementById('day');
+            const guestInput = document.getElementById('guest');
+            const guestTypeSelect = document.getElementById('guestType');
+            const paxInput = document.getElementById('pax');
+            const allergiesInput = document.getElementById('allergies');
+            const notesInput = document.getElementById('notes');
+            const dayAvailabilityInfo = document.getElementById('dayAvailabilityInfo');
+            const weekDisplay = document.getElementById('weekDisplay');
+            const prevWeekBtn = document.getElementById('prevWeekBtn');
+            const nextWeekBtn = document.getElementById('nextWeekBtn');
+            const currentWeekBtn = document.getElementById('currentWeekBtn');
+
+            const reservationSearchInput = document.getElementById('reservationSearch');
+            const submitReservationBtn = document.getElementById('submitReservationBtn');
+
+            // --- Cargar días disponibles por semana desde Firebase ---
+            function loadAvailableDaysByWeek() {
+                // Desconectar listener anterior si existe
+                if (unsubscribeConfig) {
+                    unsubscribeConfig();
+                }
+
+                const configRef = ref(database, 'impressionConfig/availableDaysByWeek');
+                
+                // Escuchar cambios en tiempo real
+                unsubscribeConfig = onValue(configRef, (snapshot) => {
+                    availableDaysByWeek = {};
+                    if (snapshot.exists()) {
+                        availableDaysByWeek = snapshot.val();
+                    }
+                    updateDayOptions();
+                }, (error) => {
+                    console.error("Error al cargar días disponibles:", error);
+                    availableDaysByWeek = {};
+                    updateDayOptions();
+                });
+            }
+
+            // --- Actualizar opciones de días disponibles según la semana actual ---
+            function updateDayOptions() {
+                daySelect.innerHTML = '<option value="">Seleccione un día</option>';
+                daySelect.disabled = false;
+                
+                // Obtener todos los días únicos disponibles de todas las semanas configuradas
+                const allAvailableDays = new Set();
+                const daysWithWeeks = {}; // Mapear día -> semana para saber dónde guardar
+                
+                // Buscar en semanas cercanas (actual, +1, +2, +3, +4)
+                for (let offset = 0; offset <= 4; offset++) {
+                    const checkWeekInfo = getWeekDates(currentWeek + offset);
+                    const checkWeekKey = `${checkWeekInfo.year}-W${String(checkWeekInfo.weekNumber).padStart(2, '0')}`;
+                    const dayForWeek = availableDaysByWeek[checkWeekKey];
+                    if (dayForWeek) {
+                        allAvailableDays.add(dayForWeek);
+                        // Guardar la semana asociada a este día
+                        if (!daysWithWeeks[dayForWeek]) {
+                            daysWithWeeks[dayForWeek] = checkWeekKey;
+                        }
+                    }
+                }
+                
+                if (allAvailableDays.size > 0) {
+                    // Mostrar todos los días disponibles encontrados
+                    const sortedDays = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+                    sortedDays.forEach(day => {
+                        if (allAvailableDays.has(day)) {
+                            const option = document.createElement('option');
+                            option.value = day;
+                            option.textContent = day;
+                            option.dataset.weekKey = daysWithWeeks[day]; // Guardar la semana asociada
+                            daySelect.appendChild(option);
+                        }
+                    });
+                    dayAvailabilityInfo.textContent = `Días disponibles: ${Array.from(allAvailableDays).sort().join(', ')}`;
+                    dayAvailabilityInfo.className = 'availability-info available';
+                } else {
+                    // Si no hay días configurados
+                    daySelect.innerHTML = '<option value="">No hay días disponibles para esta semana</option>';
+                    daySelect.disabled = true;
+                    dayAvailabilityInfo.textContent = 'No hay días disponibles para reservas. Contacte al administrador para configurar días disponibles.';
+                    dayAvailabilityInfo.className = 'availability-info full';
+                }
+            }
+
+            // --- Cargar reservas de la semana actual ---
+            function loadWeekReservations() {
+                // Desconectar listener anterior si existe
+                if (unsubscribeReservations) {
+                    unsubscribeReservations();
+                }
+
+                const weekInfo = getWeekDates(currentWeek);
+                const weekKey = `${weekInfo.year}-W${String(weekInfo.weekNumber).padStart(2, '0')}`;
+                const reservationsRef = ref(database, `impressionReservations/${weekKey}`);
+
+                // Actualizar display de semana
+                if (weekDisplay) {
+                    weekDisplay.textContent = formatWeekDisplay(weekInfo);
+                }
+                
+                // Actualizar opciones de días cuando cambia la semana
+                updateDayOptions();
+
+                // Mostrar spinner mientras carga
+                showSpinner();
+
+                // Escuchar cambios en tiempo real
+                unsubscribeReservations = onValue(reservationsRef, (snapshot) => {
+                    reservations = [];
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        for (const key in data) {
+                            reservations.push({ id: key, ...data[key] });
+                        }
+                    }
+                    hideSpinner();
+                    renderReservations();
+                    updateDayAvailabilityInfo();
+                }, (error) => {
+                    console.error("Error al cargar reservas:", error);
+                    hideSpinner();
+                    reservations = [];
+                    renderReservations();
+                });
+            }
+
+
+            // --- Inicialización ---
+            loadAvailableDaysByWeek();
+            loadWeekReservations();
+
+            // --- Event Listeners para navegación de semanas ---
+            prevWeekBtn.addEventListener('click', () => {
+                currentWeek--;
+                loadWeekReservations();
+            });
+
+            nextWeekBtn.addEventListener('click', () => {
+                currentWeek++;
+                loadWeekReservations();
+            });
+
+            currentWeekBtn.addEventListener('click', () => {
+                currentWeek = 0;
+                loadWeekReservations();
+            });
+
+            // --- Evento para mostrar el formulario de agregar reserva ---
+            addReservationBtn.addEventListener('click', () => {
+                reservationForm.reset();
+                updateDayOptions(); // Actualizar días disponibles
+                dayAvailabilityInfo.textContent = '';
+                dayAvailabilityInfo.className = 'availability-info';
+                roomInput.focus();
+                reservationForm.scrollIntoView({ behavior: 'smooth' });
+                reservationSearchInput.value = '';
+                filterReservations();
+            });
+
+            // --- Event Listener para cambio de día ---
+            daySelect.addEventListener('change', () => {
+                updateDayAvailabilityInfo();
+            });
+
+            // Evento para abrir el popup de resumen
+            viewSummaryBtn.addEventListener('click', () => {
+                generateReservationsSummary();
+                showSummaryModal();
+            });
+
+            // --- Evento para archivo (todas las semanas pasadas) ---
+            viewArchiveBtn.addEventListener('click', async () => {
+                const allReservationsRef = ref(database, 'impressionReservations');
+                try {
+                    const snapshot = await get(allReservationsRef);
+                    allArchivedReservations = [];
+                    const currentWeekInfo = getWeekDates(0);
+                    const currentWeekKey = `${currentWeekInfo.year}-W${String(currentWeekInfo.weekNumber).padStart(2, '0')}`;
+                    
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        // La estructura es: impressionReservations/{year}-W{weekNumber}/{id}
+                        for (const weekKey in data) {
+                            // Comparar semana (formato: YYYY-W##) - solo semanas pasadas
+                            if (weekKey < currentWeekKey) {
+                                const weekData = data[weekKey];
+                                for (const resId in weekData) {
+                                    allArchivedReservations.push({
+                                        id: resId,
+                                        ...weekData[resId],
+                                        weekKey: weekKey
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    renderArchivedReservations(allArchivedReservations);
+                    showArchiveModal();
+                } catch (error) {
+                    console.error('Error al cargar el archivo de reservas:', error);
+                    alert('No se pudo cargar el archivo de reservas. Por favor, intente de nuevo.');
+                }
+            });
+
+            // Evento para volver a la página principal
+            backBtn.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            // Evento para cerrar el popup de resumen
+            closeSummaryBtn.addEventListener('click', () => {
+                hideSummaryModal();
+            });
+
+            // Nuevo: Evento para cerrar el popup de archivo
+            closeArchiveBtn.addEventListener('click', () => {
+                hideArchiveModal();
+            });
+
+            // Eventos para cerrar modales al hacer clic en el botón 'X'
+            modalCloseButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modalId = e.target.dataset.modal;
+                    if (modalId === 'validationModal') {
+                        hideValidationModal();
+                        currentReservationData = null;
+                    } else if (modalId === 'summaryModal') {
+                        hideSummaryModal();
+                    } else if (modalId === 'archiveModal') {
+                        hideArchiveModal();
+                    }
+                });
+            });
+
+            // Eventos para cerrar modales al hacer clic fuera
+            validationModal.addEventListener('click', (e) => {
+                if (e.target === validationModal) {
+                    hideValidationModal();
+                    currentReservationData = null;
+                }
+            });
+
+            summaryModal.addEventListener('click', (e) => {
+                if (e.target === summaryModal) {
+                    hideSummaryModal();
+                }
+            });
+
+            archiveModal.addEventListener('click', (e) => {
+                if (e.target === archiveModal) {
+                    hideArchiveModal();
+                }
+            });
+
+            // --- Función para actualizar información de disponibilidad del día ---
+            function updateDayAvailabilityInfo() {
+                const weekInfo = getWeekDates(currentWeek);
+                const weekKey = `${weekInfo.year}-W${String(weekInfo.weekNumber).padStart(2, '0')}`;
+                const availableDay = availableDaysByWeek[weekKey];
+                
+                if (!availableDay) {
+                    dayAvailabilityInfo.textContent = 'No hay días disponibles para esta semana.';
+                    dayAvailabilityInfo.className = 'availability-info full';
+                    return;
+                }
+
+                // Contar reservas para el día disponible en la semana actual
+                const weekReservations = reservations.filter(res => res.day === availableDay);
+                const totalPax = weekReservations.reduce((sum, res) => sum + (res.pax || 0), 0);
+                const reservationCount = weekReservations.length;
+
+                dayAvailabilityInfo.textContent = `${reservationCount} reserva(s) - ${totalPax} PAX total`;
+                dayAvailabilityInfo.className = 'availability-info available';
+            }
+
+            // Evento para el buscador de reservas del día
+            reservationSearchInput.addEventListener('input', () => {
+                filterReservations();
+            });
+
+            // Evento para el buscador de reservas archivadas
+            archiveSearchInput.addEventListener('input', () => {
+                filterArchivedReservations();
+            });
+
+            // --- Funciones helper para manejar estado de carga de botones ---
+            function setButtonLoading(button, loadingText = 'Procesando...') {
+                if (!button) return;
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                const originalHTML = button.innerHTML;
+                button.dataset.originalHTML = originalHTML;
+                button.innerHTML = `<span class="btn-spinner"></span>${loadingText}`;
+            }
+
+            function setButtonNormal(button) {
+                if (!button) return;
+                button.disabled = false;
+                button.classList.remove('btn-loading');
+                if (button.dataset.originalHTML) {
+                    button.innerHTML = button.dataset.originalHTML;
+                    delete button.dataset.originalHTML;
+                }
+            }
+
+            // --- Evento para manejar el envío del formulario ---
+            reservationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('submitReservationBtn');
+                
+                // Verificar si el botón ya está en estado de carga (protección contra doble clic)
+                if (submitBtn && submitBtn.disabled) {
+                    return;
+                }
+
+                const room = roomInput.value;
+                const day = daySelect.value;
+                const guest = guestInput.value;
+                const guestType = guestTypeSelect.value;
+                const pax = parseInt(paxInput.value, 10);
+                const allergies = allergiesInput.value.trim();
+                const notes = notesInput.value.trim();
+
+                // Validaciones
+                if (room.length !== 4 || isNaN(room) || parseInt(room, 10) < 1000 || parseInt(room, 10) > 9999) {
+                    alert('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).');
+                    roomInput.focus();
+                    return;
+                }
+
+                if (!day) {
+                    alert('Por favor, seleccione un día de la semana.');
+                    daySelect.focus();
+                    return;
+                }
+
+                if (!guestType) {
+                    alert('Por favor, seleccione un tipo de huésped.');
+                    guestTypeSelect.focus();
+                    return;
+                }
+
+                // Obtener la semana asociada al día seleccionado
+                const selectedOption = daySelect.options[daySelect.selectedIndex];
+                const weekKeyForDay = selectedOption.dataset.weekKey;
+                
+                if (!weekKeyForDay) {
+                    alert('El día seleccionado no está disponible. Por favor, seleccione uno de los días disponibles.');
+                    daySelect.focus();
+                    return;
+                }
+                
+                // Parsear la semana del weekKey
+                const [yearStr, weekStr] = weekKeyForDay.split('-W');
+                const weekInfo = {
+                    year: parseInt(yearStr),
+                    weekNumber: parseInt(weekStr)
+                };
+
+                if (pax < 1) {
+                    alert('La cantidad de personas debe ser al menos 1.');
+                    paxInput.focus();
+                    return;
+                }
+
+                // Bloquear botón mientras se procesa
+                setButtonLoading(submitBtn, 'Validando...');
+
+                currentReservationData = {
+                    day,
+                    room,
+                    guest,
+                    guestType,
+                    pax,
+                    allergies: allergies || '',
+                    notes: notes || '',
+                    timestamp: new Date().getTime(),
+                    weekInfo: weekInfo
+                };
+
+                showValidationModal();
+                // Restaurar botón después de mostrar el modal (el proceso continúa en el modal)
+                setButtonNormal(submitBtn);
+            });
+
+            // --- Evento para confirmar la validación del nombre ---
+            confirmValidationBtn.addEventListener('click', async () => {
+                // Verificar si el botón ya está en estado de carga
+                if (confirmValidationBtn.disabled) {
+                    return;
+                }
+                
+                const validatorName = validatorNameInput.value.trim();
+                if (validatorName) {
+                    // Bloquear botón mientras se procesa
+                    setButtonLoading(confirmValidationBtn, 'Registrando...');
+                    
+                    try {
+                        currentReservationData.validator = validatorName;
+                        await addImpressionReservation(currentReservationData);
+                        hideValidationModal();
+                        reservationForm.reset();
+                        updateDayOptions(); // Actualizar días disponibles después de guardar
+                        dayAvailabilityInfo.textContent = '';
+                        dayAvailabilityInfo.className = 'availability-info';
+                        currentReservationData = null;
+                    } catch (error) {
+                        console.error("Error al registrar reserva:", error);
+                        // El error ya se maneja en addImpressionReservation
+                    } finally {
+                        // Restaurar botón después de completar
+                        setButtonNormal(confirmValidationBtn);
+                    }
+                } else {
+                    showSnackbar('Por favor, ingrese el nombre de quien solicita la reserva.', 3000);
+                    validatorNameInput.focus();
+                }
+            });
+
+            // --- Función para agregar reserva de Impression ---
+            async function addImpressionReservation(data) {
+                try {
+                    const weekInfo = data.weekInfo;
+                    const weekKey = `${weekInfo.year}-W${String(weekInfo.weekNumber).padStart(2, '0')}`;
+                    const reservationsRef = ref(database, `impressionReservations/${weekKey}`);
+                    
+                    // Preparar datos para guardar (sin weekInfo)
+                    const reservationData = {
+                        day: data.day,
+                        room: data.room,
+                        guest: data.guest,
+                        guestType: data.guestType,
+                        pax: data.pax,
+                        allergies: data.allergies || '',
+                        notes: data.notes || '',
+                        validator: data.validator,
+                        timestamp: data.timestamp
+                    };
+                    
+                    await push(reservationsRef, reservationData);
+                    showSnackbar('Reserva registrada exitosamente.', 3000);
+                } catch (error) {
+                    console.error("Error al añadir reserva:", error);
+                    showSnackbar('Error al registrar la reserva. Por favor, intente de nuevo.', 4000);
+                    throw error; // Re-lanzar error para que el caller lo maneje
+                }
+            }
+
+            // Evento para cancelar la validación
+            cancelValidationBtn.addEventListener('click', () => {
+                hideValidationModal();
+                currentReservationData = null;
+            });
+
+            // Funciones para mostrar/ocultar modales
+            function showValidationModal() {
+                validationModal.classList.add('active');
+                validatorNameInput.value = '';
+                validatorNameInput.focus();
+            }
+
+            function hideValidationModal() {
+                validationModal.classList.remove('active');
+            }
+
+            function showSummaryModal() {
+                summaryModal.classList.add('active');
+                summaryModal.focus();
+            }
+
+            function hideSummaryModal() {
+                summaryModal.classList.remove('active');
+            }
+
+            function showArchiveModal() {
+                archiveModal.classList.add('active');
+                archiveModal.focus();
+            }
+
+            function hideArchiveModal() {
+                archiveModal.classList.remove('active');
+            }
+
+
+            // --- Función para renderizar reservas agrupadas por día ---
+            function renderReservations(filteredReservations = reservations) {
+                // Verificar que los elementos del DOM existan
+                if (!reservationListDiv || !noReservationsMessage) {
+                    console.error("Error: Elementos del DOM no encontrados (reservationListDiv o noReservationsMessage)");
+                    return;
+                }
+
+                // Agrupar por día de la semana
+                const dayOrder = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+                const grouped = {};
+                filteredReservations.forEach(res => {
+                    if (res && res.day) {
+                        if (!grouped[res.day]) grouped[res.day] = [];
+                        grouped[res.day].push(res);
+                    }
+                });
+                
+                reservationListDiv.innerHTML = '';
+                
+                if (filteredReservations.length === 0) {
+                    noReservationsMessage.textContent = reservations.length === 0 ?
+                        'No hay reservas para esta semana.' :
+                        'No se encontraron reservas con los criterios de búsqueda.';
+                    noReservationsMessage.style.display = 'block';
+                } else {
+                    noReservationsMessage.style.display = 'none';
+                    
+                    // Ordenar días según el orden de la semana
+                    const sortedDays = dayOrder.filter(day => grouped[day]);
+                    
+                    sortedDays.forEach(day => {
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'reservation-group';
+                        const groupTitle = document.createElement('div');
+                        groupTitle.className = 'reservation-group-title';
+                        
+                        // Calcular total PAX para el día
+                        const totalPax = grouped[day].reduce((sum, res) => sum + (res.pax || 0), 0);
+                        groupTitle.innerHTML = `<span>📅</span> ${day} (${grouped[day].length} reserva(s) - ${totalPax} PAX)`;
+                        groupDiv.appendChild(groupTitle);
+                        
+                        // Ordenar por timestamp (más reciente primero)
+                        grouped[day].sort((a, b) => {
+                            if (a.timestamp && b.timestamp) return b.timestamp - a.timestamp;
+                            if (a.timestamp) return -1;
+                            if (b.timestamp) return 1;
+                            return 0;
+                        });
+                        
+                        grouped[day].forEach(res => {
+                            const reservationItem = document.createElement('div');
+                            reservationItem.classList.add('reservation-item');
+                            const guestName = res.guest || 'Sin nombre';
+                            const initials = guestName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+                            
+                            reservationItem.innerHTML = `
+                                <span class="reservation-avatar">${initials}</span>
+                                <span class="room-name">${res.room || '-'} - ${guestName}</span>
+                                <span class="pax-info">${res.pax || 0} PAX</span>
+                                ${res.guestType ? `<span style="color: var(--primary); font-size: 0.9em; font-weight: 600;">⭐ ${res.guestType}</span>` : ''}
+                                ${res.allergies ? `<span style="color: var(--danger); font-size: 0.9em;">⚠️ ${res.allergies}</span>` : ''}
+                                ${res.notes ? `<span style="color: var(--text-light); font-size: 0.9em;">📝 ${res.notes}</span>` : ''}
+                            `;
+                            groupDiv.appendChild(reservationItem);
+                        });
+                        reservationListDiv.appendChild(groupDiv);
+                    });
+                }
+            }
+
+            // --- Variable global para reservas archivadas ---
+            let allArchivedReservations = [];
+
+            // --- Función para renderizar reservas archivadas ---
+            function renderArchivedReservations(reservationsToShow = allArchivedReservations) {
+                const searchTerm = archiveSearchInput.value.toLowerCase().trim();
+                
+                // Filtrar si hay término de búsqueda
+                let filtered = reservationsToShow;
+                if (searchTerm) {
+                    filtered = reservationsToShow.filter(res => {
+                        const roomMatches = String(res.room || '').includes(searchTerm);
+                        const guestMatches = (res.guest || '').toLowerCase().includes(searchTerm);
+                        const dayMatches = (res.day || '').toLowerCase().includes(searchTerm);
+                        const weekMatches = (res.weekKey || '').toLowerCase().includes(searchTerm);
+                        const guestTypeMatches = (res.guestType || '').toLowerCase().includes(searchTerm);
+                        const allergiesMatches = (res.allergies || '').toLowerCase().includes(searchTerm);
+                        const notesMatches = (res.notes || '').toLowerCase().includes(searchTerm);
+                        return roomMatches || guestMatches || dayMatches || weekMatches || guestTypeMatches || allergiesMatches || notesMatches;
+                    });
+                }
+                
+                // Agrupar por semana y día
+                const rows = [];
+                filtered.forEach(res => {
+                    rows.push({
+                        week: res.weekKey || '',
+                        day: res.day || '',
+                        room: res.room || '',
+                        guest: res.guest || '',
+                        guestType: res.guestType || '',
+                        pax: res.pax || 0,
+                        allergies: res.allergies || '',
+                        notes: res.notes || '',
+                        validator: res.validator || ''
+                    });
+                });
+                
+                // Ordenar por semana descendente, luego por día
+                const dayOrder = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+                rows.sort((a, b) => {
+                    const weekComp = b.week.localeCompare(a.week);
+                    if (weekComp !== 0) return weekComp;
+                    const dayIndexA = dayOrder.indexOf(a.day);
+                    const dayIndexB = dayOrder.indexOf(b.day);
+                    if (dayIndexA !== dayIndexB) return dayIndexA - dayIndexB;
+                    return parseInt(a.room) - parseInt(b.room);
+                });
+                
+                archiveListContent.innerHTML = '';
+                if (rows.length === 0) {
+                    noArchivedReservationsMessage.textContent = allArchivedReservations.length === 0 ?
+                        'No hay reservas archivadas de Impression.' :
+                        'No se encontraron reservas archivadas con los criterios de búsqueda.';
+                    noArchivedReservationsMessage.style.display = 'block';
+                } else {
+                    noArchivedReservationsMessage.style.display = 'none';
+                    let tableHtml = `<table class="archive-table">
+                        <thead>
+                            <tr>
+                                    <th>Semana</th>
+                                    <th>Día</th>
+                                    <th>Hab.</th>
+                                    <th>Huésped</th>
+                                    <th>Tipo</th>
+                                    <th>PAX</th>
+                                    <th>Alergias</th>
+                                    <th>Notas</th>
+                                    <th>Solicitante</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                    rows.forEach(row => {
+                        tableHtml += `<tr>
+                            <td>${row.week}</td>
+                            <td>${row.day}</td>
+                            <td>${row.room}</td>
+                            <td>${row.guest}</td>
+                            <td>${row.guestType || '-'}</td>
+                            <td class="pax-cell">${row.pax}</td>
+                            <td>${row.allergies || '-'}</td>
+                            <td>${row.notes || '-'}</td>
+                            <td>${row.validator || '-'}</td>
+                        </tr>`;
+                    });
+                    tableHtml += `</tbody></table>`;
+                    archiveListContent.innerHTML = tableHtml;
+                }
+            }
+
+            // --- Función para filtrar reservas ---
+            function filterReservations() {
+                const searchTerm = reservationSearchInput.value.toLowerCase().trim();
+
+                if (!searchTerm) {
+                    renderReservations(reservations);
+                    return;
+                }
+
+                const filtered = reservations.filter(res => {
+                    const roomMatches = String(res.room).includes(searchTerm);
+                    const guestMatches = res.guest.toLowerCase().includes(searchTerm);
+                    const dayMatches = res.day.toLowerCase().includes(searchTerm);
+                    const guestTypeMatches = (res.guestType || '').toLowerCase().includes(searchTerm);
+                    const allergiesMatches = (res.allergies || '').toLowerCase().includes(searchTerm);
+                    const notesMatches = (res.notes || '').toLowerCase().includes(searchTerm);
+                    return roomMatches || guestMatches || dayMatches || guestTypeMatches || allergiesMatches || notesMatches;
+                });
+
+                renderReservations(filtered);
+            }
+
+            // --- Función para filtrar reservas archivadas ---
+            function filterArchivedReservations() {
+                renderArchivedReservations(allArchivedReservations);
+            }
+
+
+
+            // --- Función para generar resumen de reservas por semana ---
+            function generateReservationsSummary() {
+                const weekInfo = getWeekDates(currentWeek);
+                const dayOrder = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+                
+                // Agrupar por día
+                const groupedReservations = {};
+                let totalOverallPax = 0;
+                reservations.forEach(res => {
+                    const day = res.day;
+                    if (!groupedReservations[day]) groupedReservations[day] = [];
+                    groupedReservations[day].push(res);
+                    totalOverallPax += res.pax || 0;
+                });
+                
+                let summaryHtml = '';
+                const sortedDays = dayOrder.filter(day => groupedReservations[day]);
+                
+                if (sortedDays.length === 0) {
+                    summaryHtml = `<p style="text-align: center; margin-top: 50px;">No hay reservas registradas para esta semana.</p>`;
+                } else {
+                    summaryHtml += `<div class="summary-restaurant">
+                        <h4>Impression - ${formatWeekDisplay(weekInfo)} <span>(Total PAX: ${totalOverallPax})</span></h4>`;
+                    
+                    sortedDays.forEach(day => {
+                        const dayData = groupedReservations[day];
+                        const dayPax = dayData.reduce((sum, r) => sum + (r.pax || 0), 0);
+                        summaryHtml += `<div class="summary-time-group">
+                            <div class="summary-time"><span class="summary-time-badge">${day}</span>: <span>${dayData.length} reserva(s) - ${dayPax} PAX</span></div>
+                            <table class="summary-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hab.</th>
+                                        <th>Huésped</th>
+                                        <th>Tipo</th>
+                                        <th>PAX</th>
+                                        <th>Alergias</th>
+                                        <th>Notas</th>
+                                        <th>Solicitante</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                        dayData.sort((a, b) => parseInt(a.room) - parseInt(b.room));
+                        dayData.forEach(detail => {
+                            summaryHtml += `<tr>
+                                <td>${detail.room}</td>
+                                <td>${detail.guest}</td>
+                                <td class="comment-cell">${detail.guestType || '-'}</td>
+                                <td class="pax-cell">${detail.pax}</td>
+                                <td class="comment-cell">${detail.allergies || '-'}</td>
+                                <td class="comment-cell">${detail.notes || '-'}</td>
+                                <td class="validator-cell">${detail.validator || '-'}</td>
+                            </tr>`;
+                        });
+                        summaryHtml += `</tbody></table></div>`;
+                    });
+                    summaryHtml += `</div>`;
+                }
+                
+                summaryTitle.textContent = `Resumen de Reservas - Impression ${formatWeekDisplay(weekInfo)}`;
+                summaryContent.innerHTML = summaryHtml;
+                overallPaxTotal.textContent = `PAX Total de la Semana: ${totalOverallPax}`;
+            }
+
+        });
+
+        // --- Funciones de Utilidad UI ---
+        function showSnackbar(message, duration = 3000) {
+            const snackbar = document.getElementById('snackbar');
+            snackbar.textContent = message;
+            snackbar.className = 'snackbar show';
+            setTimeout(() => {
+                snackbar.className = 'snackbar';
+            }, duration);
+        }
+
+        function showSpinner() {
+            document.getElementById('spinnerOverlay').style.display = 'flex';
+        }
+
+        function hideSpinner() {
+            document.getElementById('spinnerOverlay').style.display = 'none';
+        }
+
+        // --- Mejorar accesibilidad: navegación por teclado en modales ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const validationModal = document.getElementById('validationModal');
+            const summaryModal = document.getElementById('summaryModal');
+            const archiveModal = document.getElementById('archiveModal');
+            
+            [validationModal, summaryModal, archiveModal].forEach(modal => {
+                if (modal) {
+                    modal.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            modal.classList.remove('active');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
