@@ -176,6 +176,13 @@
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
+        .btn-success:disabled,
+        .btn-primary:disabled,
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
         .btn-danger {
             background: var(--danger-color);
             color: white;
@@ -190,6 +197,28 @@
             background: var(--warning-color);
             color: white;
             box-shadow: var(--shadow-sm);
+        }
+        
+        /* Spinner para botones */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .btn-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         .btn-warning:hover {
             background: #d97706;
@@ -251,7 +280,137 @@
             font-size: 1.5rem;
             color: var(--primary-color);
         }
-        /* FAB (Floating Action Button) */
+        /* Navegación Principal */
+        .main-nav-btn {
+            transition: all 0.3s ease;
+        }
+        .main-nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .main-section {
+            width: 100%;
+        }
+        
+        /* Estilos para paginación */
+        #vipPaginationControls, #impressionPaginationControls {
+            display: none; /* Oculto por defecto, se mostrará cuando haya reservas */
+        }
+        
+        #vipPaginationNumbers button, #impressionPaginationNumbers button {
+            transition: all 0.2s ease;
+        }
+        
+        #vipPaginationNumbers button:hover, #impressionPaginationNumbers button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Estilos para el calendario de configuración */
+        .calendar-week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .calendar-week-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .calendar-week-label {
+            text-align: center;
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.9em;
+            padding: 8px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            padding: 8px;
+        }
+        
+        .calendar-day:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+        
+        .calendar-day.selected {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-color: #059669;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .calendar-day.selected:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        
+        .calendar-day.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: var(--light-color);
+        }
+        
+        .calendar-day.disabled:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: var(--border-color);
+        }
+        
+        .calendar-day-number {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .calendar-day-name {
+            font-size: 0.75em;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+        
+        .calendar-day.selected .calendar-day-name {
+            opacity: 1;
+        }
+        
+        .calendar-week-container {
+            margin-bottom: 24px;
+        }
+        
+        .calendar-week-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 12px;
+            padding: 8px;
+            background: var(--light-color);
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+        
+        .calendar-day.has-selection {
+            border-color: #10b981;
+        }
+
+        /* FAB (Floating Action Button) - Solo para VIP */
         .fab-add-reservation {
             position: fixed;
             right: 32px;
@@ -1446,26 +1605,93 @@
             <h1>Panel de Administración de Reservas</h1>
         </header>
 
-        <div class="dashboard-charts">
-            <!-- Gráfico de barras semanal -->
-            <section class="bar-chart-section">
-                <div class="bar-chart-container">
-                    <canvas id="weeklyBarChart" height="180"></canvas>
+        <!-- Navegación Principal: VIP / Impression -->
+        <div style="background: var(--white-color); padding: 20px; border-bottom: 2px solid var(--border-color); display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button id="mainVipTab" class="main-nav-btn active" style="padding: 14px 32px; font-size: 1.1em; font-weight: 600; border: 2px solid var(--primary-color); background: var(--primary-color); color: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                <span class="material-icons">restaurant</span>
+                Cenas VIP
+            </button>
+            <button id="mainImpressionTab" class="main-nav-btn" style="padding: 14px 32px; font-size: 1.1em; font-weight: 600; border: 2px solid var(--border-color); background: white; color: var(--secondary-color); border-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                <span class="material-icons">diamond</span>
+                Cenas Impression
+            </button>
+        </div>
+
+        <!-- Sección VIP (visible por defecto) -->
+        <div id="vipSection" class="main-section">
+            <div class="dashboard-charts">
+                <!-- Gráfico de barras semanal -->
+                <section class="bar-chart-section">
+                    <div class="bar-chart-container">
+                        <canvas id="weeklyBarChart" height="180"></canvas>
+                    </div>
+                    <div class="bar-chart-label">Ocupación semanal total (PAX)</div>
+                </section>
+            </div>
+
+            <section class="manage-reservations-section">
+                <h2><span class="material-icons">table_view</span>Gestionar Reservas VIP</h2>
+                <div class="table-controls">
+                    <input type="text" id="adminReservationSearch" placeholder="Buscar por habitación, comensal, restaurante o fecha...">
+                    <button type="button" id="printReservationsBtn" class="btn btn-info">Imprimir Reservas</button>
+                    <button type="button" id="sendWhatsAppBtn"><span class="material-icons">send</span>Enviar</button>
+                    <button type="button" id="blockRestaurantsBtn" class="btn btn-warning"><span class="material-icons">block</span>Bloquear Restaurantes</button>
+                    <button type="button" id="analyzeReservationsBtn" class="btn btn-success"><span class="material-icons">analytics</span>Analizar Reservas</button>
                 </div>
-                <div class="bar-chart-label">Ocupación semanal total (PAX)</div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Habitación</th>
+                                <th>Huesped</th>
+                                <th>Restaurante</th>
+                                <th>Hora</th>
+                                <th>PAX</th>
+                                <th>Comentario</th>
+                                <th>Solicitado por</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminReservationsTableBody">
+                            </tbody>
+                    </table>
+                    <p id="loadingMessage" class="loading-message">Cargando reservas...</p>
+                    <p id="noReservationsAdminMessage" class="no-reservations" style="display:none;">No hay reservas para mostrar.</p>
+                    
+                    <!-- Controles de Paginación VIP -->
+                    <div id="vipPaginationControls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px; background: var(--light-color); border-radius: 8px; flex-wrap: wrap; gap: 10px;">
+                        <div id="vipPaginationInfo" style="color: var(--secondary-color); font-size: 0.9em;">
+                            Mostrando <span id="vipPaginationStart">0</span> - <span id="vipPaginationEnd">0</span> de <span id="vipPaginationTotal">0</span> reservas
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button id="vipPaginationPrev" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;" disabled>
+                                <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_left</span>
+                                Anterior
+                            </button>
+                            <div id="vipPaginationNumbers" style="display: flex; gap: 4px;">
+                                <!-- Los números de página se generarán dinámicamente -->
+                            </div>
+                            <button id="vipPaginationNext" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;">
+                                Siguiente
+                                <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
 
-        <!-- FAB para agregar reserva -->
-        <button class="fab-add-reservation" id="openAddReservationModal" title="Agregar Nueva Reserva">
+        <!-- FAB para agregar reserva VIP (solo visible en sección VIP) -->
+        <button class="fab-add-reservation" id="openAddReservationModal" title="Agregar Nueva Reserva VIP" style="display: flex;">
             <span class="material-icons">add</span>
         </button>
 
-        <!-- Modal para agregar nueva reserva -->
+        <!-- Modal para agregar nueva reserva VIP -->
         <div id="addReservationModal" class="modal-overlay">
             <div class="modal-content">
                 <button class="modal-close-btn" data-modal="addReservationModal"><span class="material-icons">close</span></button>
-                <h2><span class="material-icons">event_available</span>Agregar Nueva Reserva</h2>
+                <h2><span class="material-icons">event_available</span>Agregar Nueva Reserva VIP</h2>
                 <form id="adminReservationForm" class="form-grid">
                     <div class="form-group">
                         <label for="adminRoom">Número de Habitación:</label>
@@ -1514,37 +1740,241 @@
             </div>
         </div>
 
-        <section class="manage-reservations-section">
-            <h2><span class="material-icons">table_view</span>Gestionar Reservas Existentes</h2>
-            <div class="table-controls">
-                <input type="text" id="adminReservationSearch" placeholder="Buscar por habitación, comensal, restaurante o fecha...">
-                <button type="button" id="printReservationsBtn" class="btn btn-info">Imprimir Reservas</button>
-                <button type="button" id="sendWhatsAppBtn"><span class="material-icons">send</span>Enviar</button>
-                <button type="button" id="blockRestaurantsBtn" class="btn btn-warning"><span class="material-icons">block</span>Bloquear Restaurantes</button>
-                <button type="button" id="analyzeReservationsBtn" class="btn btn-success"><span class="material-icons">analytics</span>Analizar Reservas</button>
+        <!-- Sección Impression (oculta por defecto) -->
+        <div id="impressionSection" class="main-section" style="display: none;">
+            <section class="impression-config-section" style="background: var(--white-color); padding: 24px; margin: 0;">
+                <h2 style="color: var(--dark-color); margin: 0 0 24px 0; font-size: 1.5rem; font-weight: var(--font-weight-semibold); display: flex; align-items: center; gap: 12px; justify-content: center;">
+                    <span class="material-icons" style="font-size: 2rem; color: var(--primary-color);">diamond</span>
+                    Gestión de Cenas Impression
+                </h2>
+                <div style="max-width: 1200px; margin: 0 auto; width: 100%;">
+                    <!-- Pestañas -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 2px solid var(--border-color);">
+                        <button id="impressionConfigTab" class="impression-tab-btn active" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid var(--primary-color); color: var(--primary-color); font-weight: 600; cursor: pointer; font-size: 1em;">
+                            Configurar Días Disponibles
+                        </button>
+                        <button id="impressionReservationsTab" class="impression-tab-btn" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; color: var(--secondary-color); font-weight: 600; cursor: pointer; font-size: 1em;">
+                            Ver/Editar Reservas
+                        </button>
+                    </div>
+
+                    <!-- Panel de Configuración de Días -->
+                    <div id="impressionConfigPanel" class="impression-panel" style="display: block;">
+                        <p style="text-align: center; color: var(--secondary-color); margin-bottom: 20px; font-size: 0.95em;">
+                            Haga clic en un día del calendario para configurarlo como disponible. Solo puede seleccionar un día por semana.
+                        </p>
+                        
+                        <!-- Controles de Navegación del Calendario -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 10px;">
+                            <button id="calendarPrevBtn" class="btn btn-secondary" style="padding: 10px 20px; display: flex; align-items: center; gap: 8px;">
+                                <span class="material-icons">chevron_left</span>
+                                Anterior
+                            </button>
+                            <h3 id="calendarMonthYear" style="margin: 0; font-size: 1.3em; color: var(--dark-color); font-weight: 600;">
+                                <!-- Se llenará dinámicamente -->
+                            </h3>
+                            <button id="calendarNextBtn" class="btn btn-secondary" style="padding: 10px 20px; display: flex; align-items: center; gap: 8px;">
+                                Siguiente
+                                <span class="material-icons">chevron_right</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Calendario -->
+                        <div id="impressionCalendar" style="background: white; border-radius: 12px; padding: 24px; box-shadow: var(--shadow-md);">
+                            <!-- Los días del calendario se generarán dinámicamente -->
+                        </div>
+                        
+                        <!-- Botón para guardar cambios -->
+                        <div style="text-align: center; margin-top: 24px;">
+                            <button id="saveCalendarConfigBtn" class="btn btn-primary" style="padding: 12px 32px; font-size: 1.1em;">
+                                <span class="material-icons" style="font-size: 1.2em; vertical-align: middle; margin-right: 8px;">save</span>
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Reservas -->
+                    <div id="impressionReservationsPanel" class="impression-panel" style="display: none;">
+                        <div style="margin-bottom: 20px;">
+                            <input type="text" id="impressionReservationsSearch" placeholder="Buscar reservas..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                <select id="impressionWeekFilter" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; flex: 1; min-width: 200px;">
+                                    <option value="">Todas las semanas</option>
+                                </select>
+                                <button id="printImpressionReservationsBtn" class="btn btn-info" style="padding: 10px 20px; display: flex; align-items: center; gap: 8px;">
+                                    <span class="material-icons" style="font-size: 1.2em;">print</span>
+                                    Imprimir Reservas
+                                </button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                                <thead>
+                                    <tr style="background: var(--light-color);">
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Semana</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Día</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Hab.</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Huésped</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Tipo</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">PAX</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Alergias</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Notas</th>
+                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="impressionReservationsTableBody">
+                                    <!-- Las reservas se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                            <p id="noImpressionReservations" style="text-align: center; padding: 40px; color: var(--secondary-color); display: none;">No hay reservas de Impression.</p>
+                            
+                            <!-- Controles de Paginación Impression -->
+                            <div id="impressionPaginationControls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px; background: var(--light-color); border-radius: 8px; flex-wrap: wrap; gap: 10px;">
+                                <div id="impressionPaginationInfo" style="color: var(--secondary-color); font-size: 0.9em;">
+                                    Mostrando <span id="impressionPaginationStart">0</span> - <span id="impressionPaginationEnd">0</span> de <span id="impressionPaginationTotal">0</span> reservas
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button id="impressionPaginationPrev" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;" disabled>
+                                        <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_left</span>
+                                        Anterior
+                                    </button>
+                                    <div id="impressionPaginationNumbers" style="display: flex; gap: 4px;">
+                                        <!-- Los números de página se generarán dinámicamente -->
+                                    </div>
+                                    <button id="impressionPaginationNext" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;">
+                                        Siguiente
+                                        <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_right</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Modal de Vista Completa de Impression -->
+        <div id="impressionFullViewModal" class="modal-overlay" style="z-index: 10000;">
+            <div class="modal-content" style="max-width: 95%; max-height: 95vh; overflow-y: auto; padding: 24px;">
+                <button class="modal-close-btn" data-modal="impressionFullViewModal" style="position: absolute; top: 20px; right: 20px;"><span class="material-icons">close</span></button>
+                <h2 style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    <span class="material-icons" style="font-size: 2rem; color: var(--primary-color);">diamond</span>
+                    Vista Completa - Cenas Impression
+                </h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                    <!-- Panel de Configuración -->
+                    <div style="background: var(--light-color); padding: 20px; border-radius: 8px;">
+                        <h3 style="margin-top: 0; margin-bottom: 16px; color: var(--primary-color);">Días Disponibles por Semana</h3>
+                        <div id="impressionFullViewConfig" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Se cargará dinámicamente -->
+                        </div>
+                    </div>
+                    
+                    <!-- Panel de Estadísticas -->
+                    <div style="background: var(--light-color); padding: 20px; border-radius: 8px;">
+                        <h3 style="margin-top: 0; margin-bottom: 16px; color: var(--primary-color);">Estadísticas</h3>
+                        <div id="impressionFullViewStats" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Se cargará dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Reservas -->
+                <div>
+                    <h3 style="margin-bottom: 16px; color: var(--primary-color);">Todas las Reservas</h3>
+                    <div style="margin-bottom: 16px;">
+                        <input type="text" id="impressionFullViewSearch" placeholder="Buscar reservas..." style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
+                        <select id="impressionFullViewWeekFilter" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            <option value="">Todas las semanas</option>
+                        </select>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+                            <thead>
+                                <tr style="background: var(--light-color);">
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Semana</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Día</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Hab.</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Huésped</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Tipo</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">PAX</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Alergias</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Notas</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Solicitante</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color);">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="impressionFullViewTableBody">
+                                <!-- Se cargará dinámicamente -->
+                            </tbody>
+                        </table>
+                        <p id="noImpressionFullViewReservations" style="text-align: center; padding: 40px; color: var(--secondary-color); display: none;">No hay reservas de Impression.</p>
+                    </div>
+                </div>
             </div>
-            <div class="table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Habitación</th>
-                            <th>Huesped</th>
-                            <th>Restaurante</th>
-                            <th>Hora</th>
-                            <th>PAX</th>
-                            <th>Comentario</th>
-                            <th>Solicitado por</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminReservationsTableBody">
-                        </tbody>
-                </table>
-                <p id="loadingMessage" class="loading-message">Cargando reservas...</p>
-                <p id="noReservationsAdminMessage" class="no-reservations" style="display:none;">No hay reservas para mostrar.</p>
-            </div>
-        </section>
+        </div>
+
+    <!-- Modal para editar reserva de Impression -->
+    <div id="editImpressionReservationModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" data-modal="editImpressionReservationModal"><span class="material-icons">close</span></button>
+            <h3><span class="material-icons">edit_calendar</span>Editar Reserva de Impression</h3>
+            <form id="editImpressionReservationForm" class="form-grid">
+                <input type="hidden" id="editImpressionReservationId">
+                <input type="hidden" id="editImpressionReservationWeekKey">
+                <div class="form-group">
+                    <label for="editImpressionDay">Día de la Semana:</label>
+                    <select id="editImpressionDay" required>
+                        <option value="Lunes">Lunes</option>
+                        <option value="Martes">Martes</option>
+                        <option value="Miércoles">Miércoles</option>
+                        <option value="Jueves">Jueves</option>
+                        <option value="Viernes">Viernes</option>
+                        <option value="Sábado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editImpressionRoom">Número de Habitación:</label>
+                    <input type="number" id="editImpressionRoom" min="1000" max="9999" required>
+                </div>
+                <div class="form-group">
+                    <label for="editImpressionGuest">Nombre del Huésped:</label>
+                    <input type="text" id="editImpressionGuest" required>
+                </div>
+                <div class="form-group">
+                    <label for="editImpressionGuestType">Tipo de Huésped:</label>
+                    <select id="editImpressionGuestType" required>
+                        <option value="Impression">Impression</option>
+                        <option value="Diamond">Diamond</option>
+                        <option value="Globalist">Globalist</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editImpressionPax">Cantidad de Personas:</label>
+                    <input type="number" id="editImpressionPax" min="1" required>
+                </div>
+                <div class="form-group form-group-full">
+                    <label for="editImpressionAllergies">Alergias:</label>
+                    <input type="text" id="editImpressionAllergies" placeholder="Ej. Gluten, Mariscos, etc.">
+                </div>
+                <div class="form-group form-group-full">
+                    <label for="editImpressionNotes">Notas:</label>
+                    <textarea id="editImpressionNotes" rows="3" placeholder="Notas adicionales, preferencias especiales, etc."></textarea>
+                </div>
+                <div class="form-group-full modal-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">save</span>
+                        Guardar Cambios
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-modal="editImpressionReservationModal">
+                        <span class="material-icons">close</span>
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="editReservationModal" class="modal-overlay">
@@ -1695,7 +2125,7 @@
         // Importar las funciones que necesitas de los SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         // Importante: Asegúrate de importar getDatabase y las funciones necesarias para la base de datos
-        import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         // Tu configuración de Firebase (DEBE SER LA MISMA QUE EN index.html)
         const firebaseConfig = {
@@ -1722,18 +2152,1317 @@
             const adminReservationForm = document.getElementById('adminReservationForm');
             // Declarar modalCloseButtons solo una vez para todos los modales
             const modalCloseButtons = document.querySelectorAll('.modal-close-btn');
-
-            openAddReservationModalBtn.addEventListener('click', () => {
-                addReservationModal.classList.add('active');
+            
+            // Manejar cierre de modales al hacer clic en el botón de cerrar
+            modalCloseButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modalId = button.getAttribute('data-modal');
+                    if (modalId) {
+                        const modal = document.getElementById(modalId);
+                        if (modal) {
+                            modal.classList.remove('active');
+                        }
+                    }
+                });
             });
-            // Los eventos de cierre ahora se manejan globalmente
+            
+            // Manejar cierre de modales al hacer clic fuera del contenido
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+
+            if (openAddReservationModalBtn && addReservationModal) {
+                openAddReservationModalBtn.addEventListener('click', () => {
+                    addReservationModal.classList.add('active');
+                });
+            }
 
             const adminReservationSearchInput = document.getElementById('adminReservationSearch');
             const loadingMessage = document.getElementById('loadingMessage');
             const noReservationsAdminMessage = document.getElementById('noReservationsAdminMessage');
             const printReservationsBtn = document.getElementById('printReservationsBtn');
 
-            // Elementos del modal de edición
+            // --- Navegación Principal: VIP / Impression ---
+            const mainVipTab = document.getElementById('mainVipTab');
+            const mainImpressionTab = document.getElementById('mainImpressionTab');
+            const vipSection = document.getElementById('vipSection');
+            const impressionSection = document.getElementById('impressionSection');
+            
+            // Verificar que los elementos principales existan
+            if (!mainVipTab || !mainImpressionTab || !vipSection || !impressionSection) {
+                console.error('Error: No se encontraron los elementos de navegación principales');
+            }
+
+            // --- Elementos de configuración de Impression (definir antes de las funciones) ---
+            const impressionConfigTab = document.getElementById('impressionConfigTab');
+            const impressionReservationsTab = document.getElementById('impressionReservationsTab');
+            const impressionConfigPanel = document.getElementById('impressionConfigPanel');
+            const impressionReservationsPanel = document.getElementById('impressionReservationsPanel');
+            const impressionCalendar = document.getElementById('impressionCalendar');
+            const calendarMonthYear = document.getElementById('calendarMonthYear');
+            const calendarPrevBtn = document.getElementById('calendarPrevBtn');
+            const calendarNextBtn = document.getElementById('calendarNextBtn');
+            const saveCalendarConfigBtn = document.getElementById('saveCalendarConfigBtn');
+            const impressionReservationsTableBody = document.getElementById('impressionReservationsTableBody');
+            const impressionReservationsSearch = document.getElementById('impressionReservationsSearch');
+            const impressionWeekFilter = document.getElementById('impressionWeekFilter');
+            const noImpressionReservations = document.getElementById('noImpressionReservations');
+            const printImpressionReservationsBtn = document.getElementById('printImpressionReservationsBtn');
+            
+            let impressionAvailableDaysByWeek = {}; // { "2024-W01": "Viernes", ... }
+            let allImpressionReservations = []; // Todas las reservas de Impression
+            let calendarCurrentWeekOffset = 0; // Offset de semanas desde la semana actual
+            let pendingCalendarChanges = {}; // Cambios pendientes antes de guardar
+
+            // --- Funciones de utilidad para semanas ---
+            function getWeekNumber(date) {
+                const d = new Date(date);
+                d.setHours(0, 0, 0, 0);
+                const dayOfWeek = d.getDay();
+                const adjustedDay = (dayOfWeek + 6) % 7;
+                const monday = new Date(d);
+                monday.setDate(d.getDate() - adjustedDay);
+                const jan4 = new Date(monday.getFullYear(), 0, 4);
+                const jan4Day = (jan4.getDay() + 6) % 7;
+                const jan4Monday = new Date(jan4);
+                jan4Monday.setDate(jan4.getDate() - jan4Day);
+                const diffTime = monday - jan4Monday;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                return Math.floor(diffDays / 7) + 1;
+            }
+
+            function getWeekDates(weekOffset = 0) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const currentWeek = getWeekNumber(today);
+                const targetWeek = currentWeek + weekOffset;
+                const year = today.getFullYear();
+                const jan4 = new Date(year, 0, 4);
+                const jan4Day = (jan4.getDay() + 6) % 7;
+                const jan4Monday = new Date(jan4);
+                jan4Monday.setDate(jan4.getDate() - jan4Day);
+                jan4Monday.setHours(0, 0, 0, 0);
+                const weeksToAdd = targetWeek - 1;
+                const weekStart = new Date(jan4Monday);
+                weekStart.setDate(jan4Monday.getDate() + (weeksToAdd * 7));
+                const dayOfWeek = (weekStart.getDay() + 6) % 7;
+                if (dayOfWeek !== 0) {
+                    weekStart.setDate(weekStart.getDate() - dayOfWeek);
+                }
+                return {
+                    year: weekStart.getFullYear(),
+                    weekNumber: getWeekNumber(weekStart),
+                    startDate: weekStart
+                };
+            }
+
+            function formatWeekKey(year, weekNumber) {
+                return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+            }
+
+            function formatWeekDisplay(year, weekNumber) {
+                // Calcular el lunes de la semana específica
+                const jan4 = new Date(year, 0, 4);
+                const jan4Day = (jan4.getDay() + 6) % 7;
+                const jan4Monday = new Date(jan4);
+                jan4Monday.setDate(jan4.getDate() - jan4Day);
+                jan4Monday.setHours(0, 0, 0, 0);
+                const weeksToAdd = weekNumber - 1;
+                const weekStart = new Date(jan4Monday);
+                weekStart.setDate(jan4Monday.getDate() + (weeksToAdd * 7));
+                const dayOfWeek = (weekStart.getDay() + 6) % 7;
+                if (dayOfWeek !== 0) {
+                    weekStart.setDate(weekStart.getDate() - dayOfWeek);
+                }
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                const startStr = weekStart.toLocaleDateString('es-ES', options);
+                return `Semana ${weekNumber} (${startStr})`;
+            }
+
+            // --- Funciones de navegación principal (definir después de loadImpressionConfig) ---
+            function showVipSection() {
+                if (vipSection) vipSection.style.display = 'block';
+                if (impressionSection) impressionSection.style.display = 'none';
+                if (openAddReservationModalBtn) openAddReservationModalBtn.style.display = 'flex';
+                
+                // Actualizar estilos de botones
+                if (mainVipTab) {
+                    mainVipTab.style.background = 'var(--primary-color)';
+                    mainVipTab.style.color = 'white';
+                    mainVipTab.style.borderColor = 'var(--primary-color)';
+                }
+                if (mainImpressionTab) {
+                    mainImpressionTab.style.background = 'white';
+                    mainImpressionTab.style.color = 'var(--secondary-color)';
+                    mainImpressionTab.style.borderColor = 'var(--border-color)';
+                }
+            }
+
+            function showImpressionSection() {
+                if (vipSection) vipSection.style.display = 'none';
+                if (impressionSection) impressionSection.style.display = 'block';
+                if (openAddReservationModalBtn) openAddReservationModalBtn.style.display = 'none';
+                
+                // Actualizar estilos de botones
+                if (mainImpressionTab) {
+                    mainImpressionTab.style.background = 'var(--primary-color)';
+                    mainImpressionTab.style.color = 'white';
+                    mainImpressionTab.style.borderColor = 'var(--primary-color)';
+                }
+                if (mainVipTab) {
+                    mainVipTab.style.background = 'white';
+                    mainVipTab.style.color = 'var(--secondary-color)';
+                    mainVipTab.style.borderColor = 'var(--border-color)';
+                }
+                
+                // Cargar configuración de Impression cuando se muestra la sección
+                loadImpressionConfig();
+                
+                // Activar la pestaña de reservas por defecto y cargar reservas
+                if (impressionReservationsTab && impressionReservationsPanel) {
+                    // Activar pestaña de reservas
+                    impressionReservationsTab.classList.add('active');
+                    impressionReservationsTab.style.borderBottomColor = 'var(--primary-color)';
+                    impressionReservationsTab.style.color = 'var(--primary-color)';
+                    
+                    // Desactivar pestaña de configuración
+                    if (impressionConfigTab) {
+                        impressionConfigTab.classList.remove('active');
+                        impressionConfigTab.style.borderBottomColor = 'transparent';
+                        impressionConfigTab.style.color = 'var(--secondary-color)';
+                    }
+                    
+                    // Mostrar panel de reservas
+                    if (impressionConfigPanel) impressionConfigPanel.style.display = 'none';
+                    impressionReservationsPanel.style.display = 'block';
+                    
+                    // Cargar reservas
+                    loadImpressionReservations();
+                } else if (impressionReservationsPanel && (impressionReservationsPanel.style.display === 'block' || impressionReservationsTab?.classList.contains('active'))) {
+                    // Si ya está activa, solo cargar reservas
+                    loadImpressionReservations();
+                }
+            }
+
+            // Event listeners para navegación principal
+            if (mainVipTab) {
+                mainVipTab.addEventListener('click', showVipSection);
+            }
+            if (mainImpressionTab) {
+                mainImpressionTab.addEventListener('click', showImpressionSection);
+            }
+
+            // --- Navegación de pestañas ---
+            if (impressionConfigTab) {
+                impressionConfigTab.addEventListener('click', () => {
+                    impressionConfigTab.classList.add('active');
+                    impressionConfigTab.style.borderBottomColor = 'var(--primary-color)';
+                    impressionConfigTab.style.color = 'var(--primary-color)';
+                    if (impressionReservationsTab) {
+                        impressionReservationsTab.classList.remove('active');
+                        impressionReservationsTab.style.borderBottomColor = 'transparent';
+                        impressionReservationsTab.style.color = 'var(--secondary-color)';
+                    }
+                    if (impressionConfigPanel) impressionConfigPanel.style.display = 'block';
+                    if (impressionReservationsPanel) impressionReservationsPanel.style.display = 'none';
+                });
+            }
+
+            if (impressionReservationsTab) {
+                impressionReservationsTab.addEventListener('click', () => {
+                    impressionReservationsTab.classList.add('active');
+                    impressionReservationsTab.style.borderBottomColor = 'var(--primary-color)';
+                    impressionReservationsTab.style.color = 'var(--primary-color)';
+                    if (impressionConfigTab) {
+                        impressionConfigTab.classList.remove('active');
+                        impressionConfigTab.style.borderBottomColor = 'transparent';
+                        impressionConfigTab.style.color = 'var(--secondary-color)';
+                    }
+                    if (impressionConfigPanel) impressionConfigPanel.style.display = 'none';
+                    if (impressionReservationsPanel) impressionReservationsPanel.style.display = 'block';
+                    // Cargar reservas cuando se muestra la pestaña
+                    if (impressionSection && impressionSection.style.display !== 'none') {
+                        loadImpressionReservations();
+                    }
+                });
+            }
+
+            // --- Cargar configuración de días disponibles por semana ---
+            async function loadImpressionConfig() {
+                try {
+                    const configRef = ref(database, 'impressionConfig/availableDaysByWeek');
+                    const snapshot = await get(configRef);
+                    if (snapshot.exists()) {
+                        impressionAvailableDaysByWeek = snapshot.val();
+                    } else {
+                        impressionAvailableDaysByWeek = {};
+                    }
+                    // Limpiar cambios pendientes al cargar
+                    pendingCalendarChanges = {};
+                    renderImpressionCalendar();
+                    updateSaveButtonState();
+                } catch (error) {
+                    console.error("Error al cargar configuración de Impression:", error);
+                    impressionAvailableDaysByWeek = {};
+                    pendingCalendarChanges = {};
+                    renderImpressionCalendar();
+                    updateSaveButtonState();
+                }
+            }
+
+            // --- Renderizar calendario de configuración ---
+            function renderImpressionCalendar() {
+                if (!impressionCalendar) return;
+                
+                impressionCalendar.innerHTML = '';
+                
+                // Calcular la semana actual a mostrar
+                const weekInfo = getWeekDates(calendarCurrentWeekOffset);
+                const weekKey = formatWeekKey(weekInfo.year, weekInfo.weekNumber);
+                
+                // Actualizar título del calendario
+                if (calendarMonthYear) {
+                    const weekStart = weekInfo.startDate;
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    
+                    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                                       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    
+                    let title = '';
+                    if (weekStart.getMonth() === weekEnd.getMonth()) {
+                        title = `${monthNames[weekStart.getMonth()]} ${weekStart.getFullYear()}`;
+                    } else {
+                        title = `${monthNames[weekStart.getMonth()]} - ${monthNames[weekEnd.getMonth()]} ${weekStart.getFullYear()}`;
+                    }
+                    calendarMonthYear.textContent = title;
+                }
+                
+                // Crear contenedor de semana
+                const weekContainer = document.createElement('div');
+                weekContainer.className = 'calendar-week-container';
+                
+                // Título de la semana
+                const weekTitle = document.createElement('div');
+                weekTitle.className = 'calendar-week-title';
+                weekTitle.textContent = formatWeekDisplay(weekInfo.year, weekInfo.weekNumber);
+                weekContainer.appendChild(weekTitle);
+                
+                // Encabezados de días
+                const weekHeader = document.createElement('div');
+                weekHeader.className = 'calendar-week-header';
+                const dayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+                dayNames.forEach(dayName => {
+                    const headerDay = document.createElement('div');
+                    headerDay.className = 'calendar-week-label';
+                    headerDay.textContent = dayName;
+                    weekHeader.appendChild(headerDay);
+                });
+                weekContainer.appendChild(weekHeader);
+                
+                // Días de la semana
+                const weekGrid = document.createElement('div');
+                weekGrid.className = 'calendar-week';
+                
+                // Obtener día seleccionado para esta semana (combinar guardado + pendiente)
+                const savedDay = impressionAvailableDaysByWeek[weekKey];
+                const pendingDay = pendingCalendarChanges[weekKey];
+                let selectedDay = null;
+                
+                if (pendingDay !== undefined) {
+                    // Si hay un cambio pendiente
+                    if (pendingDay === null) {
+                        selectedDay = null; // Se marcó para eliminar
+                    } else {
+                        selectedDay = pendingDay; // Nuevo día seleccionado
+                    }
+                } else {
+                    selectedDay = savedDay; // Usar día guardado
+                }
+                
+                // Crear días de la semana (Lunes a Domingo)
+                for (let i = 0; i < 7; i++) {
+                    const dayDate = new Date(weekInfo.startDate);
+                    dayDate.setDate(weekInfo.startDate.getDate() + i);
+                    
+                    const dayNumber = dayDate.getDate();
+                    const dayName = dayNames[i];
+                    const dayNameFull = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'][i];
+                    
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'calendar-day';
+                    dayElement.dataset.weekKey = weekKey;
+                    dayElement.dataset.dayName = dayNameFull;
+                    dayElement.dataset.dayIndex = i;
+                    
+                    // Verificar si este día está seleccionado
+                    const isSelected = selectedDay === dayNameFull;
+                    if (isSelected) {
+                        dayElement.classList.add('selected');
+                    }
+                    
+                    // Contenido del día
+                    dayElement.innerHTML = `
+                        <div class="calendar-day-number">${dayNumber}</div>
+                        <div class="calendar-day-name">${dayName}</div>
+                    `;
+                    
+                    // Event listener para seleccionar día
+                    dayElement.addEventListener('click', () => {
+                        handleDaySelection(weekKey, dayNameFull, dayElement);
+                    });
+                    
+                    weekGrid.appendChild(dayElement);
+                }
+                
+                weekContainer.appendChild(weekGrid);
+                impressionCalendar.appendChild(weekContainer);
+            }
+            
+            // --- Manejar selección de día ---
+            function handleDaySelection(weekKey, dayName, dayElement) {
+                // Verificar si ya hay un día seleccionado en esta semana
+                const savedDay = impressionAvailableDaysByWeek[weekKey];
+                const pendingDay = pendingCalendarChanges[weekKey];
+                
+                // Determinar el día actualmente seleccionado
+                let currentSelected = null;
+                if (pendingDay !== undefined) {
+                    currentSelected = pendingDay === null ? null : pendingDay;
+                } else {
+                    currentSelected = savedDay || null;
+                }
+                
+                // Si se hace clic en el día ya seleccionado, deseleccionar
+                if (currentSelected === dayName) {
+                    // Si hay un día guardado, marcar para eliminarlo
+                    if (savedDay) {
+                        pendingCalendarChanges[weekKey] = null; // Marcar para eliminar
+                    } else {
+                        delete pendingCalendarChanges[weekKey];
+                    }
+                    dayElement.classList.remove('selected');
+                } else {
+                    // Seleccionar nuevo día
+                    pendingCalendarChanges[weekKey] = dayName;
+                    
+                    // Deseleccionar el día anterior si existe
+                    const allDays = impressionCalendar.querySelectorAll('.calendar-day');
+                    allDays.forEach(day => {
+                        if (day.dataset.weekKey === weekKey) {
+                            day.classList.remove('selected');
+                        }
+                    });
+                    
+                    // Seleccionar el nuevo día
+                    dayElement.classList.add('selected');
+                }
+                
+                // Mostrar indicador visual de cambios pendientes
+                updateSaveButtonState();
+            }
+            
+            // --- Actualizar estado del botón de guardar ---
+            function updateSaveButtonState() {
+                if (saveCalendarConfigBtn) {
+                    const hasChanges = Object.keys(pendingCalendarChanges).length > 0;
+                    if (hasChanges) {
+                        saveCalendarConfigBtn.style.background = 'var(--success-color)';
+                        saveCalendarConfigBtn.innerHTML = `
+                            <span class="material-icons" style="font-size: 1.2em; vertical-align: middle; margin-right: 8px;">save</span>
+                            Guardar Cambios (${Object.keys(pendingCalendarChanges).length})
+                        `;
+                    } else {
+                        saveCalendarConfigBtn.style.background = '';
+                        saveCalendarConfigBtn.innerHTML = `
+                            <span class="material-icons" style="font-size: 1.2em; vertical-align: middle; margin-right: 8px;">check_circle</span>
+                            Todo Guardado
+                        `;
+                    }
+                }
+            }
+
+            // --- Navegación del calendario ---
+            if (calendarPrevBtn) {
+                calendarPrevBtn.addEventListener('click', () => {
+                    calendarCurrentWeekOffset--;
+                    renderImpressionCalendar();
+                });
+            }
+            
+            if (calendarNextBtn) {
+                calendarNextBtn.addEventListener('click', () => {
+                    calendarCurrentWeekOffset++;
+                    renderImpressionCalendar();
+                });
+            }
+            
+            // --- Guardar configuración del calendario ---
+            if (saveCalendarConfigBtn) {
+                saveCalendarConfigBtn.addEventListener('click', async () => {
+                    if (Object.keys(pendingCalendarChanges).length === 0) {
+                        return; // No hay cambios que guardar
+                    }
+                    
+                    try {
+                        // Aplicar cambios pendientes a la configuración
+                        Object.keys(pendingCalendarChanges).forEach(weekKey => {
+                            const change = pendingCalendarChanges[weekKey];
+                            if (change === null) {
+                                // Eliminar semana
+                                delete impressionAvailableDaysByWeek[weekKey];
+                            } else if (change) {
+                                // Agregar o actualizar semana
+                                impressionAvailableDaysByWeek[weekKey] = change;
+                            }
+                        });
+                        
+                        // Guardar en Firebase
+                        const configRef = ref(database, 'impressionConfig/availableDaysByWeek');
+                        await set(configRef, impressionAvailableDaysByWeek);
+                        
+                        // Limpiar cambios pendientes
+                        pendingCalendarChanges = {};
+                        updateSaveButtonState();
+                        
+                        // Mostrar mensaje de éxito
+                        saveCalendarConfigBtn.innerHTML = `
+                            <span class="material-icons" style="font-size: 1.2em; vertical-align: middle; margin-right: 8px;">check_circle</span>
+                            ¡Guardado!
+                        `;
+                        saveCalendarConfigBtn.style.background = 'var(--success-color)';
+                        
+                        setTimeout(() => {
+                            updateSaveButtonState();
+                        }, 2000);
+                        
+                        // Re-renderizar para reflejar cambios guardados
+                        renderImpressionCalendar();
+                    } catch (error) {
+                        console.error("Error al guardar configuración:", error);
+                        alert('Error al guardar la configuración. Por favor, intente de nuevo.');
+                    }
+                });
+            }
+
+            // --- Cargar reservas de Impression ---
+            let unsubscribeImpressionReservations = null;
+            function loadImpressionReservations() {
+                // Desconectar listener anterior si existe para evitar duplicados
+                if (unsubscribeImpressionReservations) {
+                    unsubscribeImpressionReservations();
+                }
+                
+                const reservationsRef = ref(database, 'impressionReservations');
+                unsubscribeImpressionReservations = onValue(reservationsRef, (snapshot) => {
+                    console.log("Cargando reservas de Impression...", snapshot.exists() ? "Hay datos" : "No hay datos");
+                    allImpressionReservations = [];
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        console.log("Datos de reservas:", data);
+                        for (const weekKey in data) {
+                            if (data[weekKey] && typeof data[weekKey] === 'object') {
+                                for (const resId in data[weekKey]) {
+                                    if (data[weekKey][resId]) {
+                                        allImpressionReservations.push({
+                                            id: resId,
+                                            weekKey: weekKey,
+                                            ...data[weekKey][resId]
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    console.log("Total reservas cargadas:", allImpressionReservations.length);
+                    renderImpressionReservationsTable();
+                    updateImpressionWeekFilter();
+                }, (error) => {
+                    console.error("Error al cargar reservas de Impression:", error);
+                    allImpressionReservations = [];
+                    renderImpressionReservationsTable();
+                });
+            }
+
+            // --- Actualizar filtro de semanas ---
+            function updateImpressionWeekFilter() {
+                if (!impressionWeekFilter) return;
+                
+                const weeks = [...new Set(allImpressionReservations.map(r => r.weekKey))].sort();
+                impressionWeekFilter.innerHTML = '<option value="">Todas las semanas</option>';
+                weeks.forEach(weekKey => {
+                    const option = document.createElement('option');
+                    option.value = weekKey;
+                    const [year, weekStr] = weekKey.split('-W');
+                    option.textContent = formatWeekDisplay(parseInt(year), parseInt(weekStr));
+                    impressionWeekFilter.appendChild(option);
+                });
+            }
+
+            // --- Renderizar tabla de reservas ---
+            function renderImpressionReservationsTable() {
+                if (!impressionReservationsTableBody) {
+                    console.error("Error: impressionReservationsTableBody no encontrado");
+                    return;
+                }
+                
+                console.log("Renderizando tabla con", allImpressionReservations.length, "reservas");
+                
+                let filtered = [...allImpressionReservations];
+                
+                // Filtrar por búsqueda
+                const searchTerm = impressionReservationsSearch?.value?.toLowerCase() || '';
+                if (searchTerm) {
+                    filtered = filtered.filter(res => {
+                        return (res.room || '').toString().includes(searchTerm) ||
+                               (res.guest || '').toLowerCase().includes(searchTerm) ||
+                               (res.guestType || '').toLowerCase().includes(searchTerm) ||
+                               (res.day || '').toLowerCase().includes(searchTerm);
+                    });
+                }
+
+                // Filtrar por semana
+                const weekFilter = impressionWeekFilter?.value || '';
+                if (weekFilter) {
+                    filtered = filtered.filter(res => res.weekKey === weekFilter);
+                }
+
+                console.log("Reservas filtradas:", filtered.length);
+
+                // Calcular paginación
+                const totalItems = filtered.length;
+                const totalPages = Math.ceil(totalItems / impressionItemsPerPage);
+                
+                // Ajustar página actual si es necesario
+                if (impressionCurrentPage > totalPages && totalPages > 0) {
+                    impressionCurrentPage = totalPages;
+                } else if (impressionCurrentPage < 1) {
+                    impressionCurrentPage = 1;
+                }
+                
+                // Calcular índices de inicio y fin
+                const startIndex = (impressionCurrentPage - 1) * impressionItemsPerPage;
+                const endIndex = Math.min(startIndex + impressionItemsPerPage, totalItems);
+                const paginatedReservations = filtered.slice(startIndex, endIndex);
+
+                impressionReservationsTableBody.innerHTML = '';
+                
+                if (filtered.length === 0) {
+                    console.log("No hay reservas para mostrar");
+                    if (noImpressionReservations) noImpressionReservations.style.display = 'block';
+                    const impressionPaginationControls = document.getElementById('impressionPaginationControls');
+                    if (impressionPaginationControls) impressionPaginationControls.style.display = 'none';
+                    return;
+                }
+
+                if (noImpressionReservations) noImpressionReservations.style.display = 'none';
+                const impressionPaginationControls = document.getElementById('impressionPaginationControls');
+                if (impressionPaginationControls) impressionPaginationControls.style.display = 'flex';
+                
+                console.log("Mostrando", paginatedReservations.length, "reservas en la página", impressionCurrentPage);
+                
+                paginatedReservations.forEach(res => {
+                    const row = document.createElement('tr');
+                    row.style.cssText = 'border-bottom: 1px solid var(--border-color);';
+                    row.innerHTML = `
+                        <td style="padding: 12px;">${res.weekKey || '-'}</td>
+                        <td style="padding: 12px;">${res.day || '-'}</td>
+                        <td style="padding: 12px;">${res.room || '-'}</td>
+                        <td style="padding: 12px;">${res.guest || '-'}</td>
+                        <td style="padding: 12px;">${res.guestType || '-'}</td>
+                        <td style="padding: 12px;">${res.pax || 0}</td>
+                        <td style="padding: 12px;">${res.allergies || '-'}</td>
+                        <td style="padding: 12px;">${res.notes || '-'}</td>
+                        <td style="padding: 12px;">
+                            <button class="btn-edit-impression" data-id="${res.id}" data-week="${res.weekKey}" style="padding: 6px 12px; margin-right: 6px; background: var(--info-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Editar</button>
+                            <button class="btn-delete-impression" data-id="${res.id}" data-week="${res.weekKey}" style="padding: 6px 12px; background: var(--danger-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Eliminar</button>
+                        </td>
+                    `;
+                    impressionReservationsTableBody.appendChild(row);
+                });
+
+                // Event listeners para editar y eliminar
+                impressionReservationsTableBody.querySelectorAll('.btn-edit-impression').forEach(btn => {
+                    btn.addEventListener('click', () => editImpressionReservation(btn.dataset.id, btn.dataset.week));
+                });
+
+                impressionReservationsTableBody.querySelectorAll('.btn-delete-impression').forEach(btn => {
+                    btn.addEventListener('click', () => deleteImpressionReservation(btn.dataset.id, btn.dataset.week));
+                });
+                
+                // Actualizar controles de paginación
+                updateImpressionPaginationControls(totalItems, totalPages, startIndex + 1, endIndex);
+            }
+            
+            // Función para actualizar controles de paginación Impression
+            function updateImpressionPaginationControls(totalItems, totalPages, start, end) {
+                const paginationInfo = document.getElementById('impressionPaginationInfo');
+                const paginationStart = document.getElementById('impressionPaginationStart');
+                const paginationEnd = document.getElementById('impressionPaginationEnd');
+                const paginationTotal = document.getElementById('impressionPaginationTotal');
+                const paginationPrev = document.getElementById('impressionPaginationPrev');
+                const paginationNext = document.getElementById('impressionPaginationNext');
+                const paginationNumbers = document.getElementById('impressionPaginationNumbers');
+                
+                if (paginationStart) paginationStart.textContent = totalItems > 0 ? start : 0;
+                if (paginationEnd) paginationEnd.textContent = end;
+                if (paginationTotal) paginationTotal.textContent = totalItems;
+                
+                // Habilitar/deshabilitar botones
+                if (paginationPrev) {
+                    paginationPrev.disabled = impressionCurrentPage === 1;
+                    paginationPrev.style.opacity = impressionCurrentPage === 1 ? '0.5' : '1';
+                    paginationPrev.style.cursor = impressionCurrentPage === 1 ? 'not-allowed' : 'pointer';
+                }
+                if (paginationNext) {
+                    paginationNext.disabled = impressionCurrentPage >= totalPages;
+                    paginationNext.style.opacity = impressionCurrentPage >= totalPages ? '0.5' : '1';
+                    paginationNext.style.cursor = impressionCurrentPage >= totalPages ? 'not-allowed' : 'pointer';
+                }
+                
+                // Generar números de página
+                if (paginationNumbers) {
+                    paginationNumbers.innerHTML = '';
+                    const maxPagesToShow = 5;
+                    let startPage = Math.max(1, impressionCurrentPage - Math.floor(maxPagesToShow / 2));
+                    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                    
+                    if (endPage - startPage < maxPagesToShow - 1) {
+                        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                    }
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const pageBtn = document.createElement('button');
+                        pageBtn.textContent = i;
+                        pageBtn.className = 'btn';
+                        if (i === impressionCurrentPage) {
+                            pageBtn.style.background = 'var(--primary-color)';
+                            pageBtn.style.color = 'white';
+                        } else {
+                            pageBtn.style.background = 'white';
+                            pageBtn.style.color = 'var(--secondary-color)';
+                            pageBtn.style.border = '1px solid var(--border-color)';
+                        }
+                        pageBtn.style.padding = '6px 12px';
+                        pageBtn.style.minWidth = '36px';
+                        pageBtn.style.cursor = 'pointer';
+                        pageBtn.addEventListener('click', () => {
+                            impressionCurrentPage = i;
+                            renderImpressionReservationsTable();
+                        });
+                        paginationNumbers.appendChild(pageBtn);
+                    }
+                }
+            }
+
+            // --- Event listeners para búsqueda y filtros ---
+            if (impressionReservationsSearch) {
+                impressionReservationsSearch.addEventListener('input', () => {
+                    impressionCurrentPage = 1; // Resetear a página 1 cuando se busca
+                    renderImpressionReservationsTable();
+                });
+            }
+
+            if (impressionWeekFilter) {
+                impressionWeekFilter.addEventListener('change', () => {
+                    impressionCurrentPage = 1; // Resetear a página 1 cuando se filtra
+                    renderImpressionReservationsTable();
+                });
+            }
+            
+            // Event listener para imprimir reservas de Impression
+            if (printImpressionReservationsBtn) {
+                printImpressionReservationsBtn.addEventListener('click', printImpressionReservations);
+            }
+            
+            // Event listeners para paginación Impression
+            const impressionPaginationPrev = document.getElementById('impressionPaginationPrev');
+            const impressionPaginationNext = document.getElementById('impressionPaginationNext');
+            
+            if (impressionPaginationPrev) {
+                impressionPaginationPrev.addEventListener('click', () => {
+                    if (impressionCurrentPage > 1) {
+                        impressionCurrentPage--;
+                        renderImpressionReservationsTable();
+                    }
+                });
+            }
+            
+            if (impressionPaginationNext) {
+                impressionPaginationNext.addEventListener('click', () => {
+                    let filtered = allImpressionReservations;
+                    const searchTerm = impressionReservationsSearch?.value?.toLowerCase() || '';
+                    if (searchTerm) {
+                        filtered = filtered.filter(res => {
+                            return (res.room || '').includes(searchTerm) ||
+                                   (res.guest || '').toLowerCase().includes(searchTerm) ||
+                                   (res.guestType || '').toLowerCase().includes(searchTerm) ||
+                                   (res.day || '').toLowerCase().includes(searchTerm);
+                        });
+                    }
+                    const weekFilter = impressionWeekFilter?.value || '';
+                    if (weekFilter) {
+                        filtered = filtered.filter(res => res.weekKey === weekFilter);
+                    }
+                    const totalPages = Math.ceil(filtered.length / impressionItemsPerPage);
+                    if (impressionCurrentPage < totalPages) {
+                        impressionCurrentPage++;
+                        renderImpressionReservationsTable();
+                    }
+                });
+            }
+
+            // --- Imprimir reservas de Impression ---
+            function printImpressionReservations() {
+                // Obtener la semana seleccionada en el filtro, o usar todas si no hay filtro
+                const selectedWeek = impressionWeekFilter?.value || '';
+                
+                // Filtrar reservas según la semana seleccionada
+                let reservationsToPrint = [];
+                if (selectedWeek) {
+                    // Si hay una semana seleccionada, mostrar solo esas reservas
+                    reservationsToPrint = allImpressionReservations.filter(res => res.weekKey === selectedWeek);
+                } else {
+                    // Si no hay filtro, mostrar todas las reservas
+                    reservationsToPrint = allImpressionReservations;
+                }
+                
+                // Aplicar también el filtro de búsqueda si existe
+                const searchTerm = impressionReservationsSearch?.value?.toLowerCase() || '';
+                if (searchTerm) {
+                    reservationsToPrint = reservationsToPrint.filter(res => {
+                        return (res.room || '').includes(searchTerm) ||
+                               (res.guest || '').toLowerCase().includes(searchTerm) ||
+                               (res.guestType || '').toLowerCase().includes(searchTerm) ||
+                               (res.day || '').toLowerCase().includes(searchTerm);
+                    });
+                }
+                
+                if (reservationsToPrint.length === 0) {
+                    alert('No hay reservas para imprimir. Por favor, seleccione una semana o verifique los filtros.');
+                    return;
+                }
+                
+                // Agrupar reservas por semana y luego por día
+                const reservationsByWeek = {};
+                reservationsToPrint.forEach(res => {
+                    if (!reservationsByWeek[res.weekKey]) {
+                        reservationsByWeek[res.weekKey] = {};
+                    }
+                    const day = res.day || 'Sin día';
+                    if (!reservationsByWeek[res.weekKey][day]) {
+                        reservationsByWeek[res.weekKey][day] = [];
+                    }
+                    reservationsByWeek[res.weekKey][day].push(res);
+                });
+                
+                // Obtener la fecha y hora actual para el encabezado
+                const now = new Date();
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'America/Santo_Domingo'
+                };
+                const printDate = now.toLocaleString('es-ES', options);
+                
+                // Calcular total de PAX
+                const totalPax = reservationsToPrint.reduce((sum, res) => sum + (parseInt(res.pax) || 0), 0);
+                
+                // Construir el contenido de impresión
+                let printContent = `
+                    <div class="print-page-content">
+                        <div class="print-header">
+                            <h1>CENAS IMPRESSION - Reservas</h1>
+                            <div class="print-info">${printDate} | ${reservationsToPrint.length} reservas | ${totalPax} PAX</div>
+                        </div>
+                        <div class="print-content">
+                `;
+                
+                // Ordenar semanas
+                const sortedWeeks = Object.keys(reservationsByWeek).sort();
+                
+                sortedWeeks.forEach(weekKey => {
+                    const [yearStr, weekStr] = weekKey.split('-W');
+                    const year = parseInt(yearStr);
+                    const weekNumber = parseInt(weekStr);
+                    
+                    // Calcular el rango de fechas de la semana basándose en el weekKey
+                    const jan4 = new Date(year, 0, 4);
+                    const jan4Day = (jan4.getDay() + 6) % 7;
+                    const jan4Monday = new Date(jan4);
+                    jan4Monday.setDate(jan4.getDate() - jan4Day);
+                    jan4Monday.setHours(0, 0, 0, 0);
+                    const weeksToAdd = weekNumber - 1;
+                    const weekStart = new Date(jan4Monday);
+                    weekStart.setDate(jan4Monday.getDate() + (weeksToAdd * 7));
+                    const dayOfWeek = (weekStart.getDay() + 6) % 7;
+                    if (dayOfWeek !== 0) {
+                        weekStart.setDate(weekStart.getDate() - dayOfWeek);
+                    }
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    
+                    // Formatear fecha de inicio y fin sin el número de semana
+                    const startDate = weekStart.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const endDate = weekEnd.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const weekTitle = `${startDate} - ${endDate}`;
+                    
+                    // Calcular PAX total de la semana
+                    const weekReservations = Object.values(reservationsByWeek[weekKey]).flat();
+                    const weekPax = weekReservations.reduce((sum, res) => sum + (parseInt(res.pax) || 0), 0);
+                    
+                    printContent += `
+                        <div class="week-section">
+                            <h2>${weekTitle} (${weekReservations.length} reservas | ${weekPax} PAX)</h2>
+                    `;
+                    
+                    // Ordenar días dentro de la semana
+                    const daysOrder = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+                    const sortedDays = Object.keys(reservationsByWeek[weekKey]).sort((a, b) => {
+                        const indexA = daysOrder.indexOf(a);
+                        const indexB = daysOrder.indexOf(b);
+                        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+                        if (indexA === -1) return 1;
+                        if (indexB === -1) return -1;
+                        return indexA - indexB;
+                    });
+                    
+                    sortedDays.forEach(day => {
+                        const dayReservations = reservationsByWeek[weekKey][day];
+                        const dayPax = dayReservations.reduce((sum, res) => sum + (parseInt(res.pax) || 0), 0);
+                        
+                        printContent += `
+                            <div class="day-section">
+                                <h3>${day} (${dayReservations.length} reservas | ${dayPax} PAX)</h3>
+                                <div class="reservations-list">
+                        `;
+                        
+                        // Ordenar reservas por habitación
+                        dayReservations.sort((a, b) => {
+                            const roomA = parseInt(a.room) || 0;
+                            const roomB = parseInt(b.room) || 0;
+                            return roomA - roomB;
+                        });
+                        
+                        dayReservations.forEach(res => {
+                            const allergiesText = res.allergies ? ` | Alergias: ${res.allergies}` : '';
+                            const notesText = res.notes ? ` | Notas: ${res.notes}` : '';
+                            const guestTypeText = res.guestType ? ` (${res.guestType})` : '';
+                            
+                            printContent += `
+                                <div class="reservation-item">
+                                    ${res.room || '-'} - ${res.guest || '-'}${guestTypeText} - ${res.pax || 0} PAX${allergiesText}${notesText}
+                                </div>
+                            `;
+                        });
+                        
+                        printContent += `
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    printContent += `
+                        </div>
+                    `;
+                });
+                
+                printContent += `
+                        </div>
+                    </div>
+                `;
+                
+                // Abrir ventana de impresión
+                const printWindow = window.open('', '_blank', 'height=800,width=1000');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Cenas Impression - Reservas</title>
+                        <meta charset="UTF-8">
+                        <style>
+                            * { 
+                                box-sizing: border-box; 
+                                margin: 0; 
+                                padding: 0; 
+                            }
+                            
+                            body { 
+                                font-family: 'Arial', sans-serif; 
+                                font-size: 9pt; 
+                                line-height: 1.3; 
+                                color: #000; 
+                                background: #fff;
+                                margin: 0;
+                                padding: 5mm;
+                            }
+                            
+                            .print-page-content {
+                                width: 100%;
+                                max-width: 100%;
+                            }
+                            
+                            .print-header {
+                                text-align: center;
+                                margin-bottom: 10mm;
+                                padding: 4mm;
+                                background: #f0f0f0;
+                                border: 2px solid #333;
+                                border-radius: 4px;
+                            }
+                            
+                            .print-header h1 {
+                                font-size: 14pt;
+                                font-weight: bold;
+                                margin-bottom: 2mm;
+                                color: #333;
+                            }
+                            
+                            .print-info {
+                                font-size: 9pt;
+                                color: #666;
+                            }
+                            
+                            .print-content {
+                                margin: 0;
+                            }
+                            
+                            .week-section {
+                                margin-bottom: 6mm;
+                                border: 1px solid #ccc;
+                                border-radius: 4px;
+                                page-break-inside: avoid;
+                            }
+                            
+                            .week-section h2 {
+                                background: #d4d4d4;
+                                padding: 3mm 4mm;
+                                font-size: 11pt;
+                                font-weight: bold;
+                                color: #000;
+                                margin: 0;
+                                border-bottom: 2px solid #333;
+                            }
+                            
+                            .day-section {
+                                margin: 3mm;
+                                border: 1px solid #ddd;
+                                border-radius: 3px;
+                            }
+                            
+                            .day-section h3 {
+                                background: #e8e8e8;
+                                padding: 2mm 3mm;
+                                font-size: 10pt;
+                                font-weight: bold;
+                                color: #333;
+                                margin: 0;
+                                border-bottom: 1px solid #ccc;
+                            }
+                            
+                            .reservations-list {
+                                background: #fff;
+                            }
+                            
+                            .reservation-item {
+                                padding: 2mm 3mm;
+                                border-bottom: 1px solid #f0f0f0;
+                                font-size: 9pt;
+                                line-height: 1.4;
+                            }
+                            
+                            .reservation-item:last-child {
+                                border-bottom: none;
+                            }
+                            
+                            .reservation-item:nth-child(even) {
+                                background: #fafafa;
+                            }
+                            
+                            @media print {
+                                body {
+                                    padding: 0;
+                                }
+                                
+                                .week-section {
+                                    page-break-inside: avoid;
+                                }
+                                
+                                .day-section {
+                                    page-break-inside: avoid;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${printContent}
+                    </body>
+                    </html>
+                `);
+                
+                printWindow.document.close();
+                setTimeout(() => {
+                    printWindow.print();
+                }, 250);
+            }
+
+            // --- Editar reserva de Impression ---
+            function editImpressionReservation(resId, weekKey) {
+                const reservation = allImpressionReservations.find(r => r.id === resId && r.weekKey === weekKey);
+                if (!reservation) {
+                    alert('No se encontró la reserva.');
+                    return;
+                }
+
+                // Llenar el formulario del modal con los datos de la reserva
+                if (editImpressionReservationIdInput) editImpressionReservationIdInput.value = resId;
+                if (editImpressionReservationWeekKeyInput) editImpressionReservationWeekKeyInput.value = weekKey;
+                if (editImpressionDayInput) editImpressionDayInput.value = reservation.day || '';
+                if (editImpressionRoomInput) editImpressionRoomInput.value = reservation.room || '';
+                if (editImpressionGuestInput) editImpressionGuestInput.value = reservation.guest || '';
+                if (editImpressionGuestTypeInput) editImpressionGuestTypeInput.value = reservation.guestType || 'Impression';
+                if (editImpressionPaxInput) editImpressionPaxInput.value = reservation.pax || 1;
+                if (editImpressionAllergiesInput) editImpressionAllergiesInput.value = reservation.allergies || '';
+                if (editImpressionNotesInput) editImpressionNotesInput.value = reservation.notes || '';
+
+                // Abrir el modal
+                if (editImpressionReservationModal) {
+                    editImpressionReservationModal.classList.add('active');
+                }
+            }
+
+            // --- Eliminar reserva de Impression ---
+            function deleteImpressionReservation(resId, weekKey) {
+                if (!confirm('¿Está seguro de que desea eliminar esta reserva?')) return;
+
+                const reservationRef = ref(database, `impressionReservations/${weekKey}/${resId}`);
+                remove(reservationRef).then(() => {
+                    alert('Reserva eliminada exitosamente.');
+                }).catch(error => {
+                    console.error("Error al eliminar reserva:", error);
+                    alert('Error al eliminar la reserva.');
+                });
+            }
+
+            // --- Vista Completa de Impression (ya no se necesita botón separado, se usa la sección principal) ---
+            const impressionFullViewModal = document.getElementById('impressionFullViewModal');
+            const impressionFullViewConfig = document.getElementById('impressionFullViewConfig');
+            const impressionFullViewStats = document.getElementById('impressionFullViewStats');
+            const impressionFullViewTableBody = document.getElementById('impressionFullViewTableBody');
+            const impressionFullViewSearch = document.getElementById('impressionFullViewSearch');
+            const impressionFullViewWeekFilter = document.getElementById('impressionFullViewWeekFilter');
+            const noImpressionFullViewReservations = document.getElementById('noImpressionFullViewReservations');
+
+            // El modal de vista completa se puede abrir desde la sección de Impression si se desea
+            // Por ahora, toda la funcionalidad está en la sección principal de Impression
+
+            // Cerrar modal
+            const impressionFullViewCloseBtn = impressionFullViewModal.querySelector('.modal-close-btn');
+            if (impressionFullViewCloseBtn) {
+                impressionFullViewCloseBtn.addEventListener('click', () => {
+                    impressionFullViewModal.classList.remove('active');
+                });
+            }
+
+            impressionFullViewModal.addEventListener('click', (e) => {
+                if (e.target === impressionFullViewModal) {
+                    impressionFullViewModal.classList.remove('active');
+                }
+            });
+
+            // --- Cargar vista completa de Impression ---
+            async function loadImpressionFullView() {
+                // Cargar configuración
+                try {
+                    const configRef = ref(database, 'impressionConfig/availableDaysByWeek');
+                    const configSnapshot = await get(configRef);
+                    let configData = {};
+                    if (configSnapshot.exists()) {
+                        configData = configSnapshot.val();
+                    }
+                    
+                    // Renderizar configuración
+                    impressionFullViewConfig.innerHTML = '';
+                    const sortedWeeks = Object.keys(configData).sort();
+                    if (sortedWeeks.length === 0) {
+                        impressionFullViewConfig.innerHTML = '<p style="color: var(--secondary-color); text-align: center; padding: 20px;">No hay semanas configuradas</p>';
+                    } else {
+                        sortedWeeks.forEach(weekKey => {
+                            const [year, weekStr] = weekKey.split('-W');
+                            const weekNumber = parseInt(weekStr);
+                            const div = document.createElement('div');
+                            div.style.cssText = 'padding: 8px; margin-bottom: 8px; background: white; border-radius: 4px; border-left: 4px solid var(--primary-color);';
+                            div.innerHTML = `<strong>${formatWeekDisplay(parseInt(year), weekNumber)}</strong><br><span style="color: var(--success-color);">${configData[weekKey]}</span>`;
+                            impressionFullViewConfig.appendChild(div);
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error al cargar configuración:", error);
+                    impressionFullViewConfig.innerHTML = '<p style="color: var(--danger-color);">Error al cargar configuración</p>';
+                }
+
+                // Cargar estadísticas
+                try {
+                    const reservationsRef = ref(database, 'impressionReservations');
+                    const reservationsSnapshot = await get(reservationsRef);
+                    let totalReservations = 0;
+                    let totalPax = 0;
+                    let reservationsByType = {};
+
+                    if (reservationsSnapshot.exists()) {
+                        const data = reservationsSnapshot.val();
+                        for (const weekKey in data) {
+                            for (const resId in data[weekKey]) {
+                                const res = data[weekKey][resId];
+                                totalReservations++;
+                                totalPax += res.pax || 0;
+                                const type = res.guestType || 'Sin tipo';
+                                reservationsByType[type] = (reservationsByType[type] || 0) + 1;
+                            }
+                        }
+                    }
+
+                    impressionFullViewStats.innerHTML = `
+                        <div style="background: white; padding: 12px; border-radius: 4px; margin-bottom: 8px;">
+                            <strong>Total Reservas:</strong> ${totalReservations}
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 4px; margin-bottom: 8px;">
+                            <strong>Total PAX:</strong> ${totalPax}
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 4px;">
+                            <strong>Por Tipo:</strong><br>
+                            ${Object.entries(reservationsByType).map(([type, count]) => 
+                                `<span style="display: inline-block; margin: 4px 8px 4px 0; padding: 4px 8px; background: var(--primary-color); color: white; border-radius: 4px; font-size: 0.85em;">${type}: ${count}</span>`
+                            ).join('') || 'N/A'}
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error("Error al cargar estadísticas:", error);
+                    impressionFullViewStats.innerHTML = '<p style="color: var(--danger-color);">Error al cargar estadísticas</p>';
+                }
+
+                // Cargar reservas
+                loadImpressionFullViewReservations();
+            }
+
+            // --- Cargar reservas en vista completa ---
+            function loadImpressionFullViewReservations() {
+                const reservationsRef = ref(database, 'impressionReservations');
+                onValue(reservationsRef, (snapshot) => {
+                    let allReservations = [];
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        for (const weekKey in data) {
+                            for (const resId in data[weekKey]) {
+                                allReservations.push({
+                                    id: resId,
+                                    weekKey: weekKey,
+                                    ...data[weekKey][resId]
+                                });
+                            }
+                        }
+                    }
+                    renderImpressionFullViewTable(allReservations);
+                    updateImpressionFullViewWeekFilter(allReservations);
+                }, (error) => {
+                    console.error("Error al cargar reservas:", error);
+                    renderImpressionFullViewTable([]);
+                });
+            }
+
+            // --- Actualizar filtro de semanas en vista completa ---
+            function updateImpressionFullViewWeekFilter(reservations) {
+                const weeks = [...new Set(reservations.map(r => r.weekKey))].sort();
+                impressionFullViewWeekFilter.innerHTML = '<option value="">Todas las semanas</option>';
+                weeks.forEach(weekKey => {
+                    const option = document.createElement('option');
+                    option.value = weekKey;
+                    const [year, weekStr] = weekKey.split('-W');
+                    option.textContent = formatWeekDisplay(parseInt(year), parseInt(weekStr));
+                    impressionFullViewWeekFilter.appendChild(option);
+                });
+            }
+
+            // --- Renderizar tabla en vista completa ---
+            function renderImpressionFullViewTable(reservations) {
+                let filtered = [...reservations];
+                
+                // Filtrar por búsqueda
+                const searchTerm = impressionFullViewSearch.value.toLowerCase();
+                if (searchTerm) {
+                    filtered = filtered.filter(res => {
+                        return (res.room || '').includes(searchTerm) ||
+                               (res.guest || '').toLowerCase().includes(searchTerm) ||
+                               (res.guestType || '').toLowerCase().includes(searchTerm) ||
+                               (res.day || '').toLowerCase().includes(searchTerm);
+                    });
+                }
+
+                // Filtrar por semana
+                const weekFilter = impressionFullViewWeekFilter.value;
+                if (weekFilter) {
+                    filtered = filtered.filter(res => res.weekKey === weekFilter);
+                }
+
+                impressionFullViewTableBody.innerHTML = '';
+                
+                if (filtered.length === 0) {
+                    noImpressionFullViewReservations.style.display = 'block';
+                    return;
+                }
+
+                noImpressionFullViewReservations.style.display = 'none';
+                
+                filtered.forEach(res => {
+                    const row = document.createElement('tr');
+                    row.style.cssText = 'border-bottom: 1px solid var(--border-color);';
+                    row.innerHTML = `
+                        <td style="padding: 12px;">${res.weekKey}</td>
+                        <td style="padding: 12px;">${res.day || '-'}</td>
+                        <td style="padding: 12px;">${res.room || '-'}</td>
+                        <td style="padding: 12px;">${res.guest || '-'}</td>
+                        <td style="padding: 12px;">${res.guestType || '-'}</td>
+                        <td style="padding: 12px;">${res.pax || 0}</td>
+                        <td style="padding: 12px;">${res.allergies || '-'}</td>
+                        <td style="padding: 12px;">${res.notes || '-'}</td>
+                        <td style="padding: 12px;">${res.validator || '-'}</td>
+                        <td style="padding: 12px;">
+                            <button class="btn-edit-impression-full" data-id="${res.id}" data-week="${res.weekKey}" style="padding: 6px 12px; margin-right: 6px; background: var(--info-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Editar</button>
+                            <button class="btn-delete-impression-full" data-id="${res.id}" data-week="${res.weekKey}" style="padding: 6px 12px; background: var(--danger-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Eliminar</button>
+                        </td>
+                    `;
+                    impressionFullViewTableBody.appendChild(row);
+                });
+
+                // Event listeners
+                impressionFullViewTableBody.querySelectorAll('.btn-edit-impression-full').forEach(btn => {
+                    btn.addEventListener('click', () => editImpressionReservation(btn.dataset.id, btn.dataset.week));
+                });
+
+                impressionFullViewTableBody.querySelectorAll('.btn-delete-impression-full').forEach(btn => {
+                    btn.addEventListener('click', () => deleteImpressionReservation(btn.dataset.id, btn.dataset.week));
+                });
+            }
+
+            // Event listeners para búsqueda y filtros en vista completa
+            impressionFullViewSearch.addEventListener('input', () => {
+                loadImpressionFullViewReservations();
+            });
+
+            impressionFullViewWeekFilter.addEventListener('change', () => {
+                loadImpressionFullViewReservations();
+            });
+
+            // No cargar configuración al iniciar, solo cuando se muestre la sección Impression
+            // loadImpressionConfig() se llama en showImpressionSection()
+
+            // Elementos del modal de edición VIP
             const editReservationModal = document.getElementById('editReservationModal');
             const editReservationForm = document.getElementById('editReservationForm');
             const editReservationIdInput = document.getElementById('editReservationId');
@@ -1745,6 +3474,87 @@
             const editPaxInput = document.getElementById('editPax');
             const editCommentInput = document.getElementById('editComment');
             const editValidatorInput = document.getElementById('editValidator');
+            
+            // Elementos del modal de edición Impression (declarar antes de usar)
+            const editImpressionReservationModal = document.getElementById('editImpressionReservationModal');
+            const editImpressionReservationForm = document.getElementById('editImpressionReservationForm');
+            const editImpressionReservationIdInput = document.getElementById('editImpressionReservationId');
+            const editImpressionReservationWeekKeyInput = document.getElementById('editImpressionReservationWeekKey');
+            const editImpressionDayInput = document.getElementById('editImpressionDay');
+            const editImpressionRoomInput = document.getElementById('editImpressionRoom');
+            const editImpressionGuestInput = document.getElementById('editImpressionGuest');
+            const editImpressionGuestTypeInput = document.getElementById('editImpressionGuestType');
+            const editImpressionPaxInput = document.getElementById('editImpressionPax');
+            const editImpressionAllergiesInput = document.getElementById('editImpressionAllergies');
+            const editImpressionNotesInput = document.getElementById('editImpressionNotes');
+            
+            // Event listener para el formulario de edición de Impression
+            if (editImpressionReservationForm) {
+                editImpressionReservationForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const submitBtn = editImpressionReservationForm.querySelector('button[type="submit"]');
+                    
+                    // Verificar si el botón ya está en estado de carga (protección contra doble clic)
+                    if (submitBtn && submitBtn.disabled) {
+                        return;
+                    }
+                    
+                    const resId = editImpressionReservationIdInput.value;
+                    const weekKey = editImpressionReservationWeekKeyInput.value;
+                    const day = editImpressionDayInput.value;
+                    const room = editImpressionRoomInput.value;
+                    const guest = editImpressionGuestInput.value;
+                    const guestType = editImpressionGuestTypeInput.value;
+                    const pax = parseInt(editImpressionPaxInput.value, 10);
+                    const allergies = editImpressionAllergiesInput.value.trim();
+                    const notes = editImpressionNotesInput.value.trim();
+
+                    // Validaciones
+                    if (!resId || !weekKey || !day || !room || !guest || !guestType || !pax) {
+                        alert('Por favor, complete todos los campos obligatorios.');
+                        return;
+                    }
+                    
+                    if (room.length !== 4 || isNaN(room) || parseInt(room, 10) < 1000 || parseInt(room, 10) > 9999) {
+                        alert('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).');
+                        return;
+                    }
+                    
+                    if (pax < 1) {
+                        alert('La cantidad de personas debe ser al menos 1.');
+                        return;
+                    }
+
+                    // Bloquear botón mientras se procesa
+                    setButtonLoading(submitBtn, 'Guardando...');
+
+                    try {
+                        const reservationRef = ref(database, `impressionReservations/${weekKey}/${resId}`);
+                        await update(reservationRef, {
+                            day: day,
+                            room: room,
+                            guest: guest,
+                            guestType: guestType,
+                            pax: pax,
+                            allergies: allergies,
+                            notes: notes
+                        });
+                        
+                        alert('Reserva actualizada exitosamente.');
+                        // Cerrar el modal
+                        if (editImpressionReservationModal) {
+                            editImpressionReservationModal.classList.remove('active');
+                        }
+                    } catch (error) {
+                        console.error("Error al actualizar reserva:", error);
+                        alert('Error al actualizar la reserva. Por favor, intente de nuevo.');
+                    } finally {
+                        // Restaurar botón después de completar
+                        setButtonNormal(submitBtn);
+                    }
+                });
+            }
 
             // Elementos del modal de bloquear restaurantes
             const blockRestaurantsBtn = document.getElementById('blockRestaurantsBtn');
@@ -1760,6 +3570,14 @@
             let dailyReservationsData = []; // Cache para dailyReservations
             let archivedReservationsData = []; // Cache para archivedReservations
             let currentFilteredReservations = []; // Para almacenar las reservas actualmente filtradas/mostradas
+            
+            // Variables de paginación VIP
+            let vipCurrentPage = 1;
+            const vipItemsPerPage = 20;
+            
+            // Variables de paginación Impression
+            let impressionCurrentPage = 1;
+            const impressionItemsPerPage = 20;
 
             // --- Función centralizada para cerrar modales ---
             function closeModal(modalId) {
@@ -1771,6 +3589,16 @@
 
             // --- Evento global para cerrar modales ---
             document.addEventListener('click', (e) => {
+                // Cerrar modal al hacer clic en botones con data-modal (incluye botones de cancelar)
+                if (e.target.closest('[data-modal]')) {
+                    const modalId = e.target.closest('[data-modal]').getAttribute('data-modal');
+                    if (modalId) {
+                        const modal = document.getElementById(modalId);
+                        if (modal) {
+                            modal.classList.remove('active');
+                        }
+                    }
+                }
                 // Cerrar modal al hacer clic en botones de cerrar (X)
                 const closeBtn = e.target.closest('.modal-close-btn');
                 if (closeBtn) {
@@ -1916,8 +3744,35 @@
 
 
             // Añadir una nueva reserva desde el formulario de administrador
+            // --- Funciones helper para manejar estado de carga de botones ---
+            function setButtonLoading(button, loadingText = 'Procesando...') {
+                if (!button) return;
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                const originalHTML = button.innerHTML;
+                button.dataset.originalHTML = originalHTML;
+                button.innerHTML = `<span class="btn-spinner"></span>${loadingText}`;
+            }
+
+            function setButtonNormal(button) {
+                if (!button) return;
+                button.disabled = false;
+                button.classList.remove('btn-loading');
+                if (button.dataset.originalHTML) {
+                    button.innerHTML = button.dataset.originalHTML;
+                    delete button.dataset.originalHTML;
+                }
+            }
+
             adminReservationForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                const submitBtn = adminReservationForm.querySelector('button[type="submit"]');
+                
+                // Verificar si el botón ya está en estado de carga (protección contra doble clic)
+                if (submitBtn && submitBtn.disabled) {
+                    return;
+                }
 
                 const room = document.getElementById('adminRoom').value;
                 const guest = document.getElementById('adminGuest').value;
@@ -1949,22 +3804,37 @@
                     date: date // Fecha de la reserva
                 };
 
+                // Bloquear botón mientras se procesa
+                setButtonLoading(submitBtn, 'Agregando...');
+
                 try {
                     // Siempre agregar a dailyReservations bajo la fecha especificada
                     const reservationsRef = ref(database, `dailyReservations/${date}`);
                     await push(reservationsRef, newReservation);
                     alert('Reserva agregada con éxito!');
                     adminReservationForm.reset();
+                    // Cerrar el modal después de agregar
+                    addReservationModal.classList.remove('active');
                 }
                 catch (error) {
                     console.error("Error al agregar reserva:", error);
                     alert("Error al agregar la reserva. Por favor, intente de nuevo. Revise la consola para más detalles.");
+                } finally {
+                    // Restaurar botón después de completar
+                    setButtonNormal(submitBtn);
                 }
             });
 
             // Actualizar una reserva existente
             editReservationForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                const submitBtn = editReservationForm.querySelector('button[type="submit"]');
+                
+                // Verificar si el botón ya está en estado de carga (protección contra doble clic)
+                if (submitBtn && submitBtn.disabled) {
+                    return;
+                }
 
                 const id = editReservationIdInput.value;
                 const originalDate = editReservationIdInput.dataset.originalDate; // Fecha de la reserva original
@@ -1997,6 +3867,9 @@
                     validator: validator,
                     date: newDate // Actualizar la fecha de la reserva
                 };
+
+                // Bloquear botón mientras se procesa
+                setButtonLoading(submitBtn, 'Guardando...');
 
                 try {
                     if (originalDate === newDate) { // Si la fecha de la reserva no cambia
@@ -2031,6 +3904,9 @@
                 } catch (error) {
                     console.error("Error al actualizar reserva:", error);
                     alert("Error al actualizar la reserva. Por favor, intente de nuevo. Revise la consola para más detalles.");
+                } finally {
+                    // Restaurar botón después de completar
+                    setButtonNormal(submitBtn);
                 }
             });
 
@@ -2079,12 +3955,30 @@
                     return parseInt(a.room) - parseInt(b.room);
                 });
 
+                // Calcular paginación
+                const totalItems = filteredReservations.length;
+                const totalPages = Math.ceil(totalItems / vipItemsPerPage);
+                
+                // Ajustar página actual si es necesario
+                if (vipCurrentPage > totalPages && totalPages > 0) {
+                    vipCurrentPage = totalPages;
+                } else if (vipCurrentPage < 1) {
+                    vipCurrentPage = 1;
+                }
+                
+                // Calcular índices de inicio y fin
+                const startIndex = (vipCurrentPage - 1) * vipItemsPerPage;
+                const endIndex = Math.min(startIndex + vipItemsPerPage, totalItems);
+                const paginatedReservations = filteredReservations.slice(startIndex, endIndex);
 
                 if (filteredReservations.length === 0) {
                     noReservationsAdminMessage.style.display = 'block';
+                    document.getElementById('vipPaginationControls').style.display = 'none';
                 } else {
                     noReservationsAdminMessage.style.display = 'none';
-                    filteredReservations.forEach(res => {
+                    document.getElementById('vipPaginationControls').style.display = 'flex';
+                    
+                    paginatedReservations.forEach(res => {
                         const row = adminReservationsTableBody.insertRow();
                         const reservationType = res.type; // 'daily' o 'archived'
 
@@ -2103,11 +3997,78 @@
                             </td>
                         `;
                     });
+                    
+                    // Actualizar controles de paginación
+                    updateVipPaginationControls(totalItems, totalPages, startIndex + 1, endIndex);
+                }
+            }
+            
+            // Función para actualizar controles de paginación VIP
+            function updateVipPaginationControls(totalItems, totalPages, start, end) {
+                const paginationInfo = document.getElementById('vipPaginationInfo');
+                const paginationStart = document.getElementById('vipPaginationStart');
+                const paginationEnd = document.getElementById('vipPaginationEnd');
+                const paginationTotal = document.getElementById('vipPaginationTotal');
+                const paginationPrev = document.getElementById('vipPaginationPrev');
+                const paginationNext = document.getElementById('vipPaginationNext');
+                const paginationNumbers = document.getElementById('vipPaginationNumbers');
+                
+                if (paginationStart) paginationStart.textContent = totalItems > 0 ? start : 0;
+                if (paginationEnd) paginationEnd.textContent = end;
+                if (paginationTotal) paginationTotal.textContent = totalItems;
+                
+                // Habilitar/deshabilitar botones
+                if (paginationPrev) {
+                    paginationPrev.disabled = vipCurrentPage === 1;
+                    paginationPrev.style.opacity = vipCurrentPage === 1 ? '0.5' : '1';
+                    paginationPrev.style.cursor = vipCurrentPage === 1 ? 'not-allowed' : 'pointer';
+                }
+                if (paginationNext) {
+                    paginationNext.disabled = vipCurrentPage >= totalPages;
+                    paginationNext.style.opacity = vipCurrentPage >= totalPages ? '0.5' : '1';
+                    paginationNext.style.cursor = vipCurrentPage >= totalPages ? 'not-allowed' : 'pointer';
+                }
+                
+                // Generar números de página
+                if (paginationNumbers) {
+                    paginationNumbers.innerHTML = '';
+                    const maxPagesToShow = 5;
+                    let startPage = Math.max(1, vipCurrentPage - Math.floor(maxPagesToShow / 2));
+                    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                    
+                    if (endPage - startPage < maxPagesToShow - 1) {
+                        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                    }
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const pageBtn = document.createElement('button');
+                        pageBtn.textContent = i;
+                        pageBtn.className = 'btn';
+                        if (i === vipCurrentPage) {
+                            pageBtn.style.background = 'var(--primary-color)';
+                            pageBtn.style.color = 'white';
+                        } else {
+                            pageBtn.style.background = 'white';
+                            pageBtn.style.color = 'var(--secondary-color)';
+                            pageBtn.style.border = '1px solid var(--border-color)';
+                        }
+                        pageBtn.style.padding = '6px 12px';
+                        pageBtn.style.minWidth = '36px';
+                        pageBtn.style.cursor = 'pointer';
+                        pageBtn.addEventListener('click', () => {
+                            vipCurrentPage = i;
+                            filterAdminReservations();
+                        });
+                        paginationNumbers.appendChild(pageBtn);
+                    }
                 }
             }
 
             function filterAdminReservations() {
                 const searchTerm = adminReservationSearchInput.value.toLowerCase().trim();
+                
+                // Resetear a página 1 cuando se aplica un filtro
+                vipCurrentPage = 1;
 
                 if (!searchTerm) {
                     renderAdminReservationsTable(allReservations);
@@ -2130,6 +4091,29 @@
             }
 
             adminReservationSearchInput.addEventListener('input', filterAdminReservations);
+            
+            // Event listeners para paginación VIP
+            const vipPaginationPrev = document.getElementById('vipPaginationPrev');
+            const vipPaginationNext = document.getElementById('vipPaginationNext');
+            
+            if (vipPaginationPrev) {
+                vipPaginationPrev.addEventListener('click', () => {
+                    if (vipCurrentPage > 1) {
+                        vipCurrentPage--;
+                        filterAdminReservations();
+                    }
+                });
+            }
+            
+            if (vipPaginationNext) {
+                vipPaginationNext.addEventListener('click', () => {
+                    const totalPages = Math.ceil(currentFilteredReservations.length / vipItemsPerPage);
+                    if (vipCurrentPage < totalPages) {
+                        vipCurrentPage++;
+                        filterAdminReservations();
+                    }
+                });
+            }
 
 
             // --- Lógica del Modal de Edición ---
@@ -2966,6 +4950,11 @@
 
             // Iniciar los listeners de Firebase al cargar la página
             setupFirebaseListeners();
+
+            // Inicializar vista por defecto: mostrar VIP, ocultar Impression
+            if (vipSection) vipSection.style.display = 'block';
+            if (impressionSection) impressionSection.style.display = 'none';
+            if (openAddReservationModalBtn) openAddReservationModalBtn.style.display = 'flex';
         });
     </script>
 </body>
