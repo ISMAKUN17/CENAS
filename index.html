@@ -204,6 +204,28 @@
             background: var(--border);
             color: var(--text-light);
             cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        /* Spinner para botones */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .btn-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         .availability-info {
             font-size: 0.98em;
@@ -959,6 +981,10 @@
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V21H3V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 3H23V8H1V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Archivo
                 </button>
+                <button id="impressionBtn" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Impression
+                </button>
             </div>
         </header>
         <main class="main-grid">
@@ -1101,6 +1127,7 @@
             const addReservationBtn = document.getElementById('addReservationBtn');
             const viewSummaryBtn = document.getElementById('viewSummaryBtn');
             const viewArchiveBtn = document.getElementById('viewArchiveBtn');
+            const impressionBtn = document.getElementById('impressionBtn');
             const reservationForm = document.getElementById('reservationForm');
             const reservationListDiv = document.getElementById('reservationList');
             const noReservationsMessage = document.getElementById('noReservationsMessage');
@@ -1316,6 +1343,11 @@
                 }
             });
 
+            // Evento para abrir la página de Impression
+            impressionBtn.addEventListener('click', () => {
+                window.location.href = 'impression.html';
+            });
+
             // Evento para cerrar el popup de resumen
             closeSummaryBtn.addEventListener('click', () => {
                 hideSummaryModal();
@@ -1459,9 +1491,36 @@
             }
 
 
+            // --- Funciones helper para manejar estado de carga de botones ---
+            function setButtonLoading(button, loadingText = 'Procesando...') {
+                if (!button) return;
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                const originalHTML = button.innerHTML;
+                button.dataset.originalHTML = originalHTML;
+                button.innerHTML = `<span class="btn-spinner"></span>${loadingText}`;
+            }
+
+            function setButtonNormal(button) {
+                if (!button) return;
+                button.disabled = false;
+                button.classList.remove('btn-loading');
+                if (button.dataset.originalHTML) {
+                    button.innerHTML = button.dataset.originalHTML;
+                    delete button.dataset.originalHTML;
+                }
+            }
+
             // Evento para manejar el envío del formulario
             reservationForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                const submitBtn = document.getElementById('submitReservationBtn');
+                
+                // Verificar si el botón ya está en estado de carga (protección contra doble clic)
+                if (submitBtn && submitBtn.disabled) {
+                    return;
+                }
 
                 if (!checkOperatingHours()) {
                     alert('No se pueden registrar reservas fuera del horario de operación (7:00 AM - 4:30 PM).');
@@ -1499,6 +1558,9 @@
                     return;
                 }
 
+                // Bloquear botón mientras se procesa
+                setButtonLoading(submitBtn, 'Validando...');
+
                 currentReservationData = {
                     room,
                     guest,
@@ -1511,23 +1573,38 @@
                 };
 
                 showValidationModal();
+                // Restaurar botón después de mostrar el modal (el proceso continúa en el modal)
+                setButtonNormal(submitBtn);
             });
 
             // Evento para confirmar la validación del nombre
             confirmValidationBtn.addEventListener('click', async () => {
+                // Verificar si el botón ya está en estado de carga
+                if (confirmValidationBtn.disabled) {
+                    return;
+                }
+                
                 const validatorName = validatorNameInput.value.trim();
                 if (validatorName) {
-                    currentReservationData.validator = validatorName;
-                    await addReservationWithUndo(currentReservationData); // NUEVO: con deshacer y feedback
-                    hideValidationModal();
-                    reservationForm.reset();
-                    placeSelect.value = "";
-                    updateTimeOptions(placeSelect.value);
-                    timeSelect.disabled = true;
-                    availabilityInfo.textContent = '';
-                    availabilityInfo.className = 'availability-info';
-                    currentReservationData = null;
-                    checkOperatingHours();
+                    // Bloquear botón mientras se procesa
+                    setButtonLoading(confirmValidationBtn, 'Registrando...');
+                    
+                    try {
+                        currentReservationData.validator = validatorName;
+                        await addReservationWithUndo(currentReservationData); // NUEVO: con deshacer y feedback
+                        hideValidationModal();
+                        reservationForm.reset();
+                        placeSelect.value = "";
+                        updateTimeOptions(placeSelect.value);
+                        timeSelect.disabled = true;
+                        availabilityInfo.textContent = '';
+                        availabilityInfo.className = 'availability-info';
+                        currentReservationData = null;
+                        checkOperatingHours();
+                    } finally {
+                        // Restaurar botón después de completar
+                        setButtonNormal(confirmValidationBtn);
+                    }
                 } else {
                     showSnackbar('Por favor, ingrese el nombre de quien solicita la reserva.', 3000);
                     validatorNameInput.focus();
@@ -1857,7 +1934,6 @@
         // --- Confirmación visual y deshacer ---
         let lastReservationUndo = null;
         async function addReservationWithUndo(data) {
-            showSpinner();
             const today = getTodayDateString();
             const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
             try {
@@ -1867,9 +1943,9 @@
                 // Mostrar botón de deshacer
                 showUndoSnackbar();
             } catch (error) {
+                console.error("Error al registrar reserva:", error);
                 showSnackbar('Error al registrar la reserva.', 4000);
-            } finally {
-                hideSpinner();
+                throw error; // Re-lanzar error para que el caller lo maneje
             }
         }
         function showUndoSnackbar() {
