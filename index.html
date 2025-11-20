@@ -31,6 +31,12 @@
             --padding-btn: 8px 18px;
             --input-padding: 8px 8px 7px 8px;
             --icon-size: 1.1em;
+            --summary-blue: #2563eb;
+            --summary-green: #22c55e;
+            --summary-orange: #f59e42;
+            --summary-purple: #a78bfa;
+            --summary-pink: #f472b6;
+            --summary-gray: #f1f5f9;
         }
         body.dark {
             --primary: #60a5fa;
@@ -600,15 +606,6 @@
             margin-top: 8px;
             width: 100%;
         }
-        /* Colores para distinción visual en el resumen */
-        :root {
-            --summary-blue: #2563eb;
-            --summary-green: #22c55e;
-            --summary-orange: #f59e42;
-            --summary-purple: #a78bfa;
-            --summary-pink: #f472b6;
-            --summary-gray: #f1f5f9;
-        }
         .summary-restaurant {
             background: var(--summary-gray);
             border-radius: 14px;
@@ -1097,7 +1094,7 @@
     <script type="module">
         // Importar las funciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove, get, child, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
         // Tu configuración de Firebase
         const firebaseConfig = {
@@ -1117,7 +1114,12 @@
 
         // Declaraciones globales necesarias para evitar ReferenceError
         let currentReservationData = null;
+        let reservationListDiv = null;
+        let noReservationsMessage = null;
+        let archiveListContent = null;
+        let noArchivedReservationsMessage = null;
 
+        // Función única para obtener fecha de hoy
         function getTodayDateString() {
             const today = new Date();
             return today.toISOString().slice(0, 10);
@@ -1129,8 +1131,8 @@
             const viewArchiveBtn = document.getElementById('viewArchiveBtn');
             const impressionBtn = document.getElementById('impressionBtn');
             const reservationForm = document.getElementById('reservationForm');
-            const reservationListDiv = document.getElementById('reservationList');
-            const noReservationsMessage = document.getElementById('noReservationsMessage');
+            reservationListDiv = document.getElementById('reservationList');
+            noReservationsMessage = document.getElementById('noReservationsMessage');
             const validationModal = document.getElementById('validationModal');
             const validatorNameInput = document.getElementById('validatorNameInput');
             const confirmValidationBtn = document.getElementById('confirmValidationBtn');
@@ -1145,8 +1147,8 @@
             const archiveModal = document.getElementById('archiveModal');
             const archiveTitle = document.getElementById('archiveTitle');
             const archiveSearchInput = document.getElementById('archiveSearch');
-            const archiveListContent = document.getElementById('archiveListContent');
-            const noArchivedReservationsMessage = document.getElementById('noArchivedReservationsMessage');
+            archiveListContent = document.getElementById('archiveListContent');
+            noArchivedReservationsMessage = document.getElementById('noArchivedReservationsMessage');
             const closeArchiveBtn = document.getElementById('closeArchiveBtn');
 
             const modalCloseButtons = document.querySelectorAll('.modal-close-btn');
@@ -1160,6 +1162,7 @@
             const reservationSearchInput = document.getElementById('reservationSearch');
             const submitReservationBtn = document.getElementById('submitReservationBtn');
             const operatingHoursMessage = document.getElementById('operatingHoursMessage');
+            const toggleDarkBtn = document.getElementById('toggleDark');
 
             let reservations = []; // Reservas del día actual, ahora se sincronizarán con Firebase
             let archivedReservations = []; // Reservas de días anteriores, también desde Firebase
@@ -1184,11 +1187,6 @@
             };
 
             // --- Funciones de Utilidad de Fecha y Hora ---
-            function getTodayDateString() {
-                const today = new Date();
-                return today.toISOString().slice(0, 10); // Formato YYYY-MM-DD
-            }
-
             function getFormattedDate(dateString) {
                 if (!dateString) return 'Fecha desconocida';
                 const date = new Date(dateString + 'T12:00:00'); // Añadir T12:00:00 para evitar problemas de zona horaria
@@ -1291,6 +1289,21 @@
 
             // Llamar a la función de carga y archivo al inicio
             loadAndArchiveReservations();
+
+            // Evento para modo oscuro/claro
+            toggleDarkBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                const isDark = document.body.classList.contains('dark');
+                toggleDarkBtn.textContent = isDark ? '☀️' : '🌙';
+                localStorage.setItem('darkMode', isDark);
+            });
+
+            // Cargar preferencia de modo oscuro
+            const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (savedDarkMode) {
+                document.body.classList.add('dark');
+                toggleDarkBtn.textContent = '☀️';
+            }
 
             // Evento para mostrar el formulario de agregar reserva
             addReservationBtn.addEventListener('click', () => {
@@ -1511,37 +1524,46 @@
                 }
             }
 
+            // Variable para prevenir doble clic
+            let isSubmitting = false;
+
             // Evento para manejar el envío del formulario
             reservationForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const submitBtn = document.getElementById('submitReservationBtn');
                 
-                // Verificar si el botón ya está en estado de carga (protección contra doble clic)
-                if (submitBtn && submitBtn.disabled) {
+                // Protección contra doble clic - verificar estado de carga y flag
+                if (isSubmitting || (submitBtn && submitBtn.disabled)) {
                     return;
                 }
 
                 if (!checkOperatingHours()) {
-                    alert('No se pueden registrar reservas fuera del horario de operación (7:00 AM - 4:30 PM).');
+                    showSnackbar('No se pueden registrar reservas fuera del horario de operación (7:00 AM - 4:30 PM).', 3000);
                     return;
                 }
 
-                const room = document.getElementById('room').value;
-                const guest = document.getElementById('guest').value;
+                const room = document.getElementById('room').value.trim();
+                const guest = document.getElementById('guest').value.trim();
                 const place = document.getElementById('place').value;
                 const time = document.getElementById('time').value;
                 const pax = parseInt(document.getElementById('pax').value, 10);
-                const comment = document.getElementById('comment').value;
+                const comment = document.getElementById('comment').value.trim();
 
                 if (room.length !== 4 || isNaN(room) || parseInt(room, 10) < 1000 || parseInt(room, 10) > 9999) {
-                    alert('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).');
+                    showSnackbar('Por favor, ingrese un número de habitación válido de 4 dígitos (ej. 1000-9999).', 3000);
                     roomInput.focus();
                     return;
                 }
 
+                if (!guest) {
+                    showSnackbar('Por favor, ingrese el nombre del huésped.', 3000);
+                    document.getElementById('guest').focus();
+                    return;
+                }
+
                 if (!time) {
-                    alert('Por favor, seleccione una hora de reserva válida para el restaurante elegido.');
+                    showSnackbar('Por favor, seleccione una hora de reserva válida para el restaurante elegido.', 3000);
                     return;
                 }
 
@@ -1552,12 +1574,14 @@
 
                 const remainingPax = maxPax - occupiedPax;
 
-                if (pax > remainingPax) {
-                    alert(`Lo sentimos, solo quedan ${remainingPax} espacios disponibles para ${place} a las ${convertTo12HourFormat(time)}. Por favor, ajuste la cantidad de personas.`);
+                if (pax > remainingPax || remainingPax <= 0) {
+                    showSnackbar(`Lo sentimos, solo quedan ${Math.max(0, remainingPax)} espacios disponibles para ${place} a las ${convertTo12HourFormat(time)}. Por favor, ajuste la cantidad de personas.`, 4000);
                     paxInput.focus();
                     return;
                 }
 
+                // Marcar como procesando
+                isSubmitting = true;
                 // Bloquear botón mientras se procesa
                 setButtonLoading(submitBtn, 'Validando...');
 
@@ -1575,39 +1599,50 @@
                 showValidationModal();
                 // Restaurar botón después de mostrar el modal (el proceso continúa en el modal)
                 setButtonNormal(submitBtn);
+                isSubmitting = false;
             });
+
+            // Variable para prevenir doble clic en confirmación
+            let isConfirming = false;
 
             // Evento para confirmar la validación del nombre
             confirmValidationBtn.addEventListener('click', async () => {
-                // Verificar si el botón ya está en estado de carga
-                if (confirmValidationBtn.disabled) {
+                // Verificar si el botón ya está en estado de carga o si ya se está procesando
+                if (isConfirming || confirmValidationBtn.disabled || !currentReservationData) {
                     return;
                 }
                 
                 const validatorName = validatorNameInput.value.trim();
-                if (validatorName) {
-                    // Bloquear botón mientras se procesa
-                    setButtonLoading(confirmValidationBtn, 'Registrando...');
-                    
-                    try {
-                        currentReservationData.validator = validatorName;
-                        await addReservationWithUndo(currentReservationData); // NUEVO: con deshacer y feedback
-                        hideValidationModal();
-                        reservationForm.reset();
-                        placeSelect.value = "";
-                        updateTimeOptions(placeSelect.value);
-                        timeSelect.disabled = true;
-                        availabilityInfo.textContent = '';
-                        availabilityInfo.className = 'availability-info';
-                        currentReservationData = null;
-                        checkOperatingHours();
-                    } finally {
-                        // Restaurar botón después de completar
-                        setButtonNormal(confirmValidationBtn);
-                    }
-                } else {
+                if (!validatorName) {
                     showSnackbar('Por favor, ingrese el nombre de quien solicita la reserva.', 3000);
                     validatorNameInput.focus();
+                    return;
+                }
+
+                // Marcar como procesando
+                isConfirming = true;
+                // Bloquear botón mientras se procesa
+                setButtonLoading(confirmValidationBtn, 'Registrando...');
+                
+                try {
+                    currentReservationData.validator = validatorName;
+                    await addReservationWithUndo(currentReservationData);
+                    hideValidationModal();
+                    reservationForm.reset();
+                    placeSelect.value = "";
+                    updateTimeOptions(placeSelect.value);
+                    timeSelect.disabled = true;
+                    availabilityInfo.textContent = '';
+                    availabilityInfo.className = 'availability-info';
+                    currentReservationData = null;
+                    checkOperatingHours();
+                } catch (error) {
+                    // El error ya se maneja en addReservationWithUndo
+                    // No hacer nada adicional aquí
+                } finally {
+                    // Restaurar botón después de completar
+                    setButtonNormal(confirmValidationBtn);
+                    isConfirming = false;
                 }
             });
 
@@ -1646,21 +1681,43 @@
                 archiveModal.classList.remove('active');
             }
 
-            // Función para añadir reserva a Firebase
-            async function addReservation(data) {
-                const today = getTodayDateString();
-                const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
-                try {
-                    await push(dailyReservationsRef, data); // 'push' crea un ID único y añade los datos
-                    console.log("Reserva añadida a Firebase con éxito.");
-                } catch (error) {
-                    console.error("Error al añadir reserva a Firebase:", error);
-                    alert("Error al registrar la reserva. Por favor, intente de nuevo.");
+            // Mejorar accesibilidad: navegación por teclado en modales
+            [validationModal, summaryModal, archiveModal].forEach(modal => {
+                if (modal) {
+                    modal.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            if (modal === validationModal) {
+                                hideValidationModal();
+                                currentReservationData = null;
+                            } else if (modal === summaryModal) {
+                                hideSummaryModal();
+                            } else if (modal === archiveModal) {
+                                hideArchiveModal();
+                            }
+                        }
+                    });
                 }
+            });
+
+            // Función helper para sanitizar texto y prevenir XSS
+            function sanitizeText(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = String(text);
+                return div.innerHTML;
+            }
+
+            // Función helper para formatear timestamp
+            function formatTimeFromTimestamp(ts) {
+                if (!ts) return '';
+                const d = new Date(ts);
+                return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
 
             // Función principal para renderizar reservas (ahora usa los datos de `reservations` que se actualizan desde Firebase)
             function renderReservations(filteredReservations = reservations) {
+                if (!reservationListDiv || !noReservationsMessage) return;
+                
                 // Agrupar por restaurante y hora
                 const grouped = {};
                 filteredReservations.forEach(res => {
@@ -1684,7 +1741,10 @@
                             groupDiv.className = 'reservation-group';
                             const groupTitle = document.createElement('div');
                             groupTitle.className = 'reservation-group-title';
-                            groupTitle.innerHTML = `<span>🍽️</span> ${place} - ${convertTo12HourFormat(time)}`;
+                            const emoji = document.createElement('span');
+                            emoji.textContent = '🍽️';
+                            groupTitle.appendChild(emoji);
+                            groupTitle.appendChild(document.createTextNode(` ${sanitizeText(place)} - ${convertTo12HourFormat(time)}`));
                             groupDiv.appendChild(groupTitle);
                             // Ordenar por hora de ingreso (timestamp ascendente)
                             grouped[place][time].sort((a, b) => {
@@ -1696,19 +1756,35 @@
                             grouped[place][time].forEach(res => {
                                 const reservationItem = document.createElement('div');
                                 reservationItem.classList.add('reservation-item');
-                                const initials = res.guest.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-                                function formatTimeFromTimestamp(ts) {
-                                    if (!ts) return '';
-                                    const d = new Date(ts);
-                                    return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                                }
-                                reservationItem.innerHTML = `
-                                    <span class="reservation-avatar">${initials}</span>
-                                    <span class="room-name">${res.room} - ${res.guest}</span>
-                                    <span class="restaurant-time">${res.place} - ${convertTo12HourFormat(res.time)}</span>
-                                    <span class="pax-info">${res.pax} PAX</span>
-                                    <span class="reservation-timestamp">🕒 ${formatTimeFromTimestamp(res.timestamp)}</span>
-                                `;
+                                
+                                const initials = String(res.guest || '').split(' ').map(w => w[0] || '').join('').slice(0,2).toUpperCase();
+                                
+                                const avatar = document.createElement('span');
+                                avatar.className = 'reservation-avatar';
+                                avatar.textContent = initials;
+                                
+                                const roomName = document.createElement('span');
+                                roomName.className = 'room-name';
+                                roomName.textContent = `${sanitizeText(res.room)} - ${sanitizeText(res.guest)}`;
+                                
+                                const restaurantTime = document.createElement('span');
+                                restaurantTime.className = 'restaurant-time';
+                                restaurantTime.textContent = `${sanitizeText(res.place)} - ${convertTo12HourFormat(res.time)}`;
+                                
+                                const paxInfo = document.createElement('span');
+                                paxInfo.className = 'pax-info';
+                                paxInfo.textContent = `${sanitizeText(res.pax)} PAX`;
+                                
+                                const timestamp = document.createElement('span');
+                                timestamp.className = 'reservation-timestamp';
+                                timestamp.textContent = `🕒 ${formatTimeFromTimestamp(res.timestamp)}`;
+                                
+                                reservationItem.appendChild(avatar);
+                                reservationItem.appendChild(roomName);
+                                reservationItem.appendChild(restaurantTime);
+                                reservationItem.appendChild(paxInfo);
+                                reservationItem.appendChild(timestamp);
+                                
                                 groupDiv.appendChild(reservationItem);
                             });
                             reservationListDiv.appendChild(groupDiv);
@@ -1719,6 +1795,8 @@
 
             // Función para renderizar reservas archivadas (ahora usa los datos de `archivedReservations` que se actualizan desde Firebase)
             function renderArchivedReservations(filteredArchived = archivedReservations) {
+                if (!archiveListContent || !noArchivedReservationsMessage) return;
+                
                 // Agrupar por fecha, restaurante y hora
                 const rows = [];
                 filteredArchived.forEach(res => {
@@ -1751,34 +1829,30 @@
                     noArchivedReservationsMessage.style.display = 'block';
                 } else {
                     noArchivedReservationsMessage.style.display = 'none';
-                    let tableHtml = `<table class="archive-table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Restaurante</th>
-                                <th>Hora</th>
-                                <th>Hab.</th>
-                                <th>Huésped</th>
-                                <th>PAX</th>
-                                <th>Comentario</th>
-                                <th>Solicitante</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                    rows.forEach(row => {
-                        tableHtml += `<tr>
-                            <td>${row.date}</td>
-                            <td>${row.restaurant}</td>
-                            <td>${row.time}</td>
-                            <td>${row.room}</td>
-                            <td>${row.guest}</td>
-                            <td class="pax-cell">${row.pax}</td>
-                            <td>${row.comment}</td>
-                            <td>${row.validator}</td>
-                        </tr>`;
+                    const table = document.createElement('table');
+                    table.className = 'archive-table';
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    ['Fecha', 'Restaurante', 'Hora', 'Hab.', 'Huésped', 'PAX', 'Comentario', 'Solicitante'].forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
                     });
-                    tableHtml += `</tbody></table>`;
-                    archiveListContent.innerHTML = tableHtml;
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    const tbody = document.createElement('tbody');
+                    rows.forEach(row => {
+                        const tr = document.createElement('tr');
+                        [row.date, row.restaurant, row.time, row.room, row.guest, row.pax, row.comment, row.validator].forEach((cell, index) => {
+                            const td = document.createElement('td');
+                            td.textContent = cell || '';
+                            if (index === 5) td.className = 'pax-cell';
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    archiveListContent.appendChild(table);
                 }
             }
 
@@ -1933,195 +2007,130 @@
         }
         // --- Confirmación visual y deshacer ---
         let lastReservationUndo = null;
+        const restaurantPaxLimits = {
+            "El Patio": 8,
+            "Bluewater": 8,
+            "Bordeaux": 6,
+            "Himitsu": 8,
+            "Hibachi": 10,
+            "El Olio": 8
+        };
+
         async function addReservationWithUndo(data) {
             const today = getTodayDateString();
+            const maxPax = restaurantPaxLimits[data.place];
+            if (!maxPax) {
+                throw new Error('Restaurante no válido');
+            }
+
+            // Generar un ID único para la nueva reserva ANTES de la transacción
+            const reservationId = 'res_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Usar transacción para proteger contra race conditions (FIFO)
+            // La transacción verifica disponibilidad y agrega la reserva atómicamente
             const dailyReservationsRef = ref(database, `dailyReservations/${today}`);
+            
             try {
-                const newRef = await push(dailyReservationsRef, data);
-                lastReservationUndo = { id: newRef.key, data, ref: dailyReservationsRef };
-                showSnackbar('Reserva registrada. ', 4000);
+                const result = await runTransaction(dailyReservationsRef, (currentReservations) => {
+                    // Si no hay reservas actuales, inicializar objeto vacío
+                    if (!currentReservations) {
+                        currentReservations = {};
+                    }
+
+                    // Calcular PAX ocupado para el restaurante y hora específicos
+                    let occupiedPax = 0;
+                    Object.values(currentReservations).forEach(res => {
+                        if (res && res.place === data.place && res.time === data.time) {
+                            occupiedPax += (res.pax || 0);
+                        }
+                    });
+                    
+                    const remainingPax = maxPax - occupiedPax;
+                    
+                    // Verificar si hay espacio disponible (FIFO: primera reserva que llega tiene prioridad)
+                    if (remainingPax < data.pax) {
+                        // Abortar transacción: no hay espacio suficiente
+                        // Retornar null aborta la transacción sin error
+                        return null;
+                    }
+                    
+                    // Agregar la nueva reserva con el ID generado
+                    currentReservations[reservationId] = data;
+                    
+                    // Retornar el objeto actualizado (la transacción se ejecutará)
+                    return currentReservations;
+                });
+
+                // Verificar si la transacción fue abortada (retornó null)
+                if (!result || !result.committed || !result.snapshot.exists()) {
+                    // Obtener la disponibilidad actual para mostrar mensaje de error
+                    const snapshot = await get(dailyReservationsRef);
+                    let currentOccupiedPax = 0;
+                    if (snapshot.exists()) {
+                        const reservations = snapshot.val();
+                        Object.values(reservations).forEach(res => {
+                            if (res && res.place === data.place && res.time === data.time) {
+                                currentOccupiedPax += (res.pax || 0);
+                            }
+                        });
+                    }
+                    const remainingPax = maxPax - currentOccupiedPax;
+                    throw new Error(`INSUFFICIENT_SPACE: Solo quedan ${remainingPax} espacios disponibles. Otra persona reservó al mismo tiempo.`);
+                }
+
+                // Si la transacción fue exitosa, guardar info para undo
+                lastReservationUndo = { 
+                    id: reservationId, 
+                    data, 
+                    ref: dailyReservationsRef,
+                    today 
+                };
+                
+                showSnackbar('Reserva registrada correctamente.', 4000);
                 // Mostrar botón de deshacer
                 showUndoSnackbar();
             } catch (error) {
                 console.error("Error al registrar reserva:", error);
-                showSnackbar('Error al registrar la reserva.', 4000);
-                throw error; // Re-lanzar error para que el caller lo maneje
+                if (error && error.message && error.message.includes('INSUFFICIENT_SPACE')) {
+                    const errorMsg = error.message.replace('INSUFFICIENT_SPACE: ', '');
+                    showSnackbar(errorMsg, 5000);
+                } else {
+                    showSnackbar('Error al registrar la reserva. Por favor, intente de nuevo.', 4000);
+                }
+                throw error;
             }
         }
         function showUndoSnackbar() {
             const snackbar = document.getElementById('snackbar');
-            snackbar.innerHTML = 'Reserva registrada. <button id="undoBtn" style="margin-left:12px;padding:4px 12px;border-radius:4px;border:none;background:#FFC107;color:#333;cursor:pointer;">Deshacer</button>';
+            snackbar.innerHTML = 'Reserva registrada. <button id="undoBtn" style="margin-left:12px;padding:4px 12px;border-radius:4px;border:none;background:#FFC107;color:#333;cursor:pointer;font-weight:600;">Deshacer</button>';
             snackbar.className = 'snackbar show';
-            document.getElementById('undoBtn').onclick = async () => {
-                if (lastReservationUndo) {
-                    showSpinner();
-                    try {
-                        await remove(child(ref(database), `${lastReservationUndo.ref.key}/${lastReservationUndo.id}`));
-                        showSnackbar('Reserva eliminada.', 3000);
-                        lastReservationUndo = null;
-                    } catch {
-                        showSnackbar('No se pudo deshacer.', 3000);
-                    } finally {
-                        hideSpinner();
+            
+            const undoBtn = document.getElementById('undoBtn');
+            if (undoBtn) {
+                undoBtn.onclick = async () => {
+                    if (lastReservationUndo) {
+                        showSpinner();
+                        try {
+                            // Usar la referencia correcta para eliminar la reserva
+                            const reservationToDeleteRef = ref(database, `dailyReservations/${lastReservationUndo.today}/${lastReservationUndo.id}`);
+                            await remove(reservationToDeleteRef);
+                            showSnackbar('Reserva eliminada correctamente.', 3000);
+                            lastReservationUndo = null;
+                            snackbar.className = 'snackbar';
+                        } catch (error) {
+                            console.error('Error al deshacer:', error);
+                            showSnackbar('No se pudo deshacer la reserva.', 3000);
+                        } finally {
+                            hideSpinner();
+                        }
                     }
-                }
-            };
+                };
+            }
             setTimeout(() => {
                 snackbar.className = 'snackbar';
             }, 6000);
         }
-        // --- Mejorar renderizado de reservas con avatares y separación visual ---
-        function renderReservations(filteredReservations = reservations) {
-            // Agrupar por restaurante y hora
-            const grouped = {};
-            filteredReservations.forEach(res => {
-                if (!grouped[res.place]) grouped[res.place] = {};
-                if (!grouped[res.place][res.time]) grouped[res.place][res.time] = [];
-                grouped[res.place][res.time].push(res);
-            });
-            reservationListDiv.innerHTML = '';
-            const places = Object.keys(grouped).sort();
-            if (filteredReservations.length === 0) {
-                noReservationsMessage.textContent = reservations.length === 0 ?
-                                                    'No hay reservas programadas para hoy.' :
-                                                    'No se encontraron reservas con los criterios de búsqueda.';
-                noReservationsMessage.style.display = 'block';
-            } else {
-                noReservationsMessage.style.display = 'none';
-                places.forEach(place => {
-                    const times = Object.keys(grouped[place]).sort();
-                    times.forEach(time => {
-                        const groupDiv = document.createElement('div');
-                        groupDiv.className = 'reservation-group';
-                        const groupTitle = document.createElement('div');
-                        groupTitle.className = 'reservation-group-title';
-                        groupTitle.innerHTML = `<span>🍽️</span> ${place} - ${convertTo12HourFormat(time)}`;
-                        groupDiv.appendChild(groupTitle);
-                        // Ordenar por hora de ingreso (timestamp ascendente)
-                        grouped[place][time].sort((a, b) => {
-                            if (a.timestamp && b.timestamp) return a.timestamp - b.timestamp;
-                            if (a.timestamp) return -1;
-                            if (b.timestamp) return 1;
-                            return 0;
-                        });
-                        grouped[place][time].forEach(res => {
-                            const reservationItem = document.createElement('div');
-                            reservationItem.classList.add('reservation-item');
-                            const initials = res.guest.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-                            function formatTimeFromTimestamp(ts) {
-                                if (!ts) return '';
-                                const d = new Date(ts);
-                                return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                            }
-                            reservationItem.innerHTML = `
-                                <span class="reservation-avatar">${initials}</span>
-                                <span class="room-name">${res.room} - ${res.guest}</span>
-                                <span class="restaurant-time">${res.place} - ${convertTo12HourFormat(res.time)}</span>
-                                <span class="pax-info">${res.pax} PAX</span>
-                                <span class="reservation-timestamp">🕒 ${formatTimeFromTimestamp(res.timestamp)}</span>
-                            `;
-                            groupDiv.appendChild(reservationItem);
-                        });
-                        reservationListDiv.appendChild(groupDiv);
-                    });
-                });
-            }
-        }
-        // --- Mejorar renderizado de reservas archivadas con avatares y separación visual ---
-        function renderArchivedReservations(filteredArchived = archivedReservations) {
-            // Agrupar por fecha, restaurante y hora
-            const rows = [];
-            filteredArchived.forEach(res => {
-                rows.push({
-                    date: res.archiveDate || '',
-                    restaurant: res.place || '',
-                    time: res.time || '',
-                    room: res.room || '',
-                    guest: res.guest || '',
-                    pax: res.pax || '',
-                    comment: res.comment || '',
-                    validator: res.validator || ''
-                });
-            });
-            // Ordenar por fecha descendente, restaurante, hora
-            rows.sort((a, b) => {
-                const dateComp = new Date(b.date) - new Date(a.date);
-                if (dateComp !== 0) return dateComp;
-                const restComp = a.restaurant.localeCompare(b.restaurant);
-                if (restComp !== 0) return restComp;
-                const timeComp = a.time.localeCompare(b.time);
-                if (timeComp !== 0) return timeComp;
-                return parseInt(a.room) - parseInt(b.room);
-            });
-            archiveListContent.innerHTML = '';
-            if (rows.length === 0) {
-                noArchivedReservationsMessage.textContent = archivedReservations.length === 0 ?
-                    'No hay reservas archivadas.' :
-                    'No se encontraron reservas archivadas con los criterios de búsqueda.';
-                noArchivedReservationsMessage.style.display = 'block';
-            } else {
-                noArchivedReservationsMessage.style.display = 'none';
-                let tableHtml = `<table class="archive-table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Restaurante</th>
-                            <th>Hora</th>
-                            <th>Hab.</th>
-                            <th>Huésped</th>
-                            <th>PAX</th>
-                            <th>Comentario</th>
-                            <th>Solicitante</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-                rows.forEach(row => {
-                    tableHtml += `<tr>
-                        <td>${row.date}</td>
-                        <td>${row.restaurant}</td>
-                        <td>${row.time}</td>
-                        <td>${row.room}</td>
-                        <td>${row.guest}</td>
-                        <td class="pax-cell">${row.pax}</td>
-                        <td>${row.comment}</td>
-                        <td>${row.validator}</td>
-                    </tr>`;
-                });
-                tableHtml += `</tbody></table>`;
-                archiveListContent.innerHTML = tableHtml;
-            }
-        }
-        // --- Mejorar accesibilidad: navegación por teclado en modales ---
-        [validationModal, summaryModal, archiveModal].forEach(modal => {
-            if (modal) {
-                modal.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        modal.classList.remove('active');
-                    }
-                });
-            }
-        });
-        // --- Enfoque automático en modales ---
-        function showValidationModal() {
-            validationModal.classList.add('active');
-            validatorNameInput.value = '';
-            validatorNameInput.focus();
-        }
-        function showSummaryModal() {
-            summaryModal.classList.add('active');
-            summaryModal.focus();
-        }
-        function showArchiveModal() {
-            archiveModal.classList.add('active');
-            archiveModal.focus();
-        }
-     
-        // --- Mostrar spinner en operaciones largas ---
-        // Ya integrado en addReservationWithUndo y undo
-        // --- Mejorar mensajes de error cerca de campos ---
-        // (Opcional: para validaciones más avanzadas, se puede mostrar mensajes debajo de cada input)
-        // --- Animación de scroll a la reserva recién agregada ---
-        // (Opcional: se puede implementar si se requiere)
+        // --- Las funciones showModal están definidas dentro de DOMContentLoaded ---
     </script>
 </body>
 </html>
