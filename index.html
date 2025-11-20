@@ -404,8 +404,8 @@
             background: var(--primary-dark);
             color: #fff;
             text-align: center;
-            border-radius: 8px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 16px 20px;
             position: fixed;
             z-index: 2000;
             left: 50%;
@@ -413,12 +413,132 @@
             font-size: 1em;
             transform: translateX(-50%);
             opacity: 0;
-            transition: opacity 0.4s, bottom 0.4s;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .snackbar.show {
             visibility: visible;
             opacity: 1;
             bottom: 50px;
+            transform: translateX(-50%) scale(1);
+        }
+        /* Live Notification System */
+        .live-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1);
+            z-index: 3000;
+            min-width: 320px;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateX(120%) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-left: 4px solid var(--success);
+            animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        body.dark .live-notification {
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+        }
+        .live-notification.show {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+        .live-notification.hide {
+            opacity: 0;
+            transform: translateX(120%) scale(0.9);
+        }
+        .live-notification-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .live-notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success), #16a34a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+            animation: pulse 2s infinite;
+        }
+        .live-notification-title {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 1.05em;
+            margin: 0;
+            flex: 1;
+        }
+        .live-notification-body {
+            color: var(--text-light);
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+        .live-notification-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .live-notification-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+        .live-notification-detail-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        .live-notification-detail-value {
+            color: var(--text);
+            font-weight: 600;
+        }
+        .live-notification-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            opacity: 0.6;
+        }
+        .live-notification-close:hover {
+            opacity: 1;
+            background: rgba(0,0,0,0.05);
+            color: var(--primary);
+        }
+        @media (max-width: 600px) {
+            .live-notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+                max-width: none;
+                transform: translateY(-120%);
+            }
+            .live-notification.show {
+                transform: translateY(0);
+            }
+            .live-notification.hide {
+                transform: translateY(-120%);
+            }
         }
         /* Loading Spinner */
         .spinner-overlay {
@@ -446,84 +566,103 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(30,41,59,0.35);
-            backdrop-filter: blur(4px);
+            background: rgba(30,41,59,0.5);
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity var(--transition), visibility var(--transition);
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
             overflow-y: auto;
+            padding: 20px;
+        }
+        body.dark .modal-overlay {
+            background: rgba(0,0,0,0.7);
         }
         .modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
         .modal-content {
-            padding: var(--padding-modal);
-            max-width: 350px;
+            padding: 28px 24px;
+            max-width: 400px;
             width: 100%;
             gap: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             background: var(--bg-card);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(37,99,235,0.13);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1);
             text-align: center;
             position: relative;
-            animation: fadeInScaleUp var(--transition) forwards;
+            animation: fadeInScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             max-height: 92vh;
             box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        body.dark .modal-content {
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .modal-content h3 {
-            font-size: var(--font-size-modal-title);
-            gap: 8px;
-            margin-bottom: 0.5em;
-            margin-top: 0.2em;
+            font-size: 1.25em;
+            gap: 10px;
+            margin-bottom: 0.75em;
+            margin-top: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
             color: var(--primary);
             width: 100%;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+            letter-spacing: -0.5px;
         }
         .modal-content .modal-icon {
-            font-size: 1.1em;
-            color: var(--accent);
+            font-size: 1.4em;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
         .modal-content p {
             color: var(--text-light);
-            font-size: 0.98em;
-            margin: 0 0 18px 0;
+            font-size: 1em;
+            margin: 16px 0 20px 0;
             text-align: center;
             width: 100%;
+            line-height: 1.6;
         }
         .modal-content input[type="text"],
         .modal-content input[type="number"],
         .modal-content textarea {
             width: 100%;
-            margin: 0 0 14px 0;
+            margin: 0 0 18px 0;
             font-size: var(--font-size-base);
-            padding: var(--input-padding);
-            border: none;
-            border-bottom: 2px solid var(--border);
+            padding: 12px 16px;
+            border: 2px solid var(--border);
             background: var(--bg);
             color: var(--text);
-            border-radius: 6px 6px 0 0;
+            border-radius: 12px;
             outline: none;
-            transition: border-color var(--transition), box-shadow var(--transition);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             box-sizing: border-box;
             text-align: left;
             display: block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
         .modal-content input:focus,
         .modal-content textarea:focus {
             border-color: var(--primary);
-            box-shadow: 0 2px 0 0 var(--primary);
-            background: #f0f6ff;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.1), 0 4px 12px rgba(0,0,0,0.08);
+            background: var(--bg-card);
+            transform: translateY(-1px);
+        }
+        body.dark .modal-content input:focus,
+        body.dark .modal-content textarea:focus {
+            box-shadow: 0 0 0 4px rgba(96,165,250,0.2), 0 4px 12px rgba(0,0,0,0.3);
         }
         .modal-actions {
             display: flex;
@@ -541,21 +680,34 @@
         }
         .modal-close-btn {
             position: absolute;
-            top: 10px;
-            right: 14px;
-            background: none;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,0.05);
             border: none;
             font-size: 1.5em;
             cursor: pointer;
             color: var(--text-light);
-            transition: color 0.2s, transform 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             line-height: 1;
-            padding: 0;
+            padding: 6px 10px;
             z-index: 2;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body.dark .modal-close-btn {
+            background: rgba(255,255,255,0.05);
         }
         .modal-close-btn:hover {
             color: var(--primary);
-            transform: scale(1.15);
+            background: rgba(37,99,235,0.1);
+            transform: scale(1.1) rotate(90deg);
+        }
+        .modal-close-btn:active {
+            transform: scale(0.95) rotate(90deg);
         }
         @keyframes fadeInItem {
             from { opacity: 0; transform: translateY(10px); }
@@ -564,11 +716,29 @@
         @keyframes fadeInScaleUp {
             from {
                 opacity: 0;
-                transform: translateY(-20px) scale(0.95);
+                transform: translateY(-30px) scale(0.9);
             }
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
             }
         }
         @media (max-width: 600px) {
@@ -598,168 +768,491 @@
                 padding: 16px 6px;
             }
         }
-        /* Mejorar el resumen de reservas */
+        /* Mejorar el resumen de reservas - Diseño Moderno y Minimalista */
         .summary-content {
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            margin-top: 8px;
+            gap: 0;
+            margin-top: 0;
             width: 100%;
         }
         .summary-restaurant {
-            background: var(--summary-gray);
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.08);
-            padding: 18px 18px 14px 18px;
-            margin-bottom: 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 0;
+            margin-bottom: 12px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            font-size: 0.97em;
-            border-left: 7px solid var(--summary-blue);
+            gap: 0;
+            font-size: 1em;
+            overflow: visible;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
-        /* Alternar colores de borde para restaurantes */
-        .summary-restaurant:nth-of-type(5n+1) { border-left-color: var(--summary-blue); }
-        .summary-restaurant:nth-of-type(5n+2) { border-left-color: var(--summary-green); }
-        .summary-restaurant:nth-of-type(5n+3) { border-left-color: var(--summary-orange); }
-        .summary-restaurant:nth-of-type(5n+4) { border-left-color: var(--summary-purple); }
-        .summary-restaurant:nth-of-type(5n)   { border-left-color: var(--summary-pink); }
+        .summary-restaurant:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+        .summary-restaurant:last-child {
+            margin-bottom: 0;
+        }
         .summary-restaurant h4 {
-            color: var(--primary-dark);
-            margin: 0 0 10px 0;
-            font-size: 1.13em;
+            color: var(--text);
+            margin: 0;
+            font-size: 1.1em;
             font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(37,99,235,0.02));
             border-bottom: 1px solid var(--border);
-            padding-bottom: 6px;
+            letter-spacing: -0.2px;
+        }
+        body.dark .summary-restaurant h4 {
+            background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(96,165,250,0.03));
         }
         .summary-restaurant h4 span {
-            font-size: 1em;
-            color: var(--summary-blue);
-            font-weight: 700;
+            font-size: 0.9em;
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(37,99,235,0.1);
+            padding: 5px 12px;
+            border-radius: 16px;
+            letter-spacing: 0.2px;
+        }
+        body.dark .summary-restaurant h4 span {
+            background: rgba(96,165,250,0.2);
+        }
+        /* Estilos específicos por restaurante con colores suaves y temáticos */
+        .summary-restaurant.restaurant-himitsu {
+            border-left: 5px solid #10b981;
+            background: linear-gradient(135deg, rgba(16,185,129,0.05), rgba(16,185,129,0.02));
+        }
+        .summary-restaurant.restaurant-himitsu h4 {
+            background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.05));
+        }
+        .summary-restaurant.restaurant-himitsu h4 span {
+            background: rgba(16,185,129,0.2);
+            color: #059669;
+        }
+        .summary-restaurant.restaurant-hibachi {
+            border-left: 5px solid #f97316;
+            background: linear-gradient(135deg, rgba(249,115,22,0.05), rgba(249,115,22,0.02));
+        }
+        .summary-restaurant.restaurant-hibachi h4 {
+            background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(249,115,22,0.05));
+        }
+        .summary-restaurant.restaurant-hibachi h4 span {
+            background: rgba(249,115,22,0.2);
+            color: #ea580c;
+        }
+        .summary-restaurant.restaurant-patio {
+            border-left: 5px solid #eab308;
+            background: linear-gradient(135deg, rgba(234,179,8,0.05), rgba(234,179,8,0.02));
+        }
+        .summary-restaurant.restaurant-patio h4 {
+            background: linear-gradient(135deg, rgba(234,179,8,0.12), rgba(234,179,8,0.05));
+        }
+        .summary-restaurant.restaurant-patio h4 span {
+            background: rgba(234,179,8,0.2);
+            color: #ca8a04;
+        }
+        .summary-restaurant.restaurant-bluewater {
+            border-left: 5px solid #3b82f6;
+            background: linear-gradient(135deg, rgba(59,130,246,0.05), rgba(59,130,246,0.02));
+        }
+        .summary-restaurant.restaurant-bluewater h4 {
+            background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.05));
+        }
+        .summary-restaurant.restaurant-bluewater h4 span {
+            background: rgba(59,130,246,0.2);
+            color: #2563eb;
+        }
+        .summary-restaurant.restaurant-bordeaux {
+            border-left: 5px solid #a855f7;
+            background: linear-gradient(135deg, rgba(168,85,247,0.05), rgba(168,85,247,0.02));
+        }
+        .summary-restaurant.restaurant-bordeaux h4 {
+            background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(168,85,247,0.05));
+        }
+        .summary-restaurant.restaurant-bordeaux h4 span {
+            background: rgba(168,85,247,0.2);
+            color: #9333ea;
+        }
+        .summary-restaurant.restaurant-olio {
+            border-left: 5px solid #84cc16;
+            background: linear-gradient(135deg, rgba(132,204,22,0.05), rgba(132,204,22,0.02));
+        }
+        .summary-restaurant.restaurant-olio h4 {
+            background: linear-gradient(135deg, rgba(132,204,22,0.12), rgba(132,204,22,0.05));
+        }
+        .summary-restaurant.restaurant-olio h4 span {
+            background: rgba(132,204,22,0.2);
+            color: #65a30d;
+        }
+        /* Modo oscuro para restaurantes */
+        body.dark .summary-restaurant.restaurant-himitsu {
+            border-left-color: #34d399;
+            background: linear-gradient(135deg, rgba(52,211,153,0.12), rgba(52,211,153,0.05));
+        }
+        body.dark .summary-restaurant.restaurant-himitsu h4 {
+            background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.08));
+        }
+        body.dark .summary-restaurant.restaurant-himitsu h4 span {
+            background: rgba(52,211,153,0.25);
+            color: #34d399;
+        }
+        body.dark .summary-restaurant.restaurant-hibachi {
+            border-left-color: #fb923c;
+            background: linear-gradient(135deg, rgba(251,146,60,0.12), rgba(251,146,60,0.05));
+        }
+        body.dark .summary-restaurant.restaurant-hibachi h4 {
+            background: linear-gradient(135deg, rgba(251,146,60,0.15), rgba(251,146,60,0.08));
+        }
+        body.dark .summary-restaurant.restaurant-hibachi h4 span {
+            background: rgba(251,146,60,0.25);
+            color: #fb923c;
+        }
+        body.dark .summary-restaurant.restaurant-patio {
+            border-left-color: #fde047;
+            background: linear-gradient(135deg, rgba(253,224,71,0.12), rgba(253,224,71,0.05));
+        }
+        body.dark .summary-restaurant.restaurant-patio h4 {
+            background: linear-gradient(135deg, rgba(253,224,71,0.15), rgba(253,224,71,0.08));
+        }
+        body.dark .summary-restaurant.restaurant-patio h4 span {
+            background: rgba(253,224,71,0.25);
+            color: #fde047;
+        }
+        body.dark .summary-restaurant.restaurant-bluewater {
+            border-left-color: #60a5fa;
+            background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(96,165,250,0.05));
+        }
+        body.dark .summary-restaurant.restaurant-bluewater h4 {
+            background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.08));
+        }
+        body.dark .summary-restaurant.restaurant-bluewater h4 span {
+            background: rgba(96,165,250,0.25);
+            color: #60a5fa;
+        }
+        body.dark .summary-restaurant.restaurant-bordeaux {
+            border-left-color: #c084fc;
+            background: linear-gradient(135deg, rgba(192,132,252,0.12), rgba(192,132,252,0.05));
+        }
+        body.dark .summary-restaurant.restaurant-bordeaux h4 {
+            background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(192,132,252,0.08));
+        }
+        body.dark .summary-restaurant.restaurant-bordeaux h4 span {
+            background: rgba(192,132,252,0.25);
+            color: #c084fc;
+        }
+        body.dark .summary-restaurant.restaurant-olio {
+            border-left-color: #a3e635;
+            background: linear-gradient(135deg, rgba(163,230,53,0.12), rgba(163,230,53,0.05));
+        }
+        body.dark .summary-restaurant.restaurant-olio h4 {
+            background: linear-gradient(135deg, rgba(163,230,53,0.15), rgba(163,230,53,0.08));
+        }
+        body.dark .summary-restaurant.restaurant-olio h4 span {
+            background: rgba(163,230,53,0.25);
+            color: #a3e635;
         }
         .summary-time-group {
-            margin-left: 0;
-            margin-bottom: 12px;
-            padding: 12px 14px;
-            border-left: 4px solid var(--summary-blue);
-            background: #eaf1fb;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(30,64,175,0.04);
+            margin: 0;
+            margin-bottom: 0;
+            padding: 14px 18px 16px 18px;
+            border-top: 1px solid var(--border);
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            font-size: 0.96em;
+            gap: 12px;
+            font-size: 0.98em;
             position: relative;
+        }
+        .summary-time-group:last-child {
+            border-bottom: none;
+            padding-bottom: 16px;
         }
         .summary-time {
             font-weight: 600;
-            color: var(--primary-dark);
-            margin-bottom: 4px;
-            font-size: 1.04em;
+            color: var(--text);
+            margin: 0 0 10px 0;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.2px;
+        }
+        .summary-time-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+            color: #fff !important;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.92em;
+            font-weight: 700;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            letter-spacing: 0.3px;
+            box-shadow: 0 1px 4px rgba(37,99,235,0.25);
+            position: relative;
+        }
+        .summary-time-badge::before {
+            content: "🕐";
+            font-size: 1em;
+            margin-right: 2px;
+        }
+        /* Colores diferentes para cada hora */
+        .summary-time-badge.time-1730 {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+            box-shadow: 0 1px 4px rgba(139,92,246,0.3) !important;
+        }
+        .summary-time-badge.time-1800 {
+            background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+            box-shadow: 0 1px 4px rgba(59,130,246,0.3) !important;
+        }
+        .summary-time-badge.time-1830 {
+            background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+            box-shadow: 0 1px 4px rgba(6,182,212,0.3) !important;
+        }
+        .summary-time-badge.time-1845 {
+            background: linear-gradient(135deg, #14b8a6, #0d9488) !important;
+            box-shadow: 0 1px 4px rgba(20,184,166,0.3) !important;
+        }
+        .summary-time-badge.time-2000 {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            box-shadow: 0 1px 4px rgba(245,158,11,0.3) !important;
+        }
+        .summary-time-badge.time-2100 {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            box-shadow: 0 1px 4px rgba(239,68,68,0.3) !important;
+        }
+        .summary-time-badge.time-2115 {
+            background: linear-gradient(135deg, #ec4899, #db2777) !important;
+            box-shadow: 0 1px 4px rgba(236,72,153,0.3) !important;
+        }
+        .summary-time span {
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.92em;
+            margin-left: auto;
+            background: rgba(34,197,94,0.1);
+            padding: 4px 12px;
+            border-radius: 5px;
+        }
+        body.dark .summary-time span {
+            background: rgba(34,211,238,0.15);
+            color: var(--success);
+        }
+        .summary-reservation-detail {
+            margin-left: 0;
+            font-size: 0.94em;
+            color: var(--text-light);
+            margin-bottom: 0;
+            line-height: 1.6;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .summary-time-badge {
-            background: #e0e7ff !important;
-            color: #1e40af !important;
-            border-radius: 6px;
-            padding: 2px 10px;
-            font-size: 0.97em;
-            font-weight: 900;
-            margin-left: 0;
-            display: inline-block;
-            border: 1.5px solid #2563eb;
-            letter-spacing: 0.5px;
-        }
-        .summary-time span {
-            color: var(--summary-green);
-            font-weight: 700;
-        }
-        .summary-reservation-detail {
-            margin-left: 0;
-            font-size: 0.97em;
-            color: var(--text-light);
-            margin-bottom: 0;
-            line-height: 1.5;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
         .summary-reservation-detail strong {
-            color: var(--accent);
+            color: var(--text);
             font-weight: 600;
         }
         .summary-reservation-detail em {
-            color: var(--primary-dark);
+            color: var(--text);
             font-style: normal;
-            font-size: 0.95em;
+            font-size: 0.93em;
         }
         .summary-reservation-detail span {
             color: var(--primary);
-            font-size: 0.93em;
+            font-size: 0.92em;
+            font-weight: 500;
         }
         .summary-overall-pax {
-            text-align: right;
-            margin-top: 16px;
-            font-size: 1.13em;
+            text-align: center;
+            margin: 18px 0 8px 0;
+            font-size: 1.2em;
             font-weight: 700;
-            color: var(--summary-green);
-            padding-top: 10px;
-            border-top: 2px solid var(--summary-blue);
+            color: var(--text);
+            padding: 16px 20px;
+            background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.04));
+            border-top: 2px solid var(--border);
+            border-radius: 0 0 12px 12px;
+            letter-spacing: -0.3px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        body.dark .summary-overall-pax {
+            background: linear-gradient(135deg, rgba(34,211,238,0.12), rgba(34,211,238,0.06));
+        }
+        .summary-overall-pax::before {
+            content: "📊 ";
+            margin-right: 8px;
         }
         @media (max-width: 600px) {
             #summaryModal .modal-content {
                 max-width: 99vw;
-                padding: 12px 4px 12px 4px;
+                max-height: 90vh;
+                padding: 0;
+            }
+            #summaryModal .modal-content h3 {
+                padding: 16px;
+                font-size: 1.1em;
             }
             #summaryContent.summary-content {
-                max-height: 45vh;
-                gap: 14px;
+                padding: 14px 16px 24px 16px;
+                gap: 0;
+                max-height: calc(90vh - 60px);
             }
             .summary-restaurant {
-                padding: 10px 4px 10px 4px;
-                gap: 10px;
+                margin-bottom: 12px;
             }
             .summary-restaurant h4 {
-                font-size: 1em;
-                padding-bottom: 3px;
+                font-size: 1.02em;
+                padding: 12px 14px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .summary-restaurant h4 span {
+                font-size: 0.85em;
+                padding: 4px 10px;
             }
             .summary-time-group {
-                padding: 7px 4px;
-                gap: 5px;
-                font-size: 0.93em;
-            }
-            .summary-time {
-                font-size: 0.98em;
-            }
-            .summary-table th, .summary-table td {
-                padding: 3px 2px;
+                padding: 12px 14px;
+                gap: 10px;
                 font-size: 0.92em;
             }
+            .summary-time {
+                font-size: 0.95em;
+                flex-wrap: wrap;
+                margin-bottom: 8px;
+            }
+            .summary-time-badge {
+                font-size: 0.88em;
+                padding: 4px 10px;
+            }
+            .summary-time span {
+                margin-left: 0;
+                margin-top: 4px;
+                font-size: 0.88em;
+                padding: 3px 10px;
+            }
+            .summary-table {
+                min-width: 500px;
+                font-size: 0.88em;
+            }
+            .summary-table th, .summary-table td {
+                padding: 8px 12px;
+                font-size: 0.88em;
+            }
+            .summary-table th {
+                font-size: 0.82em;
+                padding: 10px 12px;
+            }
+            .summary-table .pax-cell {
+                font-size: 0.92em;
+            }
+            .summary-table .comment-cell {
+                max-width: 120px;
+                font-size: 0.85em;
+            }
+            .summary-table .validator-cell {
+                font-size: 0.86em;
+            }
             .summary-overall-pax {
-                font-size: 1em;
+                font-size: 1.1em;
+                padding: 14px 16px;
+                margin: 14px 0 8px 0;
             }
         }
         #summaryModal .modal-content {
-            max-width: 680px;
+            max-width: 900px;
             width: 99vw;
             min-width: 0;
             box-sizing: border-box;
             overflow: hidden;
-            padding: 28px 18px 18px 18px;
-            font-size: 0.97em;
+            padding: 0;
+            font-size: 1em;
+            max-height: 95vh;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #archiveModal .modal-content {
+            max-width: 950px;
+            padding: 32px 24px 24px 24px;
+        }
+        #summaryModal .modal-content h3 {
+            padding: 20px 24px 16px 24px;
+            margin: 0;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(37,99,235,0.02), rgba(34,197,94,0.02));
+            position: relative;
+            flex-shrink: 0;
+            font-size: 1.2em;
+        }
+        #summaryModal .modal-content h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 24px;
+            right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
         }
         #summaryContent.summary-content {
-            max-height: 60vh;
+            flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             width: 100%;
             min-width: 0;
             box-sizing: border-box;
-            gap: 24px;
+            gap: 0;
+            padding: 18px 24px 32px 24px;
+            min-height: 0;
+            max-height: calc(95vh - 80px);
+        }
+        /* Scrollbar personalizado para el resumen */
+        #summaryContent.summary-content {
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+            -webkit-overflow-scrolling: touch;
+        }
+        #summaryContent.summary-content::-webkit-scrollbar {
+            width: 10px;
+        }
+        #summaryContent.summary-content::-webkit-scrollbar-track {
+            background: transparent;
+            margin: 4px 0;
+        }
+        #summaryContent.summary-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        #summaryContent.summary-content::-webkit-scrollbar-thumb:hover {
+            background: var(--text-light);
+            background-clip: padding-box;
+        }
+        #summaryContent.summary-content::-webkit-scrollbar-thumb:active {
+            background: var(--primary);
+            background-clip: padding-box;
+        }
+        /* Asegurar que todos los elementos sean visibles */
+        .summary-restaurant:last-of-type {
+            margin-bottom: 0;
+        }
+        .summary-restaurant:last-of-type .summary-overall-pax {
+            margin-bottom: 0;
         }
         .summary-table-group {
             margin-bottom: 18px;
@@ -781,37 +1274,71 @@
         .summary-table {
             width: 100%;
             min-width: 600px;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             background: transparent;
-            font-size: 0.97em;
-            margin-top: 2px;
+            font-size: 0.95em;
+            margin-top: 0;
+            margin-bottom: 0;
+            border-radius: 8px;
+            overflow: visible;
         }
         .summary-table th, .summary-table td {
-            padding: 5px 7px;
+            padding: 10px 14px;
             text-align: left;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border);
             white-space: nowrap;
+            line-height: 1.5;
         }
         .summary-table th {
-            background: #f1f5f9;
-            color: var(--primary-dark);
+            background: rgba(37,99,235,0.04);
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.88em;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 12px 14px;
+        }
+        body.dark .summary-table th {
+            background: rgba(96,165,250,0.06);
+        }
+        .summary-table tbody tr {
+            transition: background 0.15s;
+        }
+        .summary-table tbody tr:hover {
+            background: rgba(37,99,235,0.02);
+        }
+        body.dark .summary-table tbody tr:hover {
+            background: rgba(96,165,250,0.04);
+        }
+        .summary-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .summary-table td {
+            color: var(--text);
+            font-size: 0.95em;
+        }
+        .summary-table .pax-cell {
+            color: #ef4444;
             font-weight: 700;
             font-size: 0.98em;
         }
-        .summary-table tr:last-child td {
-            border-bottom: none;
-        }
-        .summary-table .pax-cell {
-            color: #dc2626;
-            font-weight: 800;
-        }
         .summary-table .comment-cell {
-            color: var(--primary-dark);
-            font-size: 0.95em;
+            color: var(--text-light);
+            font-size: 0.9em;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .summary-table .validator-cell {
             color: var(--primary);
-            font-size: 0.95em;
+            font-size: 0.92em;
+            font-weight: 500;
         }
         .summary-overall-pax {
             text-align: right;
@@ -825,23 +1352,67 @@
         @media (max-width: 900px) {
             #summaryModal .modal-content {
                 max-width: 99vw;
-                padding: 10px 2vw 10px 2vw;
-                font-size: 0.97em;
+                max-height: 93vh;
             }
-            .summary-table th, .summary-table td {
-                padding: 4px 4px;
+            #summaryModal .modal-content h3 {
+                padding: 18px 20px 14px 20px;
+                font-size: 1.15em;
+            }
+            #summaryContent.summary-content {
+                padding: 16px 20px 28px 20px;
+                max-height: calc(93vh - 70px);
+            }
+            .summary-restaurant {
+                margin-bottom: 12px;
+            }
+            .summary-restaurant h4 {
+                padding: 12px 16px;
+                font-size: 1.05em;
+            }
+            .summary-restaurant h4 span {
+                font-size: 0.88em;
+                padding: 4px 10px;
+            }
+            .summary-time-group {
+                padding: 12px 16px;
                 font-size: 0.95em;
             }
-        }
-        @media (max-width: 600px) {
-            #summaryModal .modal-content {
-                max-width: 99vw;
-                padding: 6px 1vw 6px 1vw;
-                font-size: 0.93em;
+            .summary-time {
+                font-size: 0.98em;
+            }
+            .summary-time-badge {
+                font-size: 0.9em;
+                padding: 4px 10px;
+            }
+            .summary-time span {
+                font-size: 0.9em;
+                padding: 3px 10px;
+            }
+            .summary-table {
+                font-size: 0.92em;
             }
             .summary-table th, .summary-table td {
-                padding: 3px 2px;
+                padding: 9px 12px;
                 font-size: 0.92em;
+            }
+            .summary-table th {
+                font-size: 0.86em;
+                padding: 11px 12px;
+            }
+            .summary-table .pax-cell {
+                font-size: 0.95em;
+            }
+            .summary-table .comment-cell {
+                font-size: 0.88em;
+                max-width: 180px;
+            }
+            .summary-table .validator-cell {
+                font-size: 0.9em;
+            }
+            .summary-overall-pax {
+                padding: 14px 18px;
+                font-size: 1.15em;
+                margin: 16px 0 8px 0;
             }
         }
         #archiveModal .modal-content {
@@ -1026,7 +1597,7 @@
                     <div id="operatingHoursMessage" class="operating-hours-message" style="display:none;">
                         Las reservas solo se pueden registrar entre las 7:00 AM y las 4:30 PM.
                     </div>
-                    <button type="submit" class="btn" id="submitReservationBtn">
+                    <button type="submit" class="btn" id="submitReservationBtn" disabled>
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Registrar Reserva
                     </button>
@@ -1086,6 +1657,8 @@
 
     <!-- Snackbar/Toast -->
     <div id="snackbar" class="snackbar"></div>
+    <!-- Live Notification Container -->
+    <div id="liveNotificationContainer"></div>
     <!-- Loading Spinner -->
     <div id="spinnerOverlay" class="spinner-overlay" style="display:none;">
         <div class="spinner"></div>
@@ -1164,6 +1737,11 @@
             const operatingHoursMessage = document.getElementById('operatingHoursMessage');
             const toggleDarkBtn = document.getElementById('toggleDark');
 
+            // Deshabilitar botón al inicio hasta verificar horario
+            if (submitReservationBtn) {
+                submitReservationBtn.disabled = true;
+            }
+
             let reservations = []; // Reservas del día actual, ahora se sincronizarán con Firebase
             let archivedReservations = []; // Reservas de días anteriores, también desde Firebase
             let lastAccessDate = localStorage.getItem('lastAccessDate'); // Todavía usado para control de fecha de acceso
@@ -1215,6 +1793,9 @@
                 }
                 return isInOperatingHours;
             }
+
+            // Verificar horario inmediatamente al cargar (antes de cargar datos)
+            checkOperatingHours();
 
             // --- Lógica de Carga y Archivamiento con Firebase ---
             async function loadAndArchiveReservations() {
@@ -1268,14 +1849,50 @@
                     // Escuchar cambios en las reservas del día actual en tiempo real
                     onValue(dailyReservationsRef, (snapshot) => {
                         const data = snapshot.val();
+                        const currentReservationIds = new Set();
                         reservations = [];
+                        
                         if (data) {
                             for (const key in data) {
-                                reservations.push({ id: key, ...data[key] });
+                                const reservation = { id: key, ...data[key] };
+                                reservations.push(reservation);
+                                currentReservationIds.add(key);
+                                
+                                // Detectar nuevas reservas y mostrar notificación
+                                if (!previousReservationIds.has(key)) {
+                                    // Es una nueva reserva (no estaba en el set anterior)
+                                    // Mostrar notificación solo si no es la primera carga
+                                    if (previousReservationIds.size > 0) {
+                                        const reservationTimestamp = reservation.timestamp || Date.now();
+                                        const now = Date.now();
+                                        const timeDiff = now - reservationTimestamp;
+                                        
+                                        // Verificar si esta reserva fue creada por el usuario actual
+                                        // Comparar timestamp con las reservas recientes del usuario
+                                        const isUserReservation = userReservationTimestamps.some(ts => {
+                                            return Math.abs(ts - reservationTimestamp) < 3000; // 3 segundos de tolerancia
+                                        });
+                                        
+                                        // Mostrar notificación solo si:
+                                        // 1. La reserva es muy reciente (probablemente de otro usuario)
+                                        // 2. No es una reserva del usuario actual
+                                        if (timeDiff < 15000 && !isUserReservation) { // 15 segundos
+                                            setTimeout(() => {
+                                                showLiveNotification(reservation);
+                                            }, 800);
+                                        }
+                                    }
+                                }
                             }
                         }
+                        
+                        // Actualizar el set de IDs anteriores
+                        previousReservationIds = currentReservationIds;
+                        
                         renderReservations(); // Volver a renderizar cada vez que cambian las reservas
                         updateAvailabilityInfo(); // Actualizar disponibilidad también
+                    }, (error) => {
+                        console.error("Error al escuchar cambios en reservas:", error);
                     });
 
                 } catch (error) {
@@ -1736,15 +2353,23 @@
                     noReservationsMessage.style.display = 'none';
                     places.forEach(place => {
                         const times = Object.keys(grouped[place]).sort();
+                        const restInfo = getRestaurantInfo(place);
                         times.forEach(time => {
                             const groupDiv = document.createElement('div');
                             groupDiv.className = 'reservation-group';
                             const groupTitle = document.createElement('div');
                             groupTitle.className = 'reservation-group-title';
                             const emoji = document.createElement('span');
-                            emoji.textContent = '🍽️';
+                            emoji.textContent = restInfo.emoji;
+                            emoji.style.fontSize = '1.1em';
+                            emoji.style.marginRight = '6px';
                             groupTitle.appendChild(emoji);
-                            groupTitle.appendChild(document.createTextNode(` ${sanitizeText(place)} - ${convertTo12HourFormat(time)}`));
+                            const timeEmoji = document.createElement('span');
+                            timeEmoji.textContent = '🕐';
+                            timeEmoji.style.fontSize = '0.9em';
+                            timeEmoji.style.marginRight = '4px';
+                            groupTitle.appendChild(timeEmoji);
+                            groupTitle.appendChild(document.createTextNode(` ${sanitizeText(restInfo.name)} - ${convertTo12HourFormat(time)}`));
                             groupDiv.appendChild(groupTitle);
                             // Ordenar por hora de ingreso (timestamp ascendente)
                             grouped[place][time].sort((a, b) => {
@@ -1917,6 +2542,39 @@
             }
 
             // Función para generar y mostrar el resumen de reservas en formato de lista/tabla
+            // Función helper para obtener emoji y clase CSS de restaurante
+            function getRestaurantInfo(restaurantName) {
+                const name = restaurantName.toLowerCase();
+                if (name.includes('himitsu')) {
+                    return { emoji: '🍱', class: 'restaurant-himitsu', name: 'Himitsu' };
+                } else if (name.includes('hibachi')) {
+                    return { emoji: '🔥', class: 'restaurant-hibachi', name: 'Hibachi' };
+                } else if (name.includes('patio')) {
+                    return { emoji: '🌮', class: 'restaurant-patio', name: 'El Patio' };
+                } else if (name.includes('bluewater')) {
+                    return { emoji: '🥩', class: 'restaurant-bluewater', name: 'Bluewater' };
+                } else if (name.includes('bordeaux')) {
+                    return { emoji: '🍷', class: 'restaurant-bordeaux', name: 'Bordeaux' };
+                } else if (name.includes('olio')) {
+                    return { emoji: '🍝', class: 'restaurant-olio', name: 'El Olio' };
+                }
+                return { emoji: '🍽️', class: '', name: restaurantName };
+            }
+
+            // Función helper para obtener clase CSS según la hora
+            function getTimeClass(time24h) {
+                const timeMap = {
+                    '17:30': 'time-1730',
+                    '18:00': 'time-1800',
+                    '18:30': 'time-1830',
+                    '18:45': 'time-1845',
+                    '20:00': 'time-2000',
+                    '21:00': 'time-2100',
+                    '21:15': 'time-2115'
+                };
+                return timeMap[time24h] || 'time-1800'; // Default a 18:00 si no coincide
+            }
+
             function generateReservationsSummary() {
                 const groupedReservations = {};
                 let totalOverallPax = 0;
@@ -1933,17 +2591,25 @@
                 let summaryHtml = '';
                 const sortedRestaurants = Object.keys(groupedReservations).sort();
                 if (sortedRestaurants.length === 0) {
-                    summaryHtml = '<p style="text-align: center; margin-top: 50px;">No hay reservas registradas para hoy.</p>';
+                    summaryHtml = `
+                        <div style="text-align: center; padding: 60px 20px; color: var(--text-light);">
+                            <div style="font-size: 3em; margin-bottom: 16px; opacity: 0.5;">📋</div>
+                            <p style="font-size: 1.1em; font-weight: 500; margin: 0; color: var(--text-light);">No hay reservas registradas para hoy</p>
+                            <p style="font-size: 0.9em; margin-top: 8px; color: var(--text-light); opacity: 0.7;">Las reservas aparecerán aquí cuando se agreguen</p>
+                        </div>
+                    `;
                 } else {
                     sortedRestaurants.forEach(restaurant => {
                         const restaurantData = groupedReservations[restaurant];
-                        summaryHtml += `<div class="summary-restaurant">
-                            <h4>${restaurant} <span>(Total PAX: ${restaurantData.totalRestaurantPax})</span></h4>`;
+                        const restInfo = getRestaurantInfo(restaurant);
+                        summaryHtml += `<div class="summary-restaurant ${restInfo.class}">
+                            <h4><span style="font-size: 1.2em; margin-right: 8px;">${restInfo.emoji}</span>${restInfo.name} <span>(Total PAX: ${restaurantData.totalRestaurantPax})</span></h4>`;
                         const sortedTimes = Object.keys(restaurantData.times).sort();
                         sortedTimes.forEach(time24h => {
                             const timeData = restaurantData.times[time24h];
+                            const timeClass = getTimeClass(time24h);
                             summaryHtml += `<div class="summary-time-group">
-                                <div class="summary-time"><span class="summary-time-badge">${convertTo12HourFormat(time24h)}</span>: <span>${timeData.reduce((sum, r) => sum + r.pax, 0)} PAX</span></div>
+                                <div class="summary-time"><span class="summary-time-badge ${timeClass}">${convertTo12HourFormat(time24h)}</span>: <span>${timeData.reduce((sum, r) => sum + r.pax, 0)} PAX</span></div>
                                 <table class="summary-table">
                                     <thead>
                                         <tr>
@@ -1992,6 +2658,91 @@
             setTimeout(() => {
                 snackbar.className = 'snackbar';
             }, duration);
+        }
+
+        // Funciones helper globales para notificaciones
+        function sanitizeTextGlobal(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        function convertTo12HourFormatGlobal(time24h) {
+            if (!time24h) return '';
+            const [hours, minutes] = time24h.split(':');
+            const hour = parseInt(hours, 10);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        // Sistema de Notificaciones en Vivo
+        let previousReservationIds = new Set();
+        let notificationCounter = 0;
+        let userReservationTimestamps = []; // Track del usuario actual para evitar notificaciones propias
+
+        function showLiveNotification(reservation) {
+            const container = document.getElementById('liveNotificationContainer');
+            if (!container) return;
+
+            const notificationId = `live-notif-${++notificationCounter}`;
+            const notification = document.createElement('div');
+            notification.id = notificationId;
+            notification.className = 'live-notification';
+            
+            const restaurant = reservation.place || 'Restaurante';
+            const time = reservation.time ? convertTo12HourFormatGlobal(reservation.time) : '';
+            const room = reservation.room || '';
+            const pax = reservation.pax || 0;
+            const guest = reservation.guest || 'Huésped';
+
+            notification.innerHTML = `
+                <button class="live-notification-close" onclick="this.closest('.live-notification').classList.add('hide'); setTimeout(() => this.closest('.live-notification').remove(), 400)">×</button>
+                <div class="live-notification-header">
+                    <div class="live-notification-icon">🎉</div>
+                    <h4 class="live-notification-title">Nueva Reserva Agregada</h4>
+                </div>
+                <div class="live-notification-body">
+                    Se agregó una nueva reserva para el restaurante <strong>${sanitizeTextGlobal(restaurant)}</strong>
+                </div>
+                <div class="live-notification-details">
+                    <div class="live-notification-detail-row">
+                        <span class="live-notification-detail-label">Huésped:</span>
+                        <span class="live-notification-detail-value">${sanitizeTextGlobal(guest)}</span>
+                    </div>
+                    <div class="live-notification-detail-row">
+                        <span class="live-notification-detail-label">Habitación:</span>
+                        <span class="live-notification-detail-value">${sanitizeTextGlobal(room)}</span>
+                    </div>
+                    <div class="live-notification-detail-row">
+                        <span class="live-notification-detail-label">Hora:</span>
+                        <span class="live-notification-detail-value">${sanitizeTextGlobal(time)}</span>
+                    </div>
+                    <div class="live-notification-detail-row">
+                        <span class="live-notification-detail-label">Personas:</span>
+                        <span class="live-notification-detail-value">${sanitizeTextGlobal(pax)} PAX</span>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(notification);
+
+            // Mostrar notificación con animación
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            // Ocultar y eliminar después de 6 segundos
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 400);
+            }, 6000);
         }
         // Loading Spinner
         function showSpinner() {
@@ -2085,6 +2836,14 @@
                     ref: dailyReservationsRef,
                     today 
                 };
+                
+                // Rastrear el timestamp de esta reserva para evitar notificaciones propias
+                const reservationTimestamp = data.timestamp || Date.now();
+                userReservationTimestamps.push(reservationTimestamp);
+                // Limpiar timestamps antiguos (más de 30 segundos)
+                userReservationTimestamps = userReservationTimestamps.filter(ts => {
+                    return Date.now() - ts < 30000;
+                });
                 
                 showSnackbar('Reserva registrada correctamente.', 4000);
                 // Mostrar botón de deshacer
