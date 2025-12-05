@@ -702,7 +702,7 @@
             position: fixed !important;
             right: 32px;
             bottom: 32px;
-            z-index: var(--z-fixed);
+            z-index: 999 !important;
             width: 64px;
             height: 64px;
             border-radius: var(--radius-full);
@@ -711,13 +711,15 @@
             border: none;
             box-shadow: var(--shadow-xl), var(--shadow-glow), 0 4px 20px rgba(99, 102, 241, 0.4);
             font-size: 1.5rem;
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all var(--transition-base), opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             overflow: hidden;
             animation: float 3s ease-in-out infinite;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
 
         @keyframes float {
@@ -771,9 +773,18 @@
 
         /* Asegurar que el FAB siempre esté visible cuando se muestra */
         .fab-add-reservation[style*="display: flex"],
-        .fab-add-reservation[style*="display:flex"] {
-            opacity: 1;
-            visibility: visible;
+        .fab-add-reservation[style*="display:flex"],
+        .fab-add-reservation {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+        
+        .fab-add-reservation.hidden {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
         }
 
         @media (max-width: 700px) {
@@ -1093,11 +1104,35 @@
             transition: opacity var(--transition-base), visibility var(--transition-base);
             overflow-y: auto;
             padding: var(--spacing-lg);
+            scroll-behavior: smooth;
         }
-
+        
         .modal-overlay.active {
             opacity: 1;
             visibility: visible;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+        
+        /* Asegurar que el modal se centre en la viewport visible */
+        @supports (min-height: 100dvh) {
+            .modal-overlay {
+                height: 100dvh;
+            }
+        }
+        
+        /* Mejorar el centrado del modal cuando está activo */
+        .modal-overlay.active {
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Forzar scroll al modal cuando se abre */
+        .modal-overlay.active:focus-within,
+        .modal-overlay.active {
+            scroll-margin: 0;
         }
 
         .modal-content {
@@ -1116,18 +1151,17 @@
             box-sizing: border-box;
             margin: auto;
             position: relative;
-            max-height: 92vh;
+            max-height: min(90vh, 600px);
             display: flex;
             flex-direction: column;
             font-weight: var(--font-weight-normal);
             align-items: center;
             text-align: center;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex-shrink: 0;
         }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0) scale(1);
-        }
+        
 
         .modal-close-btn {
             position: absolute;
@@ -2443,6 +2477,7 @@
                     <button type="button" id="sendWhatsAppBtn"><span class="material-icons">send</span>Enviar</button>
                     <button type="button" id="blockRestaurantsBtn" class="btn btn-warning"><span class="material-icons">block</span>Bloquear Restaurantes</button>
                     <button type="button" id="checkAvailabilityBtn" class="btn btn-success"><span class="material-icons">restaurant_menu</span>Disponibilidad de Restaurantes</button>
+                    <button type="button" id="viewLogBtn" class="btn btn-secondary"><span class="material-icons">history</span>Ver Log de Actividades</button>
                 </div>
                 <div class="table-container">
                     <table class="admin-table">
@@ -2471,14 +2506,14 @@
                             Mostrando <span id="vipPaginationStart">0</span> - <span id="vipPaginationEnd">0</span> de <span id="vipPaginationTotal">0</span> reservas
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center;">
-                            <button id="vipPaginationPrev" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;" disabled>
+                            <button type="button" id="vipPaginationPrev" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;" disabled>
                                 <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_left</span>
                                 Anterior
                             </button>
                             <div id="vipPaginationNumbers" style="display: flex; gap: 4px;">
                                 <!-- Los números de página se generarán dinámicamente -->
                             </div>
-                            <button id="vipPaginationNext" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;">
+                            <button type="button" id="vipPaginationNext" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;">
                                 Siguiente
                                 <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_right</span>
                             </button>
@@ -2644,14 +2679,14 @@
                                     Mostrando <span id="impressionPaginationStart">0</span> - <span id="impressionPaginationEnd">0</span> de <span id="impressionPaginationTotal">0</span> reservas
                                 </div>
                                 <div style="display: flex; gap: 8px; align-items: center;">
-                                    <button id="impressionPaginationPrev" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;" disabled>
+                                    <button type="button" id="impressionPaginationPrev" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;" disabled>
                                         <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_left</span>
                                         Anterior
                                     </button>
                                     <div id="impressionPaginationNumbers" style="display: flex; gap: 4px;">
                                         <!-- Los números de página se generarán dinámicamente -->
                                     </div>
-                                    <button id="impressionPaginationNext" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;">
+                                    <button type="button" id="impressionPaginationNext" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9em;">
                                         Siguiente
                                         <span class="material-icons" style="font-size: 1.2em; vertical-align: middle;">chevron_right</span>
                                     </button>
@@ -2929,6 +2964,36 @@
         </div>
     </div>
 
+    <!-- Modal para ver el log de actividades -->
+    <div id="viewLogModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px;">
+            <button class="modal-close-btn" data-modal="viewLogModal"><span class="material-icons">close</span></button>
+            <h3><span class="material-icons">history</span>Log de Actividades del Sistema</h3>
+            <div style="margin-bottom: 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <input type="text" id="logSearch" placeholder="Buscar en el log..." style="flex: 1; min-width: 200px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                <select id="logFilter" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <option value="">Todas las acciones</option>
+                    <option value="add">Agregar Reserva</option>
+                    <option value="edit">Editar Reserva</option>
+                    <option value="delete">Eliminar Reserva</option>
+                    <option value="config">Configuración</option>
+                </option>
+                <select id="logTypeFilter" style="padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <option value="">Todos los tipos</option>
+                    <option value="VIP">VIP</option>
+                    <option value="Impression">Impression</option>
+                </select>
+                <button type="button" id="clearLogBtn" class="btn btn-danger" style="padding: 10px 16px;"><span class="material-icons">delete_sweep</span>Limpiar Log</button>
+            </div>
+            <div id="logContent" style="max-height: 60vh; overflow-y: auto; width: 100%;">
+                <p style="text-align: center; color: var(--text-tertiary); padding: 40px;">Cargando log de actividades...</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" data-modal="viewLogModal"><span class="material-icons">close</span>Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Importar las funciones que necesitas de los SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -2954,6 +3019,106 @@
         console.log("Firebase Database initialized:", database);
 
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Sistema de Logging ---
+            async function logAction(action, type, details, userId = 'Admin') {
+                try {
+                    const logEntry = {
+                        action: action, // 'add', 'edit', 'delete', 'config'
+                        type: type, // 'VIP', 'Impression', 'Config'
+                        details: details, // Objeto con información de la acción
+                        userId: userId,
+                        timestamp: new Date().getTime(),
+                        date: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('es-ES', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        })
+                    };
+                    
+                    const logRef = ref(database, 'appLogs');
+                    await push(logRef, logEntry);
+                } catch (error) {
+                    console.error("Error al registrar acción en el log:", error);
+                }
+            }
+            
+            // --- Función global para centrar modales cuando se abren ---
+            function centerModalOnOpen(modal) {
+                if (!modal) return;
+                
+                setTimeout(() => {
+                    // Scroll del overlay al inicio para asegurar que el modal sea visible
+                    modal.scrollTop = 0;
+                    
+                    // Obtener el contenido del modal
+                    const modalContent = modal.querySelector('.modal-content');
+                    if (modalContent) {
+                        // Forzar un reflow para obtener dimensiones correctas
+                        void modalContent.offsetHeight;
+                        
+                        // Obtener posición del modal en la viewport
+                        const modalRect = modalContent.getBoundingClientRect();
+                        const viewportHeight = window.innerHeight;
+                        const viewportWidth = window.innerWidth;
+                        
+                        // Verificar si el modal está completamente visible en la viewport
+                        const isFullyVisible = modalRect.top >= 0 && 
+                                              modalRect.bottom <= viewportHeight &&
+                                              modalRect.left >= 0 && 
+                                              modalRect.right <= viewportWidth;
+                        
+                        // Si no está completamente visible, centrarlo
+                        if (!isFullyVisible) {
+                            // Calcular posición para centrar verticalmente
+                            const modalHeight = modalRect.height;
+                            const viewportCenter = viewportHeight / 2;
+                            const modalTop = modalRect.top;
+                            const modalCenter = modalTop + (modalHeight / 2);
+                            const scrollOffset = modalCenter - viewportCenter;
+                            
+                            // Hacer scroll para centrar el modal en la viewport visible
+                            const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+                            window.scrollTo({
+                                top: Math.max(0, currentScroll + scrollOffset),
+                                behavior: 'smooth'
+                            });
+                            
+                            // También asegurar que el overlay muestre el modal
+                            modal.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                }, 200);
+            }
+            
+            // Configurar todos los modales: observarlos y manejar eventos
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                // Observar cambios en la clase 'active' para centrar el modal
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            if (modal.classList.contains('active')) {
+                                centerModalOnOpen(modal);
+                            }
+                        }
+                    });
+                });
+                observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+                
+                // Manejar cierre de modal al hacer clic fuera del contenido
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+            
             // --- FAB y Modal para agregar reserva ---
             const openAddReservationModalBtn = document.getElementById('openAddReservationModal');
             const addReservationModal = document.getElementById('addReservationModal');
@@ -2974,18 +3139,10 @@
                 });
             });
             
-            // Manejar cierre de modales al hacer clic fuera del contenido
-            document.querySelectorAll('.modal-overlay').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.classList.remove('active');
-                    }
-                });
-            });
-
             if (openAddReservationModalBtn && addReservationModal) {
                 openAddReservationModalBtn.addEventListener('click', () => {
                     addReservationModal.classList.add('active');
+                    // El MutationObserver ya se encargará de centrarlo
                 });
             }
 
@@ -3096,9 +3253,13 @@
                 if (vipSection) vipSection.style.display = 'block';
                 if (impressionSection) impressionSection.style.display = 'none';
                 
-                // Mostrar FAB con animación suave
+                // Mostrar FAB con animación suave - siempre visible
                 if (openAddReservationModalBtn) {
+                    openAddReservationModalBtn.classList.remove('hidden');
                     openAddReservationModalBtn.style.display = 'flex';
+                    openAddReservationModalBtn.style.visibility = 'visible';
+                    openAddReservationModalBtn.style.pointerEvents = 'auto';
+                    openAddReservationModalBtn.style.zIndex = '999';
                     openAddReservationModalBtn.style.opacity = '0';
                     openAddReservationModalBtn.style.transform = 'scale(0.5)';
                     setTimeout(() => {
@@ -3125,7 +3286,10 @@
                     openAddReservationModalBtn.style.opacity = '0';
                     openAddReservationModalBtn.style.transform = 'scale(0.5)';
                     setTimeout(() => {
+                        openAddReservationModalBtn.classList.add('hidden');
                         openAddReservationModalBtn.style.display = 'none';
+                        openAddReservationModalBtn.style.visibility = 'hidden';
+                        openAddReservationModalBtn.style.pointerEvents = 'none';
                     }, 300);
                 }
                 
@@ -3441,7 +3605,15 @@
                         
                         // Guardar en Firebase
                         const configRef = ref(database, 'impressionConfig/availableDaysByWeek');
+                        const oldConfig = { ...impressionAvailableDaysByWeek };
                         await set(configRef, impressionAvailableDaysByWeek);
+                        
+                        // Registrar en el log
+                        await logAction('config', 'Config', {
+                            changes: pendingCalendarChanges,
+                            oldConfig: oldConfig,
+                            newConfig: impressionAvailableDaysByWeek
+                        }, 'Admin');
                         
                         // Limpiar cambios pendientes
                         pendingCalendarChanges = {};
@@ -3655,6 +3827,7 @@
                     
                     for (let i = startPage; i <= endPage; i++) {
                         const pageBtn = document.createElement('button');
+                        pageBtn.type = 'button';
                         pageBtn.textContent = i;
                         pageBtn.className = 'btn';
                         if (i === impressionCurrentPage) {
@@ -3668,9 +3841,18 @@
                         pageBtn.style.padding = '6px 12px';
                         pageBtn.style.minWidth = '36px';
                         pageBtn.style.cursor = 'pointer';
-                        pageBtn.addEventListener('click', () => {
+                        pageBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             impressionCurrentPage = i;
                             renderImpressionReservationsTable();
+                            // Scroll a la tabla después de cambiar página
+                            setTimeout(() => {
+                                const impressionSection = document.getElementById('impressionSection');
+                                if (impressionSection) {
+                                    impressionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            }, 100);
                         });
                         paginationNumbers.appendChild(pageBtn);
                     }
@@ -3730,16 +3912,27 @@
             const impressionPaginationNext = document.getElementById('impressionPaginationNext');
             
             if (impressionPaginationPrev) {
-                impressionPaginationPrev.addEventListener('click', () => {
+                impressionPaginationPrev.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (impressionCurrentPage > 1) {
                         impressionCurrentPage--;
                         renderImpressionReservationsTable();
+                        // Scroll a la tabla después de cambiar página
+                        setTimeout(() => {
+                            const impressionSection = document.getElementById('impressionSection');
+                            if (impressionSection) {
+                                impressionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
                     }
                 });
             }
             
             if (impressionPaginationNext) {
-                impressionPaginationNext.addEventListener('click', () => {
+                impressionPaginationNext.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     let filtered = allImpressionReservations;
                     const searchTerm = impressionReservationsSearch?.value?.toLowerCase() || '';
                     if (searchTerm) {
@@ -3758,6 +3951,13 @@
                     if (impressionCurrentPage < totalPages) {
                         impressionCurrentPage++;
                         renderImpressionReservationsTable();
+                        // Scroll a la tabla después de cambiar página
+                        setTimeout(() => {
+                            const impressionSection = document.getElementById('impressionSection');
+                            if (impressionSection) {
+                                impressionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
                     }
                 });
             }
@@ -4200,16 +4400,28 @@
             }
 
             // --- Eliminar reserva de Impression ---
-            function deleteImpressionReservation(resId, weekKey) {
+            async function deleteImpressionReservation(resId, weekKey) {
                 if (!confirm('¿Está seguro de que desea eliminar esta reserva?')) return;
 
-                const reservationRef = ref(database, `impressionReservations/${weekKey}/${resId}`);
-                remove(reservationRef).then(() => {
+                // Obtener datos de la reserva antes de eliminarla para el log
+                const reservationToDelete = allImpressionReservations.find(r => r.id === resId && r.weekKey === weekKey);
+
+                try {
+                    const reservationRef = ref(database, `impressionReservations/${weekKey}/${resId}`);
+                    await remove(reservationRef);
+                    
+                    // Registrar en el log
+                    await logAction('delete', 'Impression', {
+                        reservationId: resId,
+                        weekKey: weekKey,
+                        reservation: reservationToDelete
+                    }, reservationToDelete?.validator || 'Admin');
+                    
                     alert('Reserva eliminada exitosamente.');
-                }).catch(error => {
+                } catch (error) {
                     console.error("Error al eliminar reserva:", error);
                     alert('Error al eliminar la reserva.');
-                });
+                }
             }
 
             // --- Vista Completa de Impression (ya no se necesita botón separado, se usa la sección principal) ---
@@ -4492,6 +4704,9 @@
                     setButtonLoading(submitBtn, 'Guardando...');
 
                     try {
+                        // Obtener datos originales para el log
+                        const originalReservation = allImpressionReservations.find(r => r.id === resId && r.weekKey === weekKey);
+                        
                         const reservationRef = ref(database, `impressionReservations/${weekKey}/${resId}`);
                         await update(reservationRef, {
                             day: day,
@@ -4502,6 +4717,22 @@
                             allergies: allergies,
                             notes: notes
                         });
+                        
+                        // Registrar en el log
+                        await logAction('edit', 'Impression', {
+                            reservationId: resId,
+                            weekKey: weekKey,
+                            original: originalReservation,
+                            updated: {
+                                day: day,
+                                room: room,
+                                guest: guest,
+                                guestType: guestType,
+                                pax: pax,
+                                allergies: allergies,
+                                notes: notes
+                            }
+                        }, originalReservation?.validator || 'Admin');
                         
                         alert('Reserva actualizada exitosamente.');
                         // Cerrar el modal
@@ -4774,7 +5005,20 @@
                 try {
                     // Siempre agregar a dailyReservations bajo la fecha especificada
                     const reservationsRef = ref(database, `dailyReservations/${date}`);
-                    await push(reservationsRef, newReservation);
+                    const newRef = await push(reservationsRef, newReservation);
+                    
+                    // Registrar en el log
+                    await logAction('add', 'VIP', {
+                        reservationId: newRef.key,
+                        room: room,
+                        guest: guest,
+                        place: place,
+                        time: time,
+                        pax: pax,
+                        date: date,
+                        validator: validator
+                    }, validator);
+                    
                     alert('Reserva agregada con éxito!');
                     adminReservationForm.reset();
                     // Cerrar el modal después de agregar
@@ -4836,6 +5080,9 @@
                 setButtonLoading(submitBtn, 'Guardando...');
 
                 try {
+                    // Obtener datos originales para el log
+                    const originalReservation = allReservations.find(r => r.id === id && r.date === originalDate && r.type === originalType);
+                    
                     if (originalDate === newDate) { // Si la fecha de la reserva no cambia
                         let path;
                         if (originalType === 'daily') {
@@ -4844,6 +5091,15 @@
                             path = `archivedReservations/${originalDate}/${id}`;
                         }
                         await update(ref(database, path), updatedReservation);
+                        
+                        // Registrar en el log
+                        await logAction('edit', 'VIP', {
+                            reservationId: id,
+                            originalDate: originalDate,
+                            newDate: newDate,
+                            original: originalReservation,
+                            updated: updatedReservation
+                        }, validator);
                     } else { // Si la fecha de la reserva ha cambiado
                         // Primero, eliminar de la ubicación antigua
                         let oldPath;
@@ -4861,6 +5117,16 @@
                         const newRef = push(newReservationsRef);
                         await set(newRef, { ...updatedReservation, timestamp: new Date().getTime() }); // Asegurar nuevo timestamp y ID
                         console.log("Reserva añadida a la nueva ubicación:", newDate);
+                        
+                        // Registrar en el log
+                        await logAction('edit', 'VIP', {
+                            reservationId: id,
+                            originalDate: originalDate,
+                            newDate: newDate,
+                            original: originalReservation,
+                            updated: updatedReservation,
+                            moved: true
+                        }, validator);
                     }
 
                     alert('Reserva actualizada con éxito!');
@@ -4880,6 +5146,9 @@
                     return;
                 }
 
+                // Obtener datos de la reserva antes de eliminarla para el log
+                const reservationToDelete = allReservations.find(r => r.id === reservationId && r.date === reservationDate && r.type === reservationType);
+
                 let path;
                 if (reservationType === 'archived') {
                     path = `archivedReservations/${reservationDate}/${reservationId}`;
@@ -4889,6 +5158,14 @@
 
                 try {
                     await remove(ref(database, path));
+                    
+                    // Registrar en el log
+                    await logAction('delete', 'VIP', {
+                        reservationId: reservationId,
+                        date: reservationDate,
+                        reservation: reservationToDelete
+                    }, reservationToDelete?.validator || 'Admin');
+                    
                     alert('Reserva eliminada con éxito!');
                 } catch (error) {
                     console.error("Error al eliminar reserva:", error);
@@ -5006,6 +5283,7 @@
                     
                     for (let i = startPage; i <= endPage; i++) {
                         const pageBtn = document.createElement('button');
+                        pageBtn.type = 'button';
                         pageBtn.textContent = i;
                         pageBtn.className = 'btn';
                         if (i === vipCurrentPage) {
@@ -5019,9 +5297,18 @@
                         pageBtn.style.padding = '6px 12px';
                         pageBtn.style.minWidth = '36px';
                         pageBtn.style.cursor = 'pointer';
-                        pageBtn.addEventListener('click', () => {
+                        pageBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             vipCurrentPage = i;
                             filterAdminReservations();
+                            // Scroll a la tabla después de cambiar página
+                            setTimeout(() => {
+                                const tableContainer = document.querySelector('.table-container');
+                                if (tableContainer) {
+                                    tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            }, 100);
                         });
                         paginationNumbers.appendChild(pageBtn);
                     }
@@ -5031,15 +5318,23 @@
             function filterAdminReservations() {
                 const searchTerm = adminReservationSearchInput.value.toLowerCase().trim();
                 
-                // Resetear a página 1 cuando se aplica un filtro
-                vipCurrentPage = 1;
-
-                if (!searchTerm) {
-                    renderAdminReservationsTable(allReservations);
-                    return;
+                // Resetear a página 1 cuando se aplica un filtro (solo si cambió el término de búsqueda)
+                if (searchTerm !== (adminReservationSearchInput.dataset.lastSearchTerm || '')) {
+                    vipCurrentPage = 1;
+                    adminReservationSearchInput.dataset.lastSearchTerm = searchTerm;
                 }
 
-                const filtered = allReservations.filter(res => {
+                const filtered = getFilteredReservations();
+                renderAdminReservationsTable(filtered);
+            }
+            
+            // Función helper para obtener reservas filtradas
+            function getFilteredReservations() {
+                const searchTerm = adminReservationSearchInput.value.toLowerCase().trim();
+                if (!searchTerm) {
+                    return allReservations;
+                }
+                return allReservations.filter(res => {
                     const roomMatches = String(res.room).includes(searchTerm);
                     const guestMatches = res.guest.toLowerCase().includes(searchTerm);
                     const restaurantMatches = res.place.toLowerCase().includes(searchTerm);
@@ -5047,11 +5342,8 @@
                     const commentMatches = (res.comment || '').toLowerCase().includes(searchTerm);
                     const validatorMatches = (res.validator || '').toLowerCase().includes(searchTerm);
                     const dateMatches = getFormattedDate(res.date).toLowerCase().includes(searchTerm) || res.date.includes(searchTerm);
-
                     return roomMatches || guestMatches || restaurantMatches || timeMatches || commentMatches || validatorMatches || dateMatches;
                 });
-
-                renderAdminReservationsTable(filtered);
             }
 
             adminReservationSearchInput.addEventListener('input', filterAdminReservations);
@@ -5061,20 +5353,39 @@
             const vipPaginationNext = document.getElementById('vipPaginationNext');
             
             if (vipPaginationPrev) {
-                vipPaginationPrev.addEventListener('click', () => {
+                vipPaginationPrev.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (vipCurrentPage > 1) {
                         vipCurrentPage--;
                         filterAdminReservations();
+                        // Scroll a la tabla después de cambiar página
+                        setTimeout(() => {
+                            const tableContainer = document.querySelector('.table-container');
+                            if (tableContainer) {
+                                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
                     }
                 });
             }
             
             if (vipPaginationNext) {
-                vipPaginationNext.addEventListener('click', () => {
-                    const totalPages = Math.ceil(currentFilteredReservations.length / vipItemsPerPage);
+                vipPaginationNext.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const filtered = getFilteredReservations();
+                    const totalPages = Math.ceil(filtered.length / vipItemsPerPage);
                     if (vipCurrentPage < totalPages) {
                         vipCurrentPage++;
                         filterAdminReservations();
+                        // Scroll a la tabla después de cambiar página
+                        setTimeout(() => {
+                            const tableContainer = document.querySelector('.table-container');
+                            if (tableContainer) {
+                                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
                     }
                 });
             }
@@ -5827,19 +6138,223 @@
             // Iniciar los listeners de Firebase al cargar la página
             setupFirebaseListeners();
 
+            // --- Sistema de Log de Actividades ---
+            const viewLogBtn = document.getElementById('viewLogBtn');
+            const viewLogModal = document.getElementById('viewLogModal');
+            const logContent = document.getElementById('logContent');
+            const logSearch = document.getElementById('logSearch');
+            const logFilter = document.getElementById('logFilter');
+            const logTypeFilter = document.getElementById('logTypeFilter');
+            const clearLogBtn = document.getElementById('clearLogBtn');
+            
+            let allLogs = [];
+            
+            // Función para cargar y mostrar el log
+            async function loadLogs() {
+                try {
+                    const logRef = ref(database, 'appLogs');
+                    const snapshot = await get(logRef);
+                    
+                    if (snapshot.exists()) {
+                        const logsData = snapshot.val();
+                        allLogs = Object.keys(logsData).map(key => ({
+                            id: key,
+                            ...logsData[key]
+                        })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); // Más recientes primero
+                    } else {
+                        allLogs = [];
+                    }
+                    
+                    renderLogs();
+                } catch (error) {
+                    console.error("Error al cargar el log:", error);
+                    logContent.innerHTML = '<p style="text-align: center; color: var(--danger-color); padding: 40px;">Error al cargar el log de actividades.</p>';
+                }
+            }
+            
+            // Función para renderizar los logs
+            function renderLogs() {
+                if (!logContent) return;
+                
+                let filteredLogs = [...allLogs];
+                
+                // Filtrar por acción
+                if (logFilter && logFilter.value) {
+                    filteredLogs = filteredLogs.filter(log => log.action === logFilter.value);
+                }
+                
+                // Filtrar por tipo
+                if (logTypeFilter && logTypeFilter.value) {
+                    filteredLogs = filteredLogs.filter(log => log.type === logTypeFilter.value);
+                }
+                
+                // Filtrar por búsqueda
+                if (logSearch && logSearch.value.trim()) {
+                    const searchTerm = logSearch.value.toLowerCase();
+                    filteredLogs = filteredLogs.filter(log => {
+                        const detailsStr = JSON.stringify(log.details || {}).toLowerCase();
+                        const userId = (log.userId || '').toLowerCase();
+                        const action = (log.action || '').toLowerCase();
+                        return detailsStr.includes(searchTerm) || userId.includes(searchTerm) || action.includes(searchTerm);
+                    });
+                }
+                
+                if (filteredLogs.length === 0) {
+                    logContent.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 40px;">No hay registros de actividades para mostrar.</p>';
+                    return;
+                }
+                
+                const logHTML = filteredLogs.map(log => {
+                    const actionLabels = {
+                        'add': 'Agregar Reserva',
+                        'edit': 'Editar Reserva',
+                        'delete': 'Eliminar Reserva',
+                        'config': 'Configuración'
+                    };
+                    
+                    const actionColors = {
+                        'add': 'var(--success-color)',
+                        'edit': 'var(--info-color)',
+                        'delete': 'var(--danger-color)',
+                        'config': 'var(--warning-color)'
+                    };
+                    
+                    const typeColors = {
+                        'VIP': 'var(--primary-color)',
+                        'Impression': 'var(--accent-color)',
+                        'Config': 'var(--warning-color)'
+                    };
+                    
+                    const actionLabel = actionLabels[log.action] || log.action;
+                    const actionColor = actionColors[log.action] || 'var(--text-secondary)';
+                    const typeColor = typeColors[log.type] || 'var(--text-secondary)';
+                    
+                    let detailsHTML = '';
+                    if (log.details) {
+                        if (log.action === 'add') {
+                            detailsHTML = `
+                                <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-secondary);">
+                                    <strong>Habitación:</strong> ${log.details.room || 'N/A'} | 
+                                    <strong>Huesped:</strong> ${log.details.guest || 'N/A'} | 
+                                    <strong>Restaurante:</strong> ${log.details.place || 'N/A'} | 
+                                    <strong>Fecha:</strong> ${log.details.date || 'N/A'} | 
+                                    <strong>Hora:</strong> ${log.details.time || 'N/A'} | 
+                                    <strong>PAX:</strong> ${log.details.pax || 'N/A'}
+                                </div>
+                            `;
+                        } else if (log.action === 'edit') {
+                            detailsHTML = `
+                                <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-secondary);">
+                                    <strong>ID Reserva:</strong> ${log.details.reservationId || 'N/A'} | 
+                                    <strong>Fecha Original:</strong> ${log.details.originalDate || 'N/A'} | 
+                                    <strong>Fecha Nueva:</strong> ${log.details.newDate || 'N/A'}
+                                    ${log.details.moved ? ' | <span style="color: var(--warning-color);">(Movida)</span>' : ''}
+                                </div>
+                            `;
+                        } else if (log.action === 'delete') {
+                            detailsHTML = `
+                                <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-secondary);">
+                                    <strong>ID Reserva:</strong> ${log.details.reservationId || 'N/A'} | 
+                                    <strong>Fecha:</strong> ${log.details.date || 'N/A'}
+                                    ${log.details.reservation ? ` | <strong>Habitación:</strong> ${log.details.reservation.room || 'N/A'} | <strong>Huesped:</strong> ${log.details.reservation.guest || 'N/A'}` : ''}
+                                </div>
+                            `;
+                        } else if (log.action === 'config') {
+                            detailsHTML = `
+                                <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-secondary);">
+                                    <strong>Cambios:</strong> ${Object.keys(log.details.changes || {}).length} semana(s) modificada(s)
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    return `
+                        <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: var(--surface-color); border-radius: 8px; margin-bottom: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                        <span style="background: ${actionColor}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">
+                                            ${actionLabel}
+                                        </span>
+                                        <span style="background: ${typeColor}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">
+                                            ${log.type || 'N/A'}
+                                        </span>
+                                        <span style="color: var(--text-tertiary); font-size: 0.85em;">
+                                            ${log.dateFormatted || new Date(log.timestamp).toLocaleString('es-ES')}
+                                        </span>
+                                    </div>
+                                    ${detailsHTML}
+                                    <div style="margin-top: 8px; font-size: 0.85em; color: var(--text-tertiary);">
+                                        <strong>Usuario:</strong> ${log.userId || 'Admin'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                logContent.innerHTML = logHTML;
+            }
+            
+            // Event listeners para el log
+            if (viewLogBtn) {
+                viewLogBtn.addEventListener('click', () => {
+                    if (viewLogModal) {
+                        viewLogModal.classList.add('active');
+                        loadLogs();
+                    }
+                });
+            }
+            
+            if (logSearch) {
+                logSearch.addEventListener('input', () => {
+                    renderLogs();
+                });
+            }
+            
+            if (logFilter) {
+                logFilter.addEventListener('change', () => {
+                    renderLogs();
+                });
+            }
+            
+            if (logTypeFilter) {
+                logTypeFilter.addEventListener('change', () => {
+                    renderLogs();
+                });
+            }
+            
+            if (clearLogBtn) {
+                clearLogBtn.addEventListener('click', async () => {
+                    if (!confirm('¿Está seguro de que desea eliminar todo el log de actividades? Esta acción no se puede deshacer.')) {
+                        return;
+                    }
+                    
+                    try {
+                        const logRef = ref(database, 'appLogs');
+                        await set(logRef, null);
+                        allLogs = [];
+                        renderLogs();
+                        alert('Log de actividades eliminado exitosamente.');
+                    } catch (error) {
+                        console.error("Error al eliminar el log:", error);
+                        alert('Error al eliminar el log. Por favor, intente de nuevo.');
+                    }
+                });
+            }
+
             // Inicializar vista por defecto: mostrar VIP, ocultar Impression
             if (vipSection) vipSection.style.display = 'block';
             if (impressionSection) impressionSection.style.display = 'none';
             
-            // Inicializar FAB con animación suave
+            // Inicializar FAB con animación suave - siempre visible
             if (openAddReservationModalBtn) {
                 openAddReservationModalBtn.style.display = 'flex';
-                openAddReservationModalBtn.style.opacity = '0';
-                openAddReservationModalBtn.style.transform = 'scale(0.5)';
-                setTimeout(() => {
-                    openAddReservationModalBtn.style.opacity = '1';
-                    openAddReservationModalBtn.style.transform = 'scale(1)';
-                }, 300);
+                openAddReservationModalBtn.style.visibility = 'visible';
+                openAddReservationModalBtn.style.opacity = '1';
+                openAddReservationModalBtn.style.pointerEvents = 'auto';
+                openAddReservationModalBtn.style.zIndex = '999';
+                openAddReservationModalBtn.style.transform = 'scale(1)';
             }
         });
     </script>
