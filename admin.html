@@ -702,7 +702,7 @@
             position: fixed !important;
             right: 32px;
             bottom: 32px;
-            z-index: 999 !important;
+            z-index: 9999 !important; /* Aumentado para estar por encima de todo */
             width: 64px;
             height: 64px;
             border-radius: var(--radius-full);
@@ -720,6 +720,7 @@
             animation: float 3s ease-in-out infinite;
             opacity: 1 !important;
             visibility: visible !important;
+            pointer-events: auto !important;
         }
 
         @keyframes float {
@@ -794,6 +795,20 @@
                 width: 56px;
                 height: 56px;
                 font-size: 1.25rem;
+                z-index: 9999 !important; /* Asegurar que esté por encima de todo en móviles */
+                position: fixed !important;
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+            }
+            
+            /* Asegurar que el FAB no sea ocultado por otros elementos en móviles */
+            .fab-add-reservation:not(.hidden) {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
             }
         }
         .form-grid {
@@ -3259,7 +3274,8 @@
                     openAddReservationModalBtn.style.display = 'flex';
                     openAddReservationModalBtn.style.visibility = 'visible';
                     openAddReservationModalBtn.style.pointerEvents = 'auto';
-                    openAddReservationModalBtn.style.zIndex = '999';
+                    openAddReservationModalBtn.style.zIndex = '9999'; // Aumentado para móviles
+                    openAddReservationModalBtn.style.position = 'fixed';
                     openAddReservationModalBtn.style.opacity = '0';
                     openAddReservationModalBtn.style.transform = 'scale(0.5)';
                     setTimeout(() => {
@@ -5101,26 +5117,30 @@
                             updated: updatedReservation
                         }, validator);
                     } else { // Si la fecha de la reserva ha cambiado
-                        // Primero, eliminar de la ubicación antigua
+                        // PRIMERO agregar a la nueva ubicación, LUEGO eliminar de la antigua
+                        // Esto previene la pérdida de datos si algo falla
                         let oldPath;
                         if (originalType === 'daily') {
                             oldPath = `dailyReservations/${originalDate}/${id}`;
                         } else { // originalType === 'archived'
                             oldPath = `archivedReservations/${originalDate}/${id}`;
                         }
-                        await remove(ref(database, oldPath));
-                        console.log("Reserva eliminada de la ubicación antigua:", oldPath);
-
-                        // Luego, añadirla a la nueva ubicación (siempre como 'daily' en la nueva fecha)
-                        // El sistema de archivado del `index.html` se encargará de moverla a 'archived' si es una fecha pasada.
+                        
+                        // PRIMERO: Agregar a la nueva ubicación
                         const newReservationsRef = ref(database, `dailyReservations/${newDate}`);
                         const newRef = push(newReservationsRef);
-                        await set(newRef, { ...updatedReservation, timestamp: new Date().getTime() }); // Asegurar nuevo timestamp y ID
+                        const newReservationData = { ...updatedReservation, timestamp: new Date().getTime() };
+                        await set(newRef, newReservationData);
                         console.log("Reserva añadida a la nueva ubicación:", newDate);
+                        
+                        // LUEGO: Eliminar de la ubicación antigua (solo si la nueva se guardó correctamente)
+                        await remove(ref(database, oldPath));
+                        console.log("Reserva eliminada de la ubicación antigua:", oldPath);
                         
                         // Registrar en el log
                         await logAction('edit', 'VIP', {
                             reservationId: id,
+                            newReservationId: newRef.key,
                             originalDate: originalDate,
                             newDate: newDate,
                             original: originalReservation,
@@ -6353,7 +6373,8 @@
                 openAddReservationModalBtn.style.visibility = 'visible';
                 openAddReservationModalBtn.style.opacity = '1';
                 openAddReservationModalBtn.style.pointerEvents = 'auto';
-                openAddReservationModalBtn.style.zIndex = '999';
+                openAddReservationModalBtn.style.zIndex = '9999'; // Aumentado para móviles
+                openAddReservationModalBtn.style.position = 'fixed';
                 openAddReservationModalBtn.style.transform = 'scale(1)';
             }
         });
