@@ -1817,68 +1817,29 @@
                         archivedReservations = [];
                     }
 
-                    // Archivar reservas de días pasados (verificar TODAS las fechas en dailyReservations, no solo lastAccessDate)
-                    // Esto evita perder reservas cuando el usuario no abre la app por varios días
-                    const allDailyReservationsRef = ref(database, 'dailyReservations');
-                    const allDailySnapshot = await get(allDailyReservationsRef);
-                    
-                    if (allDailySnapshot.exists()) {
-                        const allDailyData = allDailySnapshot.val();
-                            const updates = {};
-                        const reservationsToArchive = {}; // Para rastrear qué reservas se archivan por fecha
-                        let hasUpdates = false;
-                        
-                        // Iterar sobre todas las fechas en dailyReservations
-                        for (const dateKey in allDailyData) {
-                            const dateReservations = allDailyData[dateKey];
-                            
-                            // Verificar cada reserva individualmente por su fecha
-                            for (const key in dateReservations) {
-                                const res = dateReservations[key];
-                                const reservationDate = res.date || dateKey; // Usar la fecha de la reserva si existe, sino la de la carpeta
-                                
-                                // Solo archivar si la fecha de la reserva es anterior a hoy
-                                if (reservationDate < today) {
-                                    res.archiveDate = reservationDate; // Usar la fecha real de la reserva
-                                    
-                                    // Mover a la ruta de archivados bajo su fecha real
-                                    updates[`archivedReservations/${reservationDate}/${key}`] = res;
-                                    
-                                    // Marcar para eliminar solo esta reserva (no toda la carpeta)
-                                    updates[`dailyReservations/${dateKey}/${key}`] = null;
-                                    hasUpdates = true;
-                                    
-                                    // Rastrear que esta reserva será archivada
-                                    if (!reservationsToArchive[dateKey]) {
-                                        reservationsToArchive[dateKey] = [];
-                                    }
-                                    reservationsToArchive[dateKey].push(key);
-                                }
-                            }
-                        }
-                        
-                        // Verificar si hay carpetas de fechas que quedaron completamente vacías y eliminarlas
-                        for (const dateKey in allDailyData) {
-                            const dateReservations = allDailyData[dateKey];
-                            const archivedFromThisDate = reservationsToArchive[dateKey] || [];
-                            const totalReservations = Object.keys(dateReservations).length;
-                            
-                            // Si todas las reservas de esta fecha fueron archivadas, eliminar la carpeta
-                            if (archivedFromThisDate.length > 0 && archivedFromThisDate.length === totalReservations) {
-                                updates[`dailyReservations/${dateKey}`] = null;
-                            }
-                        }
-                        
-                        if (hasUpdates) {
-                            await update(ref(database), updates);
-                            console.log(`Reservas de días pasados archivadas correctamente.`);
-                        }
-                    }
-                    
-                    // Si es un nuevo día desde la última vez que se abrió la app, limpiar la lista local
-                    // pero las reservas reales ya fueron manejadas arriba
                     if (lastAccessDate && lastAccessDate !== today) {
+                        // Es un nuevo día, archivar las reservas del día anterior
+                        const previousDayReservationsRef = ref(database, `dailyReservations/${lastAccessDate}`);
+                        const previousDaySnapshot = await get(previousDayReservationsRef);
+
+                        if (previousDaySnapshot.exists()) {
+                            const previousDayData = previousDaySnapshot.val();
+                            const updates = {};
+                            for (const key in previousDayData) {
+                                const res = previousDayData[key];
+                                res.archiveDate = lastAccessDate; // Asegurarse de que tengan la fecha de archivo
+                                // Mover a la ruta de archivados bajo su fecha original
+                                updates[`archivedReservations/${lastAccessDate}/${key}`] = res;
+                            }
+                            // Eliminar las reservas del día anterior después de moverlas
+                            updates[`dailyReservations/${lastAccessDate}`] = null;
+
+                            await update(ref(database), updates); // Realizar la operación de actualización en lote
+                            console.log(`Reservas del ${lastAccessDate} archivadas y borradas.`);
+                        }
+                        // Después de archivar, las reservas del día actual se reinician (se cargan de Firebase, que estará vacío para el nuevo día)
                         reservations = [];
+                        // La carga del día actual se manejará con onValue para actualizaciones en tiempo real
                     }
 
                     // Actualizar la fecha de último acceso en localStorage
