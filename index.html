@@ -1315,6 +1315,16 @@
         body.dark .summary-table tbody tr:hover {
             background: rgba(96,165,250,0.04);
         }
+        .summary-table tbody tr.reservation-row-clickable {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .summary-table tbody tr.reservation-row-clickable:hover {
+            background: rgba(37,99,235,0.08) !important;
+        }
+        body.dark .summary-table tbody tr.reservation-row-clickable:hover {
+            background: rgba(96,165,250,0.12) !important;
+        }
         .summary-table tbody tr:last-child td {
             border-bottom: none;
         }
@@ -1655,6 +1665,26 @@
         </div>
     </div>
 
+    <!-- Modal para detalles de reserva -->
+    <div id="reservationDetailModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-close-btn" data-modal="reservationDetailModal">&times;</button>
+            <h3><span class="modal-icon">📋</span> Confirmación de Reserva</h3>
+            <div id="reservationDetailContent" style="padding: 20px 0; text-align: left;">
+                <!-- Se llenará dinámicamente -->
+            </div>
+            <div class="modal-actions" style="flex-direction: column; gap: 10px;">
+                <button id="whatsappBtn" class="btn" style="width: 100%; background: #25D366; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.472 14.382C17.01 14.176 15.38 13.413 15.015 13.308C14.65 13.202 14.387 13.149 14.124 13.612C13.862 14.074 13.015 15.353 12.707 15.683C12.4 16.014 12.093 16.067 11.63 15.861C11.168 15.656 9.747 15.236 8.026 13.723C6.722 12.574 5.839 11.101 5.532 10.638C5.226 10.176 5.495 9.937 5.759 9.679C5.994 9.449 6.263 9.105 6.468 8.85C6.674 8.595 6.774 8.391 6.933 8.078C7.091 7.765 7.018 7.48 6.9 7.229C6.782 6.978 5.867 4.647 5.529 3.79C5.189 2.93 4.841 3.055 4.596 3.03C4.353 3.006 4.069 3 3.786 3C3.503 3 3.05 3.084 2.656 3.501C2.26 3.918 1.316 4.799 1.316 6.474C1.316 8.15 2.5 9.747 2.714 10.039C2.928 10.332 5.59 14.216 9.504 15.924C10.767 16.453 11.724 16.743 12.41 16.942C13.369 17.224 14.239 17.186 14.938 17.084C15.735 16.964 17.655 16.02 18.009 14.956C18.363 13.893 18.363 12.957 18.244 12.706C18.125 12.455 17.935 12.356 17.472 12.15Z" fill="white"/>
+                    </svg>
+                    Enviar por WhatsApp
+                </button>
+                <button type="button" class="btn btn-secondary" data-modal="reservationDetailModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Snackbar/Toast -->
     <div id="snackbar" class="snackbar"></div>
     <!-- Live Notification Container -->
@@ -1703,6 +1733,38 @@
             const viewSummaryBtn = document.getElementById('viewSummaryBtn');
             const viewArchiveBtn = document.getElementById('viewArchiveBtn');
             const impressionBtn = document.getElementById('impressionBtn');
+            const reservationDetailModal = document.getElementById('reservationDetailModal');
+            const reservationDetailContent = document.getElementById('reservationDetailContent');
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            
+            let currentDetailReservation = null;
+            
+            // --- Sistema de Logging ---
+            async function logAction(action, type, details, userId = 'Usuario') {
+                try {
+                    const logEntry = {
+                        action: action,
+                        type: type,
+                        details: details,
+                        userId: userId,
+                        timestamp: new Date().getTime(),
+                        date: new Date().toISOString(),
+                        dateFormatted: new Date().toLocaleString('es-ES', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        })
+                    };
+                    
+                    const logRef = ref(database, 'appLogs');
+                    await push(logRef, logEntry);
+                } catch (error) {
+                    console.error("Error al registrar acción en el log:", error);
+                }
+            }
             const reservationForm = document.getElementById('reservationForm');
             reservationListDiv = document.getElementById('reservationList');
             noReservationsMessage = document.getElementById('noReservationsMessage');
@@ -1817,29 +1879,68 @@
                         archivedReservations = [];
                     }
 
-                    if (lastAccessDate && lastAccessDate !== today) {
-                        // Es un nuevo día, archivar las reservas del día anterior
-                        const previousDayReservationsRef = ref(database, `dailyReservations/${lastAccessDate}`);
-                        const previousDaySnapshot = await get(previousDayReservationsRef);
-
-                        if (previousDaySnapshot.exists()) {
-                            const previousDayData = previousDaySnapshot.val();
+                    // Archivar reservas de días pasados (verificar TODAS las fechas en dailyReservations, no solo lastAccessDate)
+                    // Esto evita perder reservas cuando el usuario no abre la app por varios días
+                    const allDailyReservationsRef = ref(database, 'dailyReservations');
+                    const allDailySnapshot = await get(allDailyReservationsRef);
+                    
+                    if (allDailySnapshot.exists()) {
+                        const allDailyData = allDailySnapshot.val();
                             const updates = {};
-                            for (const key in previousDayData) {
-                                const res = previousDayData[key];
-                                res.archiveDate = lastAccessDate; // Asegurarse de que tengan la fecha de archivo
-                                // Mover a la ruta de archivados bajo su fecha original
-                                updates[`archivedReservations/${lastAccessDate}/${key}`] = res;
+                        const reservationsToArchive = {}; // Para rastrear qué reservas se archivan por fecha
+                        let hasUpdates = false;
+                        
+                        // Iterar sobre todas las fechas en dailyReservations
+                        for (const dateKey in allDailyData) {
+                            const dateReservations = allDailyData[dateKey];
+                            
+                            // Verificar cada reserva individualmente por su fecha
+                            for (const key in dateReservations) {
+                                const res = dateReservations[key];
+                                const reservationDate = res.date || dateKey; // Usar la fecha de la reserva si existe, sino la de la carpeta
+                                
+                                // Solo archivar si la fecha de la reserva es anterior a hoy
+                                if (reservationDate < today) {
+                                    res.archiveDate = reservationDate; // Usar la fecha real de la reserva
+                                    
+                                    // Mover a la ruta de archivados bajo su fecha real
+                                    updates[`archivedReservations/${reservationDate}/${key}`] = res;
+                                    
+                                    // Marcar para eliminar solo esta reserva (no toda la carpeta)
+                                    updates[`dailyReservations/${dateKey}/${key}`] = null;
+                                    hasUpdates = true;
+                                    
+                                    // Rastrear que esta reserva será archivada
+                                    if (!reservationsToArchive[dateKey]) {
+                                        reservationsToArchive[dateKey] = [];
+                                    }
+                                    reservationsToArchive[dateKey].push(key);
+                                }
                             }
-                            // Eliminar las reservas del día anterior después de moverlas
-                            updates[`dailyReservations/${lastAccessDate}`] = null;
-
-                            await update(ref(database), updates); // Realizar la operación de actualización en lote
-                            console.log(`Reservas del ${lastAccessDate} archivadas y borradas.`);
                         }
-                        // Después de archivar, las reservas del día actual se reinician (se cargan de Firebase, que estará vacío para el nuevo día)
+                        
+                        // Verificar si hay carpetas de fechas que quedaron completamente vacías y eliminarlas
+                        for (const dateKey in allDailyData) {
+                            const dateReservations = allDailyData[dateKey];
+                            const archivedFromThisDate = reservationsToArchive[dateKey] || [];
+                            const totalReservations = Object.keys(dateReservations).length;
+                            
+                            // Si todas las reservas de esta fecha fueron archivadas, eliminar la carpeta
+                            if (archivedFromThisDate.length > 0 && archivedFromThisDate.length === totalReservations) {
+                                updates[`dailyReservations/${dateKey}`] = null;
+                            }
+                        }
+                        
+                        if (hasUpdates) {
+                            await update(ref(database), updates);
+                            console.log(`Reservas de días pasados archivadas correctamente.`);
+                        }
+                    }
+                    
+                    // Si es un nuevo día desde la última vez que se abrió la app, limpiar la lista local
+                    // pero las reservas reales ya fueron manejadas arriba
+                    if (lastAccessDate && lastAccessDate !== today) {
                         reservations = [];
-                        // La carga del día actual se manejará con onValue para actualizaciones en tiempo real
                     }
 
                     // Actualizar la fecha de último acceso en localStorage
@@ -1991,7 +2092,9 @@
             // Eventos para cerrar modales al hacer clic en el botón 'X'
             modalCloseButtons.forEach(button => {
                 button.addEventListener('click', (e) => {
-                    const modalId = e.target.dataset.modal;
+                    e.stopPropagation();
+                    const btn = e.target.closest('button');
+                    const modalId = btn?.dataset.modal || e.target.dataset.modal;
                     if (modalId === 'validationModal') {
                         hideValidationModal();
                         currentReservationData = null;
@@ -1999,10 +2102,33 @@
                         hideSummaryModal();
                     } else if (modalId === 'archiveModal') {
                         hideArchiveModal();
+                    } else if (modalId === 'reservationDetailModal') {
+                        reservationDetailModal.classList.remove('active');
+                        currentDetailReservation = null;
                     }
                 });
             });
-
+            
+            // Event listener para el botón "Cerrar" dentro del modal de detalles
+            if (reservationDetailModal) {
+                const closeDetailBtn = reservationDetailModal.querySelector('.btn-secondary[data-modal="reservationDetailModal"]');
+                if (closeDetailBtn) {
+                    closeDetailBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        reservationDetailModal.classList.remove('active');
+                        currentDetailReservation = null;
+                    });
+                }
+                
+                // Prevenir que el modal se cierre al hacer clic dentro del modal-content
+                const modalContentDetail = reservationDetailModal.querySelector('.modal-content');
+                if (modalContentDetail) {
+                    modalContentDetail.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                }
+            }
+            
             // Eventos para cerrar modales al hacer clic fuera
             validationModal.addEventListener('click', (e) => {
                 if (e.target === validationModal) {
@@ -2022,7 +2148,17 @@
                     hideArchiveModal();
                 }
             });
-
+            
+            // Event listener para cerrar modal de detalles al hacer clic fuera
+            if (reservationDetailModal) {
+                reservationDetailModal.addEventListener('click', (e) => {
+                    if (e.target === reservationDetailModal) {
+                        reservationDetailModal.classList.remove('active');
+                        currentDetailReservation = null;
+                    }
+                });
+            }
+            
             // Eventos para actualizar el contador de disponibilidad
             placeSelect.addEventListener('change', () => {
                 const selectedRestaurant = placeSelect.value;
@@ -2623,7 +2759,8 @@
                                     <tbody>`;
                             timeData.sort((a, b) => parseInt(a.room) - parseInt(b.room));
                             timeData.forEach(detail => {
-                                summaryHtml += `<tr>
+                                const reservationId = detail.id || '';
+                                summaryHtml += `<tr class="reservation-row-clickable" data-reservation-id="${reservationId}" style="cursor: pointer; transition: background 0.2s;">
                                     <td>${detail.room}</td>
                                     <td>${detail.guest}</td>
                                     <td class="pax-cell">${detail.pax}</td>
@@ -2639,6 +2776,134 @@
                 summaryTitle.textContent = `Resumen de Reservas para ${getTodayDateFormatted()}`;
                 summaryContent.innerHTML = summaryHtml;
                 overallPaxTotal.textContent = `PAX Total del Día: ${totalOverallPax}`;
+                
+                // Agregar event listeners para filas clickeables
+                setTimeout(() => {
+                    document.querySelectorAll('.reservation-row-clickable').forEach(row => {
+                        row.addEventListener('click', () => {
+                            const reservationId = row.dataset.reservationId;
+                            const reservation = reservations.find(r => r.id === reservationId);
+                            if (reservation) {
+                                showReservationDetail(reservation);
+                            }
+                        });
+                        row.addEventListener('mouseenter', () => {
+                            row.style.background = 'rgba(37,99,235,0.05)';
+                        });
+                        row.addEventListener('mouseleave', () => {
+                            row.style.background = '';
+                        });
+                    });
+                }, 100);
+            }
+            
+            // Función para mostrar detalles de reserva
+            function showReservationDetail(reservation) {
+                currentDetailReservation = reservation;
+                const date = new Date(reservation.date + 'T12:00:00');
+                const formattedDate = date.toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                const detailHtml = `
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(37,99,235,0.05)); padding: 16px; border-radius: 12px; border-left: 4px solid var(--primary);">
+                            <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Restaurante</div>
+                            <div style="font-size: 1.2em; font-weight: 700; color: var(--primary);">${sanitizeText(reservation.place)}</div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Habitación</div>
+                                <div style="font-size: 1.1em; font-weight: 600;">${sanitizeText(reservation.room)}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Huésped</div>
+                                <div style="font-size: 1.1em; font-weight: 600;">${sanitizeText(reservation.guest)}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Fecha</div>
+                                <div style="font-size: 1em; font-weight: 500;">${formattedDate}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Hora</div>
+                                <div style="font-size: 1.1em; font-weight: 600; color: var(--primary);">${convertTo12HourFormat(reservation.time)}</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Personas</div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: #ef4444;">${reservation.pax} PAX</div>
+                        </div>
+                        
+                        ${reservation.comment ? `
+                        <div>
+                            <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Comentarios</div>
+                            <div style="background: var(--bg); padding: 12px; border-radius: 8px; font-size: 0.95em;">${sanitizeText(reservation.comment)}</div>
+                        </div>
+                        ` : ''}
+                        
+                        ${reservation.validator ? `
+                        <div>
+                            <div style="font-size: 0.9em; color: var(--text-light); margin-bottom: 4px;">Solicitado por</div>
+                            <div style="font-size: 1em; font-weight: 500;">${sanitizeText(reservation.validator)}</div>
+                        </div>
+                        ` : ''}
+                        
+                        ${reservation.timestamp ? `
+                        <div style="font-size: 0.85em; color: var(--text-light); text-align: center; padding-top: 8px; border-top: 1px solid var(--border);">
+                            Registrado: ${formatTimeFromTimestamp(reservation.timestamp)}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                reservationDetailContent.innerHTML = detailHtml;
+                reservationDetailModal.classList.add('active');
+            }
+            
+            // Función para generar mensaje de WhatsApp
+            function generateWhatsAppMessage(reservation) {
+                const date = new Date(reservation.date + 'T12:00:00');
+                const formattedDate = date.toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                let message = `🍽️ *Confirmación de Reserva*\n\n`;
+                message += `📅 *Fecha:* ${formattedDate}\n`;
+                message += `🕐 *Hora:* ${convertTo12HourFormat(reservation.time)}\n`;
+                message += `🏨 *Habitación:* ${reservation.room}\n`;
+                message += `👤 *Huésped:* ${reservation.guest}\n`;
+                message += `🍴 *Restaurante:* ${reservation.place}\n`;
+                message += `👥 *Personas:* ${reservation.pax} PAX\n`;
+                
+                if (reservation.comment) {
+                    message += `\n📝 *Comentarios:*\n${reservation.comment}\n`;
+                }
+                
+                message += `\n✅ *Reserva confirmada*`;
+                
+                return encodeURIComponent(message);
+            }
+            
+            // Event listener para botón de WhatsApp
+            if (whatsappBtn) {
+                whatsappBtn.addEventListener('click', () => {
+                    if (currentDetailReservation) {
+                        const message = generateWhatsAppMessage(currentDetailReservation);
+                        const whatsappUrl = `https://wa.me/?text=${message}`;
+                        window.open(whatsappUrl, '_blank');
+                    }
+                });
             }
 
             // Asegurarse de que el campo de hora esté deshabilitado al inicio y el contador limpio
@@ -2836,6 +3101,18 @@
                     ref: dailyReservationsRef,
                     today 
                 };
+                
+                // Registrar en el log
+                await logAction('add', 'VIP', {
+                    reservationId: reservationId,
+                    room: data.room,
+                    guest: data.guest,
+                    place: data.place,
+                    time: data.time,
+                    pax: data.pax,
+                    date: data.date,
+                    validator: data.validator
+                }, data.validator || 'Usuario');
                 
                 // Rastrear el timestamp de esta reserva para evitar notificaciones propias
                 const reservationTimestamp = data.timestamp || Date.now();
