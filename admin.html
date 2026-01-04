@@ -419,6 +419,20 @@
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
         }
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: var(--text-inverse);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-whatsapp:hover {
+            background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-whatsapp:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-sm);
+        }
         .btn-secondary {
             background: var(--secondary-color);
             color: white;
@@ -697,7 +711,7 @@
             border-color: #10b981;
         }
 
-        /* FAB (Floating Action Button) moderno y flotante */
+        /* FAB (Floating Action Button) moderno y flotante - Siempre visible en parte inferior */
         .fab-add-reservation {
             position: fixed !important;
             right: 32px;
@@ -721,6 +735,8 @@
             opacity: 1 !important;
             visibility: visible !important;
             pointer-events: auto !important;
+            /* Asegurar que siempre esté visible, incluso al hacer scroll */
+            will-change: transform;
         }
 
         @keyframes float {
@@ -915,7 +931,7 @@
         .admin-table td {
             border: none;
             border-bottom: 1px solid var(--border-light);
-            padding: 16px 12px;
+            padding: 12px 8px;
             text-align: center;
             vertical-align: middle;
             font-size: var(--font-size-sm);
@@ -936,11 +952,84 @@
             font-size: var(--font-size-xs);
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 18px 12px;
+            padding: 12px 8px;
             position: sticky;
             top: 0;
             z-index: var(--z-sticky);
             border-bottom: 2px solid var(--border-color);
+        }
+        
+        /* Estilos compactos para encabezados de grupo */
+        .group-header.date-header td {
+            padding: 10px 12px !important;
+            font-size: 0.95em !important;
+        }
+        
+        .group-header.restaurant-header td {
+            padding: 8px 12px !important;
+            font-size: 0.9em !important;
+        }
+        
+        .group-header.time-header td {
+            padding: 6px 12px !important;
+            font-size: 0.85em !important;
+        }
+        
+        /* Estilos para móviles - más compacto */
+        @media (max-width: 700px) {
+            .admin-table th,
+            .admin-table td {
+                padding: 8px 4px;
+                font-size: 0.8em;
+            }
+            
+            .admin-table th {
+                padding: 10px 4px;
+                font-size: 0.7em;
+            }
+            
+            .group-header.date-header td {
+                padding: 8px 8px !important;
+                font-size: 0.85em !important;
+            }
+            
+            .group-header.date-header .material-icons {
+                font-size: 1em !important;
+                margin-right: 4px !important;
+            }
+            
+            .group-header.restaurant-header td {
+                padding: 6px 8px !important;
+                font-size: 0.8em !important;
+            }
+            
+            .group-header.restaurant-header .material-icons {
+                font-size: 0.9em !important;
+                margin-right: 4px !important;
+            }
+            
+            .group-header.time-header td {
+                padding: 5px 8px !important;
+                font-size: 0.75em !important;
+            }
+            
+            .group-header.time-header .material-icons {
+                font-size: 0.85em !important;
+                margin-right: 4px !important;
+            }
+            
+            .admin-table td.actions {
+                padding: 4px !important;
+            }
+            
+            .admin-table .btn-sm {
+                padding: 4px 6px;
+                font-size: 0.75em;
+            }
+            
+            .admin-table .btn-sm .material-icons {
+                font-size: 1em;
+            }
         }
 
         .admin-table tbody tr {
@@ -2411,24 +2500,7 @@
              align-items: center;
              justify-content: center;
         }
-        #sendWhatsAppBtn {
-            font-size: 1.08em;
-            padding: 13px 18px;
-            border-radius: var(--border-radius-sm);
-            background: #25D366;
-            color: #fff;
-            border: none;
-            box-shadow: 0 2px 8px rgba(37,211,102,0.08);
-            transition: background 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-        #sendWhatsAppBtn:hover {
-            background: #128C7E;
-            box-shadow: 0 4px 16px rgba(37,211,102,0.12);
-        }
+        /* Estilos específicos para botón WhatsApp ahora se manejan con .btn-whatsapp */
 
         @media (max-width: 700px) {
             .manage-reservations-section {
@@ -2444,7 +2516,6 @@
             .manage-reservations-section #sendWhatsAppBtn {
                 width: 100%;
                 min-width: 0;
-                font-size: 1em;
             }
             .admin-table th, .admin-table td {
                 padding: 7px 4px;
@@ -2470,7 +2541,7 @@
             <h1>Panel de Administración de Reservas</h1>
         </header>
 
-        <!-- Navegación Principal: VIP / Impression -->
+        <!-- Navegación Principal: VIP / Impression / Respaldo -->
         <div class="main-nav-container">
             <button id="mainVipTab" class="main-nav-btn active">
                 <span class="material-icons">restaurant</span>
@@ -2479,6 +2550,10 @@
             <button id="mainImpressionTab" class="main-nav-btn">
                 <span class="material-icons">diamond</span>
                 Cenas Impression
+            </button>
+            <button id="mainBackupTab" class="main-nav-btn">
+                <span class="material-icons">backup</span>
+                Respaldo de Reservas
             </button>
         </div>
 
@@ -2489,7 +2564,7 @@
                 <div class="table-controls">
                     <input type="text" id="adminReservationSearch" placeholder="Buscar por habitación, comensal, restaurante o fecha...">
                     <button type="button" id="printReservationsBtn" class="btn btn-info">Imprimir Reservas</button>
-                    <button type="button" id="sendWhatsAppBtn"><span class="material-icons">send</span>Enviar</button>
+                    <button type="button" id="sendWhatsAppBtn" class="btn btn-whatsapp"><span class="material-icons">send</span>Enviar</button>
                     <button type="button" id="blockRestaurantsBtn" class="btn btn-warning"><span class="material-icons">block</span>Bloquear Restaurantes</button>
                     <button type="button" id="checkAvailabilityBtn" class="btn btn-success"><span class="material-icons">restaurant_menu</span>Disponibilidad de Restaurantes</button>
                     <button type="button" id="viewLogBtn" class="btn btn-secondary"><span class="material-icons">history</span>Ver Log de Actividades</button>
@@ -2773,6 +2848,54 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Sección Respaldo de Reservas (oculta por defecto) -->
+        <div id="backupSection" class="main-section" style="display: none;">
+            <section class="backup-reservations-section">
+                <h2><span class="material-icons">backup</span>Respaldo de Reservas</h2>
+                <div style="margin-bottom: 20px; padding: 16px; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid var(--info-color);">
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.95em;">
+                        <strong>ℹ️ Información:</strong> Esta sección muestra todas las reservas respaldadas automáticamente. 
+                        Las reservas en <span style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-weight: 600;">rojo</span> 
+                        indican que la reserva original fue eliminada y puede ser restaurada.
+                    </p>
+                </div>
+                <div class="table-controls">
+                    <input type="text" id="backupSearch" placeholder="Buscar por habitación, huésped, restaurante o fecha...">
+                    <input type="date" id="backupDateFilter" placeholder="Filtrar por fecha">
+                    <button type="button" id="refreshBackupsBtn" class="btn btn-info">
+                        <span class="material-icons">refresh</span>Actualizar
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                                <th>Habitación</th>
+                                <th>Huésped</th>
+                                <th>Restaurante</th>
+                                <th>Hora</th>
+                                <th>PAX</th>
+                                <th>Comentario</th>
+                                <th>Solicitado por</th>
+                                <th>Fecha Respaldo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backupTableBody">
+                            <tr>
+                                <td colspan="11" style="text-align: center; padding: 40px; color: var(--text-tertiary);">
+                                    Cargando respaldos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p id="noBackupsMessage" class="no-reservations" style="display:none;">No hay respaldos para mostrar.</p>
+                </div>
+            </section>
         </div>
 
     <!-- Modal para editar reserva de Impression -->
@@ -3171,9 +3294,11 @@
             const mainImpressionTab = document.getElementById('mainImpressionTab');
             const vipSection = document.getElementById('vipSection');
             const impressionSection = document.getElementById('impressionSection');
+            const backupSection = document.getElementById('backupSection');
+            const mainBackupTab = document.getElementById('mainBackupTab');
             
             // Verificar que los elementos principales existan
-            if (!mainVipTab || !mainImpressionTab || !vipSection || !impressionSection) {
+            if (!mainVipTab || !mainImpressionTab || !mainBackupTab || !vipSection || !impressionSection || !backupSection) {
                 console.error('Error: No se encontraron los elementos de navegación principales');
             }
 
@@ -3267,6 +3392,7 @@
             function showVipSection() {
                 if (vipSection) vipSection.style.display = 'block';
                 if (impressionSection) impressionSection.style.display = 'none';
+                if (backupSection) backupSection.style.display = 'none';
                 
                 // Mostrar FAB con animación suave - siempre visible
                 if (openAddReservationModalBtn) {
@@ -3291,11 +3417,15 @@
                 if (mainImpressionTab) {
                     mainImpressionTab.classList.remove('active');
                 }
+                if (mainBackupTab) {
+                    mainBackupTab.classList.remove('active');
+                }
             }
 
             function showImpressionSection() {
                 if (vipSection) vipSection.style.display = 'none';
                 if (impressionSection) impressionSection.style.display = 'block';
+                if (backupSection) backupSection.style.display = 'none';
                 
                 // Ocultar FAB con animación suave
                 if (openAddReservationModalBtn) {
@@ -3315,6 +3445,9 @@
                 }
                 if (mainVipTab) {
                     mainVipTab.classList.remove('active');
+                }
+                if (mainBackupTab) {
+                    mainBackupTab.classList.remove('active');
                 }
                 
                 // Cargar configuración de Impression cuando se muestra la sección
@@ -3346,12 +3479,48 @@
                 }
             }
 
+            // Función para mostrar sección de respaldos
+            function showBackupSection() {
+                if (vipSection) vipSection.style.display = 'none';
+                if (impressionSection) impressionSection.style.display = 'none';
+                if (backupSection) backupSection.style.display = 'block';
+                
+                // Ocultar FAB
+                if (openAddReservationModalBtn) {
+                    openAddReservationModalBtn.style.opacity = '0';
+                    openAddReservationModalBtn.style.transform = 'scale(0.5)';
+                    setTimeout(() => {
+                        openAddReservationModalBtn.classList.add('hidden');
+                        openAddReservationModalBtn.style.display = 'none';
+                        openAddReservationModalBtn.style.visibility = 'hidden';
+                        openAddReservationModalBtn.style.pointerEvents = 'none';
+                    }, 300);
+                }
+                
+                // Actualizar clases de botones
+                if (mainBackupTab) {
+                    mainBackupTab.classList.add('active');
+                }
+                if (mainVipTab) {
+                    mainVipTab.classList.remove('active');
+                }
+                if (mainImpressionTab) {
+                    mainImpressionTab.classList.remove('active');
+                }
+                
+                // Cargar respaldos cuando se muestra la sección
+                loadBackups();
+            }
+
             // Event listeners para navegación principal
             if (mainVipTab) {
                 mainVipTab.addEventListener('click', showVipSection);
             }
             if (mainImpressionTab) {
                 mainImpressionTab.addEventListener('click', showImpressionSection);
+            }
+            if (mainBackupTab) {
+                mainBackupTab.addEventListener('click', showBackupSection);
             }
 
             // --- Navegación de pestañas ---
@@ -5200,19 +5369,21 @@
                 adminReservationsTableBody.innerHTML = '';
                 currentFilteredReservations = filteredReservations; // Guarda las reservas que se muestran actualmente
 
-                // Ordenar por fecha (más reciente primero), luego restaurante, luego hora, luego habitación
+                // Ordenar por fecha (más reciente primero), luego restaurante, luego horario, luego habitación
                 filteredReservations.sort((a, b) => {
-                    // Comparación de fechas: Más recientes primero
-                    const dateA = new Date(a.date + 'T' + a.time);
-                    const dateB = new Date(b.date + 'T' + b.time);
-                    const dateComparison = dateB.getTime() - dateA.getTime();
+                    // 1. Comparación de fechas: Más recientes primero
+                    const dateComparison = b.date.localeCompare(a.date);
                     if (dateComparison !== 0) return dateComparison;
 
-                    // Luego por restaurante
+                    // 2. Luego por restaurante (alfabético)
                     const restaurantComparison = a.place.localeCompare(b.place);
                     if (restaurantComparison !== 0) return restaurantComparison;
 
-                    // Finalmente por número de habitación
+                    // 3. Luego por horario (de más temprano a más tarde)
+                    const timeComparison = a.time.localeCompare(b.time);
+                    if (timeComparison !== 0) return timeComparison;
+
+                    // 4. Finalmente por número de habitación (ascendente)
                     return parseInt(a.room) - parseInt(b.room);
                 });
 
@@ -5239,10 +5410,61 @@
                     noReservationsAdminMessage.style.display = 'none';
                     document.getElementById('vipPaginationControls').style.display = 'flex';
                     
+                    // Agrupar reservas por fecha, restaurante y horario
+                    let currentDate = null;
+                    let currentRestaurant = null;
+                    let currentTime = null;
+                    
                     paginatedReservations.forEach(res => {
-                        const row = adminReservationsTableBody.insertRow();
                         const reservationType = res.type; // 'daily' o 'archived'
-
+                        
+                        // Agregar encabezado de fecha si cambia
+                        if (currentDate !== res.date) {
+                            currentDate = res.date;
+                            currentRestaurant = null; // Reset restaurante cuando cambia fecha
+                            currentTime = null; // Reset horario cuando cambia fecha
+                            
+                            const dateRow = adminReservationsTableBody.insertRow();
+                            dateRow.className = 'group-header date-header';
+                            dateRow.innerHTML = `
+                                <td colspan="10" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; font-weight: 700; padding: 10px 12px; font-size: 0.95em; text-align: center;">
+                                    <span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 1.1em;">calendar_today</span>
+                                    ${getFormattedDate(res.date)}
+                                </td>
+                            `;
+                        }
+                        
+                        // Agregar encabezado de restaurante si cambia
+                        if (currentRestaurant !== res.place) {
+                            currentRestaurant = res.place;
+                            currentTime = null; // Reset horario cuando cambia restaurante
+                            
+                            const restaurantRow = adminReservationsTableBody.insertRow();
+                            restaurantRow.className = 'group-header restaurant-header';
+                            restaurantRow.innerHTML = `
+                                <td colspan="10" style="background: var(--bg-secondary); color: var(--primary-dark); font-weight: 600; padding: 8px 12px; font-size: 0.9em; border-left: 3px solid var(--primary-color);">
+                                    <span class="material-icons" style="vertical-align: middle; margin-right: 6px; color: var(--primary-color); font-size: 1em;">restaurant</span>
+                                    ${res.place}
+                                </td>
+                            `;
+                        }
+                        
+                        // Agregar encabezado de horario si cambia
+                        if (currentTime !== res.time) {
+                            currentTime = res.time;
+                            
+                            const timeRow = adminReservationsTableBody.insertRow();
+                            timeRow.className = 'group-header time-header';
+                            timeRow.innerHTML = `
+                                <td colspan="10" style="background: var(--bg-tertiary); color: var(--text-primary); font-weight: 600; padding: 6px 12px; font-size: 0.85em; border-left: 3px solid var(--info-color);">
+                                    <span class="material-icons" style="vertical-align: middle; margin-right: 6px; color: var(--info-color); font-size: 0.95em;">schedule</span>
+                                    ${convertTo12HourFormat(res.time)}
+                                </td>
+                            `;
+                        }
+                        
+                        // Agregar fila de reserva
+                        const row = adminReservationsTableBody.insertRow();
                         row.innerHTML = `
                             <td>${getShortDate(res.date)}</td>
                             <td>${res.room}</td>
@@ -6050,6 +6272,36 @@
             }
 
             // --- Funcionalidad de Disponibilidad de Restaurantes ---
+            
+            // Función helper para determinar a qué sitting pertenece una hora (para restaurantes no-Hibachi)
+            function getSittingForTime(time, restaurantName) {
+                // Hibachi mantiene sus horarios específicos
+                if (restaurantName === 'Hibachi') {
+                    return time;
+                }
+                
+                // Convertir hora a minutos para comparación
+                const [hours, minutes] = time.split(':').map(Number);
+                const timeInMinutes = hours * 60 + minutes;
+                
+                // Sitting de 6 PM: reservas entre 17:30 (5:30 PM) y 19:59 (7:59 PM)
+                const sitting6pmStart = 17 * 60 + 30; // 17:30
+                const sitting6pmEnd = 19 * 60 + 59;   // 19:59
+                
+                // Sitting de 9 PM: reservas entre 20:00 (8:00 PM) y 22:00 (10:00 PM)
+                const sitting9pmStart = 20 * 60;       // 20:00
+                const sitting9pmEnd = 22 * 60;        // 22:00
+                
+                if (timeInMinutes >= sitting6pmStart && timeInMinutes <= sitting6pmEnd) {
+                    return '18:00'; // Sitting de 6 PM
+                } else if (timeInMinutes >= sitting9pmStart && timeInMinutes <= sitting9pmEnd) {
+                    return '21:00'; // Sitting de 9 PM
+                }
+                
+                // Si no está en ningún rango, retornar la hora original
+                return time;
+            }
+            
             function checkRestaurantAvailability() {
                 if (!availabilityContent || !availabilityDateInput) return;
                 
@@ -6073,9 +6325,24 @@
                 restaurants.forEach(restaurant => {
                     const restaurantReservations = reservationsForDate.filter(res => res.place === restaurant.name);
                     
-                    // Calcular disponibilidad por horario
-                    const timeSlots = restaurant.times.map(time => {
-                        const timeReservations = restaurantReservations.filter(res => res.time === time);
+                    // Calcular disponibilidad por horario/sitting
+                    const timeSlots = restaurant.times.map(sittingTime => {
+                        // Para restaurantes no-Hibachi, agrupar reservas por sitting
+                        // Para Hibachi, usar la hora exacta
+                        let timeReservations;
+                        if (restaurant.name === 'Hibachi') {
+                            // Hibachi: usar hora exacta
+                            timeReservations = restaurantReservations.filter(res => res.time === sittingTime);
+                        } else {
+                            // Otros restaurantes: agrupar por sitting
+                            // Las reservas entre 17:30-19:59 van al sitting de 18:00
+                            // Las reservas entre 20:00-22:00 van al sitting de 21:00
+                            timeReservations = restaurantReservations.filter(res => {
+                                const assignedSitting = getSittingForTime(res.time, restaurant.name);
+                                return assignedSitting === sittingTime;
+                            });
+                        }
+                        
                         const totalPax = timeReservations.reduce((sum, res) => sum + (parseInt(res.pax) || 0), 0);
                         const availablePax = Math.max(0, restaurant.capacity - totalPax);
                         const percentage = (totalPax / restaurant.capacity) * 100;
@@ -6088,7 +6355,7 @@
                         }
                         
                         return {
-                            time,
+                            time: sittingTime,
                             totalPax,
                             availablePax,
                             percentage,
@@ -6363,9 +6630,242 @@
                 });
             }
 
-            // Inicializar vista por defecto: mostrar VIP, ocultar Impression
+            // --- Funciones para Respaldo de Reservas ---
+            const backupTableBody = document.getElementById('backupTableBody');
+            const backupSearch = document.getElementById('backupSearch');
+            const backupDateFilter = document.getElementById('backupDateFilter');
+            const refreshBackupsBtn = document.getElementById('refreshBackupsBtn');
+            const noBackupsMessage = document.getElementById('noBackupsMessage');
+            
+            let allBackups = [];
+            let allOriginalReservations = new Set(); // Para verificación rápida
+            
+            // Función para cargar respaldos
+            async function loadBackups() {
+                if (!backupTableBody) return;
+                
+                try {
+                    backupTableBody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: var(--text-tertiary);">Cargando respaldos...</td></tr>';
+                    
+                    // Cargar todos los respaldos
+                    const backupRef = ref(database, 'reservationBackup');
+                    const backupSnapshot = await get(backupRef);
+                    
+                    allBackups = [];
+                    if (backupSnapshot.exists()) {
+                        const backupData = backupSnapshot.val();
+                        // Iterar por fechas
+                        for (const date in backupData) {
+                            const dateReservations = backupData[date];
+                            // Iterar por reservas de cada fecha
+                            for (const backupId in dateReservations) {
+                                const backup = dateReservations[backupId];
+                                allBackups.push({
+                                    id: backupId,
+                                    date: date,
+                                    ...backup
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Cargar todas las reservas originales para comparación
+                    const dailyReservationsRef = ref(database, 'dailyReservations');
+                    const dailySnapshot = await get(dailyReservationsRef);
+                    
+                    allOriginalReservations.clear();
+                    if (dailySnapshot.exists()) {
+                        const dailyData = dailySnapshot.val();
+                        // Crear set con claves únicas: fecha_id
+                        for (const date in dailyData) {
+                            const dateReservations = dailyData[date];
+                            for (const resId in dateReservations) {
+                                allOriginalReservations.add(`${date}_${resId}`);
+                            }
+                        }
+                    }
+                    
+                    renderBackups(allBackups);
+                } catch (error) {
+                    console.error("Error al cargar respaldos:", error);
+                    backupTableBody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: var(--danger-color);">Error al cargar respaldos. Por favor, intente de nuevo.</td></tr>';
+                }
+            }
+            
+            // Función para renderizar respaldos
+            function renderBackups(backupsToShow = allBackups) {
+                if (!backupTableBody || !noBackupsMessage) return;
+                
+                // Aplicar filtros
+                let filtered = [...backupsToShow];
+                
+                // Filtro de búsqueda
+                if (backupSearch && backupSearch.value.trim()) {
+                    const searchTerm = backupSearch.value.toLowerCase();
+                    filtered = filtered.filter(backup => {
+                        const room = String(backup.room || '').toLowerCase();
+                        const guest = (backup.guest || '').toLowerCase();
+                        const place = (backup.place || '').toLowerCase();
+                        const date = (backup.date || '').toLowerCase();
+                        return room.includes(searchTerm) || guest.includes(searchTerm) || 
+                               place.includes(searchTerm) || date.includes(searchTerm);
+                    });
+                }
+                
+                // Filtro de fecha
+                if (backupDateFilter && backupDateFilter.value) {
+                    filtered = filtered.filter(backup => backup.date === backupDateFilter.value);
+                }
+                
+                // Ordenar por fecha descendente (más recientes primero)
+                filtered.sort((a, b) => {
+                    const dateComp = b.date.localeCompare(a.date);
+                    if (dateComp !== 0) return dateComp;
+                    return (b.backupTimestamp || 0) - (a.backupTimestamp || 0);
+                });
+                
+                if (filtered.length === 0) {
+                    backupTableBody.innerHTML = '';
+                    noBackupsMessage.style.display = 'block';
+                    return;
+                }
+                
+                noBackupsMessage.style.display = 'none';
+                
+                // Verificar si cada respaldo tiene su original
+                const rows = filtered.map(backup => {
+                    const originalKey = `${backup.date}_${backup.originalId || backup.id}`;
+                    const hasOriginal = allOriginalReservations.has(originalKey);
+                    
+                    const backupDate = new Date(backup.backupTimestamp || backup.timestamp || 0);
+                    const backupDateFormatted = backupDate.toLocaleString('es-ES', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    // Estilo para filas sin original (rojo)
+                    const rowStyle = hasOriginal ? '' : 'background: #fee2e2; border-left: 4px solid #dc2626;';
+                    const statusBadge = hasOriginal 
+                        ? '<span style="background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">✓ Activa</span>'
+                        : '<span style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600;">⚠ Eliminada</span>';
+                    
+                    return `
+                        <tr style="${rowStyle}">
+                            <td>${statusBadge}</td>
+                            <td>${backup.date || '-'}</td>
+                            <td>${backup.room || '-'}</td>
+                            <td>${backup.guest || '-'}</td>
+                            <td>${backup.place || '-'}</td>
+                            <td>${convertTo12HourFormat(backup.time || '')}</td>
+                            <td style="font-weight: 700; color: #dc2626;">${backup.pax || 0}</td>
+                            <td>${backup.comment || '-'}</td>
+                            <td>${backup.validator || '-'}</td>
+                            <td style="font-size: 0.9em; color: var(--text-secondary);">${backupDateFormatted}</td>
+                            <td class="actions">
+                                ${!hasOriginal ? `
+                                    <button onclick="restoreBackup('${backup.id}', '${backup.date}')" 
+                                            class="btn btn-success" 
+                                            style="padding: 6px 12px; font-size: 0.85em;"
+                                            title="Restaurar esta reserva">
+                                        <span class="material-icons" style="font-size: 1em;">restore</span>
+                                        Restaurar
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                backupTableBody.innerHTML = rows;
+            }
+            
+            // Función para restaurar un respaldo
+            window.restoreBackup = async function(backupId, backupDate) {
+                if (!confirm('¿Está seguro de que desea restaurar esta reserva? Se creará una nueva reserva con los datos del respaldo.')) {
+                    return;
+                }
+                
+                try {
+                    // Obtener el respaldo
+                    const backupRef = ref(database, `reservationBackup/${backupDate}/${backupId}`);
+                    const backupSnapshot = await get(backupRef);
+                    
+                    if (!backupSnapshot.exists()) {
+                        alert('No se encontró el respaldo. Puede que ya haya sido eliminado.');
+                        return;
+                    }
+                    
+                    const backupData = backupSnapshot.val();
+                    
+                    // Preparar datos para restaurar (sin metadatos de respaldo)
+                    const restoredData = {
+                        room: backupData.room,
+                        guest: backupData.guest,
+                        place: backupData.place,
+                        time: backupData.time,
+                        pax: backupData.pax,
+                        comment: backupData.comment || '',
+                        validator: backupData.validator || 'Admin (Restaurado)',
+                        timestamp: new Date().getTime(),
+                        date: backupData.date || backupDate,
+                        restoredFromBackup: true,
+                        originalBackupId: backupId
+                    };
+                    
+                    // Guardar en dailyReservations
+                    const newReservationId = 'res_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const dailyReservationsRef = ref(database, `dailyReservations/${restoredData.date}/${newReservationId}`);
+                    await set(dailyReservationsRef, restoredData);
+                    
+                    // Registrar en log
+                    await logAction('add', 'VIP', {
+                        room: restoredData.room,
+                        guest: restoredData.guest,
+                        place: restoredData.place,
+                        date: restoredData.date,
+                        time: restoredData.time,
+                        pax: restoredData.pax,
+                        restoredFromBackup: true,
+                        originalBackupId: backupId
+                    }, 'Admin');
+                    
+                    alert('Reserva restaurada exitosamente!');
+                    
+                    // Recargar respaldos y reservas
+                    loadBackups();
+                    if (vipSection && vipSection.style.display !== 'none') {
+                        setupFirebaseListeners();
+                    }
+                } catch (error) {
+                    console.error("Error al restaurar respaldo:", error);
+                    alert('Error al restaurar la reserva. Por favor, intente de nuevo.');
+                }
+            };
+            
+            // Event listeners para respaldos
+            if (refreshBackupsBtn) {
+                refreshBackupsBtn.addEventListener('click', loadBackups);
+            }
+            
+            if (backupSearch) {
+                backupSearch.addEventListener('input', () => {
+                    renderBackups(allBackups);
+                });
+            }
+            
+            if (backupDateFilter) {
+                backupDateFilter.addEventListener('change', () => {
+                    renderBackups(allBackups);
+                });
+            }
+
+            // Inicializar vista por defecto: mostrar VIP, ocultar Impression y Respaldo
             if (vipSection) vipSection.style.display = 'block';
             if (impressionSection) impressionSection.style.display = 'none';
+            if (backupSection) backupSection.style.display = 'none';
             
             // Inicializar FAB con animación suave - siempre visible
             if (openAddReservationModalBtn) {
